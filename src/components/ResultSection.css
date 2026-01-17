@@ -1,0 +1,270 @@
+/* ResultSection.css - 极致融合版 */
+
+.result-section {
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.layout-container {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.info-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    color: #8B1E1E;
+}
+
+.info-title {
+    font-family: var(--font-serif);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+}
+
+.info-keyword {
+    font-family: "Noto Serif SC", serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 10px 0;
+}
+
+.info-attitude {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    font-style: italic;
+    color: #C5A065;
+    /* 金色 */
+}
+
+/* === 海报卡片 === */
+.poster-card {
+    width: 375px;
+    height: 500px;
+    /* 3:4 比例 (375 / 3 * 4 = 500) */
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.25);
+    background: #000;
+    /* 默认黑底，防闪烁 */
+}
+
+/* === 图像层 - 放在最底层，但要处理亮度以适应白字 === */
+.poster-image-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.fusion-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* 稍微压暗一点点，保证白色文字在任何背景下都可见，这是杂志惯用手法 */
+    filter: brightness(0.9);
+}
+
+.placeholder-image {
+    width: 100%;
+    height: 100%;
+    background: #333;
+    color: #666;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* === Header - 浮在图片上，无背景，靠投影 === */
+.poster-header-row {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 24px 20px;
+    z-index: 20;
+    /* 在水印之上 */
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+/* 文字通用阴影：保证在浅色图片上也能看清 */
+.text-shadow-effect {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.header-left,
+.header-right {
+    flex: 1;
+    font-family: var(--font-serif);
+    color: #fff;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    padding-top: 10px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    /* 细微投影 */
+}
+
+.header-right {
+    text-align: right;
+}
+
+.header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.logo-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.logo-since {
+    color: #fff;
+    font-size: 0.5rem;
+    letter-spacing: 0.15em;
+    margin-bottom: 4px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.main-logo {
+    height: 50px;
+    /* 大气 */
+    width: auto;
+    /* 核心：黑底白字图 + Screen = 透明白字 */
+    mix-blend-mode: screen;
+    filter: contrast(1.2) brightness(1.2);
+    opacity: 0.95;
+}
+
+.logo-cn {
+    color: #fff;
+    font-family: "Noto Serif SC", serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.4em;
+    margin-top: 4px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* === 水印 - 沉在底部，极淡 === */
+.background-watermark {
+    position: absolute;
+    top: 15%;
+    left: 0;
+    width: 100%;
+    z-index: 2;
+    /* 在图片之上，但在文字之下 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    /* 叠加模式，让文字融入图片纹理 */
+    opacity: 0.3;
+    /* 极淡 */
+}
+
+.watermark-line {
+    font-family: var(--font-display);
+    font-size: 7.5rem;
+    font-weight: 700;
+    line-height: 0.8;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.watermark-line.indent {
+    margin-left: 60px;
+}
+
+.watermark-line.smaller {
+    font-size: 3rem;
+    margin-top: 20px;
+    letter-spacing: 0.2em;
+}
+
+
+/* === Footer - 浮在图片上，无背景 === */
+.poster-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 30px 20px;
+    z-index: 20;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.footer-left {
+    max-width: 50%;
+}
+
+.footer-label {
+    font-size: 0.7rem;
+    font-family: var(--font-serif);
+    margin-bottom: 6px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.footer-keyword {
+    font-family: "Noto Serif SC", serif;
+    font-size: 1.8rem;
+    font-weight: 500;
+    line-height: 1.1;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.footer-right {
+    width: 45%;
+}
+
+.calendar-grid {
+    font-family: 'Helvetica Neue', sans-serif;
+    font-size: 0.55rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+.calendar-week-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-weight: 700;
+    opacity: 0.8;
+}
+
+.calendar-week-row span {
+    width: 14%;
+}
+
+.calendar-days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    row-gap: 4px;
+}
+
+/* 按钮 */
+.action-buttons {
+    margin-top: 30px;
+    display: flex;
+    gap: 20px;
+}

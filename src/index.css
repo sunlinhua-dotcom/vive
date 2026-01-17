@@ -1,0 +1,216 @@
+/* VIVE 双妹 AI月份牌 - 全局样式 */
+
+:root {
+  /* 品牌色彩 - 复古奢华 */
+  --vive-red: #8B0000;
+  --vive-deep-red: #5C0000;
+  --vive-gold: #D4AF37;
+  --vive-gold-light: #E8C547;
+  --vive-cream: #F5E6D3;
+  --vive-ivory: #FFFEF5;
+  --vive-black: #1A1A1A;
+  --vive-charcoal: #2D2D2D;
+  
+  /* 渐变 */
+  --gradient-luxury: linear-gradient(135deg, var(--vive-red) 0%, var(--vive-deep-red) 100%);
+  --gradient-gold: linear-gradient(135deg, var(--vive-gold) 0%, var(--vive-gold-light) 100%);
+  --gradient-dark: linear-gradient(180deg, var(--vive-black) 0%, var(--vive-charcoal) 100%);
+  
+  /* 字体 */
+  --font-serif: 'Noto Serif SC', 'Playfair Display', 'STSong', serif;
+  --font-display: 'Playfair Display', 'Noto Serif SC', serif;
+  
+  /* 间距 */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+  
+  /* 圆角 */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  
+  /* 阴影 */
+  --shadow-elegant: 0 4px 20px rgba(139, 0, 0, 0.15);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-hover: 0 12px 40px rgba(139, 0, 0, 0.2);
+  
+  /* 动画 */
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-serif);
+  background: var(--vive-cream);
+  color: var(--vive-black);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--vive-cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--vive-red);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vive-deep-red);
+}
+
+/* 文字选择样式 */
+::selection {
+  background: var(--vive-gold);
+  color: var(--vive-black);
+}
+
+/* 全局链接样式 */
+a {
+  color: var(--vive-red);
+  text-decoration: none;
+  transition: var(--transition-smooth);
+}
+
+a:hover {
+  color: var(--vive-gold);
+}
+
+/* 按钮基础样式 */
+button {
+  font-family: var(--font-serif);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: var(--transition-smooth);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 输入框基础样式 */
+input, textarea {
+  font-family: var(--font-serif);
+  border: none;
+  outline: none;
+}
+
+/* 图片响应式 */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 动画关键帧 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 工具类 */
+.fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.slide-up {
+  animation: slideUp 0.8s ease-out forwards;
+}
+
+/* 响应式媒体查询 */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 13px;
+  }
+}
