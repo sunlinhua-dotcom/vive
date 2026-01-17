@@ -1,0 +1,136 @@
+import axios from 'axios';
+import { compressImage } from '../utils/imageUtils';
+
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const BASE_URL = import.meta.env.VITE_GEMINI_BASE_URL;
+
+const apiClient = axios.create({
+    baseURL: BASE_URL,
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`
+    },
+    timeout: 60000 // 60秒超时
+});
+
+/**
+ * 步骤 1: 分析用户图片并生成文案
+ */
+export const analyzeImageAndGenerateCopy = async (imageBase64) => {
+    try {
+        // 1. 压缩图片，防止请求过大
+        const compressedImage = await compressImage(imageBase64, 512);
+        const base64Data = compressedImage.split(',')[1];
+
+        const prompt = `
+      你是一个精通上海滩复古时尚与现代美学的时尚主编。请仔细分析这张用户的自拍照。
+      请完成以下任务，并以JSON格式返回：
+      1. 'features': 详细描述用户的面部特征（性别、发型、大致年龄感、表情、配饰等），用于生成AI画像，用英文描述。
+      2. 'keyword': 为用户生成一个"摩登关键词"，格式为"#XXXX"（例如 #明媚的玫瑰, #传奇的摩登），要有VIVE双妹的品牌调性。
+      3. 'attitude': 用一句简短的话总结用户的"摩登态度"，要在15个字以内。
+      4. 'loading_text': 生成一句优美的、带有时间穿越感的等待文案（例如："正在为您翻阅百年前的上海滩画报..."）。
+      
+      请直接返回JSON对象。
+    `;
+
+        console.log("正在调用 Gemini Flash 分析图片...");
+        const response = await apiClient.post('/chat/completions', {
+            model: "gemini-3-flash-preview",
+            messages: [
+                {
+                    role: "user",
+                    content: [
+                        { type: "text", text: prompt },
+                        {
+                            type: "image_url",
+                            image_url: {
+                                url: `data:image/jpeg;base64,${base64Data}`
+                            }
+                        }
+                    ]
+                }
+            ],
+            response_format: { type: "json_object" }
+        });
+
+        try {
+            // 尝试解析JSON，有时候API会返回 ```json ... ``` 格式
+            let content = response.data.choices[0].message.content;
+            content = content.replace(/```json/g, '').replace(/```/g, '').trim();
+            return JSON.parse(content);
+        } catch (e) {
+            console.error("JSON Parse Error:", e);
+            // 降级数据
+            return {
+                features: "Asian woman, elegant, vintage style",
+                keyword: "#传奇的摩登",
+                attitude: "优雅是永不过时的经典",
+                loading_text: "正在为您回溯百年前的摩登时光..."
+            };
+        }
+
+    } catch (error) {
+        console.error("Gemini Analysis API Error:", error);
+        // 依然返回可用数据，不阻断流程
+        return {
+            features: "Asian woman, elegant",
+            keyword: "#明媚的玫瑰",
+            attitude: "美是跨越时光的语言",
+            loading_text: "网络拥堵，正在全力加载中..."
+        };
+    }
+};
+
+/**
+ * 步骤 2: 生成图片
+ */
+export const generateFashionImages = async (features) => {
+    // 定义 Mock 数据作为兜底
+    const fallbackImages = {
+        classicImage: null, // 前端会显示"生成失败"
+        modernImage: null
+    };
+
+    try {
+        const classicPrompt = `High quality, masterpiece. A vintage 1930s Shanghai calendar poster style portrait of ${features}. Wearing an elegant traditional Qipao. Art deco background, warm lighting, paper texture. VIVE brand aesthetic.`;
+
+        const modernPrompt = `High quality, masterpiece. A modern 2026 fashion magazine cover photo of ${features}. Modern minimalist fashion. Confident, chic, vibrant lighting. VIVE brand aesthetic.`;
+
+        // 封装单个生成请求，增加单独的 try-catch
+        const generateOne = async (prompt) => {
+            try {
+                console.log("正在调用 Image API...");
+                const res = await apiClient.post('/images/generations', {
+                    model: "gemini-3-pro-image-preview",
+                    prompt: prompt,
+                    n: 1,
+                    size: "1024x1024",
+                    response_format: "b64_json"
+                });
+
+                if (res.data && res.data.data && res.data.data[0].b64_json) {
+                    return "data:image/png;base64," + res.data.data[0].b64_json;
+                }
+                return null;
+            } catch (err) {
+                console.warn("单个图片生成失败:", err.message);
+                return null;
+            }
+        };
+
+        // 并发执行，允许部分成功
+        const [classic, modern] = await Promise.all([
+            generateOne(classicPrompt),
+            generateOne(modernPrompt)
+        ]);
+
+        return {
+            classicImage: classic || fallbackImages.classicImage,
+            modernImage: modern || fallbackImages.modernImage
+        };
+
+    } catch (error) {
+        console.error("Global Image Gen Error:", error);
+        return fallbackImages;
+    }
+};

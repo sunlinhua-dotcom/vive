@@ -1,0 +1,90 @@
+.header {
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: transparent;
+    position: relative;
+    z-index: 10;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brand-logo {
+    height: 60px;
+    /* 根据实际Logo比例调整 */
+    width: auto;
+    display: block;
+    /* 关键：让白色/浅色背景变透明，只保留深色/金色文字 */
+    mix-blend-mode: multiply;
+    /* 如果Logo本身对比度不够，可以加一点滤镜 */
+    filter: contrast(1.1);
+}
+
+.brand-since {
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--vive-red);
+    text-transform: uppercase;
+}
+
+.brand-name {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--vive-red);
+    letter-spacing: 0.1em;
+    line-height: 1;
+    margin: 0;
+}
+
+.brand-chinese {
+    font-family: var(--font-serif);
+    font-size: 0.9rem;
+    color: var(--vive-red);
+    letter-spacing: 0.3em;
+}
+
+.header-tagline {
+    text-align: right;
+}
+
+.tagline-text {
+    font-family: var(--font-serif);
+    font-size: 0.85rem;
+    color: var(--vive-red);
+    letter-spacing: 0.1em;
+}
+
+@media (max-width: 480px) {
+    .header {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .brand-name {
+        font-size: 1.5rem;
+    }
+
+    .brand-chinese {
+        font-size: 0.75rem;
+    }
+
+    .tagline-text {
+        font-size: 0.7rem;
+    }
+
+    .brand-logo {
+        height: 48px;
+    }
+}
