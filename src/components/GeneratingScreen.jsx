@@ -42,7 +42,16 @@ function GeneratingScreen({ uploadedImage, loadingText }) {
 
                 {/* 图片扫描特效 */}
                 <div className="image-scanner">
-                    <img src={uploadedImage} alt="User" className="source-image" />
+                    <img
+                        src={uploadedImage}
+                        alt="User"
+                        className="source-image"
+                        style={{ objectFit: 'cover' }}
+                        onError={(e) => {
+                            e.target.onerror = null; // 防止死循环
+                            e.target.src = '/vive-logo-dark.jpg'; // 兜底 Logo
+                        }}
+                    />
                     <div className="scan-line"></div>
                     <div className="scan-overlay"></div>
                 </div>
