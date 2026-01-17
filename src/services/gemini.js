@@ -88,42 +88,48 @@ export const generateFashionImages = async (features, imageBase64) => {
         return { fusionImage: null, errors: { global: "API Key 缺失。请在 Zeabur/Vercel 环境变量中配置 VITE_GEMINI_API_KEY。" } };
     }
 
-    // --- VIVE 摩登衣橱系统 (随机抽取，拒绝千篇一律) ---
-    const styles = [
-        {
-            name: "Classic",
-            vintage: "Rich Crimson Red Velvet Qipao with golden dragon embroidery",
-            modern: "Sharp Black Yves Saint Laurent style Le Smoking suit"
-        },
-        {
-            name: "Ethereal",
-            vintage: "Champagne Gold Silk Qipao with pearl accents",
-            modern: "Minimalist White Architectural Structure Dress"
-        },
-        {
-            name: "Mysterious",
-            vintage: "Deep Emerald Green Satin Qipao",
-            modern: "Futuristic Silver Metallic Avant-Garde Outfit"
-        },
-        {
-            name: "Bold",
-            vintage: "Black Lace Qipao with silver thread",
-            modern: "Bold Burgundy Red High-Fashion Power Suit"
-        },
-        {
-            name: "Elegant",
-            vintage: "Sapphire Blue Velvet Qipao",
-            modern: "Pearl White Silk Slip Dress with Oversized Blazer"
-        },
-        {
-            name: "Romantic",
-            vintage: "Dusty Pink Silk Qipao with floral patterns",
-            modern: "Cream colored oversized suit with corset"
-        }
+    // --- VIVE 摩登衣橱混搭引擎 (无限组合) ---
+    // 材质库 (注重质感、重工)
+    const fabrics = ["Rich Velvet", "Heavy Silk Satin", "Structured Wool Tweed", "French Lace", "Brocade with Gold Thread", "Matte Leather", "Sequined Fabric"];
+    // 颜色库 (VIVE 品牌色系 & 高级灰调，拒绝荧光/银色)
+    const colors = ["Deep Crimson Red", "Jet Black", "Champagne Gold", "Dark Emerald Green", "Navy Blue", "Pearl White", "Burgundy", "Chocolate Brown"];
+
+    // Vintage 款式库 (1930s Shanghai)
+    const vintageStyles = [
+        "Cheongsam with high mandarin collar and cap sleeves",
+        "Sleeveless Qipao with floor-length hem",
+        "Qipao paired with a faux fur shawl",
+        "Qipao with intricate peony embroidery",
+        "Art Deco style dress with geometric patterns"
     ];
-    // 随机选一套
-    const selectedStyle = styles[Math.floor(Math.random() * styles.length)];
-    console.log(`[Fusion] Selected Style: ${selectedStyle.name}`);
+
+    // Modern 款式库 (2026 High Fashion - Heavy/Bold Style)
+    // 拒绝 futuristic，强调剪裁和力量感
+    const modernStyles = [
+        "Oversized Sharp Blazer with wide-leg trousers (Power Suit)",
+        "Structured Asymmetrical Dress with architectural details",
+        "Old Money Aesthetic Tweed Set",
+        "Minimalist Slip Dress combined with a heavy wool coat",
+        "High-waisted tailored pants with a corset top",
+        "All-black Tuxedo style suit for women (Le Smoking)"
+    ];
+
+    // 随机抽取函数
+    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+    const color1 = pick(colors);
+    const fabric1 = pick(fabrics);
+    const vintageItem = pick(vintageStyles);
+
+    // 现代装颜色尽量与复古装呼应或对比
+    const color2 = Math.random() > 0.5 ? color1 : pick(colors);
+    const fabric2 = pick(fabrics);
+    const modernItem = pick(modernStyles);
+
+    const generatedVintage = `${color1} ${fabric1} ${vintageItem}`;
+    const generatedModern = `${color2} ${fabric2} ${modernItem}`;
+
+    console.log(`[Fusion] Style: ${generatedVintage} | ${generatedModern}`);
 
     // 核心 Prompt
     const fusionPrompt = `
@@ -141,13 +147,14 @@ export const generateFashionImages = async (features, imageBase64) => {
       - Two women posing together intimately (back-to-back, or holding hands).
       - Natural interaction, cinematic lighting.
       
-      OUTFITS (Style: ${selectedStyle.name}):
-      - Woman 1 (Vintage 1930s): ${selectedStyle.vintage}, finger waves hairstyle.
-      - Woman 2 (Modern 2026): ${selectedStyle.modern}, sleek wet-look hair or bob.
+      OUTFITS (High Fashion & Heavy Texture):
+      - Woman 1 (Vintage 1930s): ${generatedVintage}, 1930s finger waves hair.
+      - Woman 2 (Modern 2026): ${generatedModern}, sleek modern hair.
       
       STYLE:
+      - **Heaviness & Quality**: Use textures like Velvet, Wool, and Satin. AVOID plastic, neon, or futuristic silver metal.
       - Magazine Cover Aesthetic.
-      - VIVE Brand Colors (Red, Gold, Black, White) blended naturally.
+      - VIVE Brand Atmosphere (Luxury, Timeless, Shanghai).
       - Masterpiece, 8k resolution, photorealistic skin texture.
       - NO TEXT in background.
     `;
