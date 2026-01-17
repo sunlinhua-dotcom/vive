@@ -81,15 +81,7 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             ctx.fillRect(0, 0, targetWidth, 300);
 
 
-            // --- C. 绘制水印 (MODERN VIVE) ---
-            ctx.save();
-            ctx.globalCompositeOperation = 'overlay';
-            ctx.globalAlpha = 0.15;
-            ctx.fillStyle = '#FFFFFF';
-            ctx.font = `bold ${targetWidth * 0.25}px "Playfair Display", serif`;
-            ctx.fillText("MOD", -20, targetHeight * 0.4);
-            ctx.fillText("ERN", targetWidth * 0.1, targetHeight * 0.4 + targetWidth * 0.18);
-            ctx.restore();
+            // [已移除] 水印 "MODERN VIVE" 以免遮挡人脸
 
             // --- D. 绘制顶部 Logo ---
             // 加载 Logo
@@ -100,10 +92,11 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             await new Promise(r => { logoImg.onload = r; logoImg.onerror = r; });
 
             if (logoImg.width > 0) {
-                const logoW = targetWidth * 0.35;
+                // 放大 Logo：从 0.35 -> 0.55 (占据一半以上宽度)
+                const logoW = targetWidth * 0.55;
                 const logoH = (logoImg.height / logoImg.width) * logoW;
                 const logoX = (targetWidth - logoW) / 2;
-                const logoY = 80; // 固定顶部位置
+                const logoY = 30; // 绝对顶部
 
                 // 投影
                 ctx.shadowColor = "rgba(0,0,0,0.8)";
@@ -112,13 +105,7 @@ export const composeFinalImage = async (baseImageUrl, data) => {
 
                 ctx.drawImage(logoImg, logoX, logoY, logoW, logoH);
 
-                // SINCE 1898
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#FFFFFF';
-                ctx.font = `${targetWidth * 0.018}px "Noto Serif SC", serif`;
-                ctx.letterSpacing = '3px';
-                ctx.shadowBlur = 5;
-                ctx.fillText("SINCE 1898", targetWidth / 2, logoY - 15);
+                // [已移除] "SINCE 1898" (Logo自带)
             }
 
             // --- E. 绘制顶部日期 ---

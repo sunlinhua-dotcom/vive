@@ -30,7 +30,8 @@ function App() {
 
       // 2. 调用 Gemini Image 生成图片
       // 注意：这里需要一定时间，期间 GeneratingScreen 会显示 scan 动画
-      const images = await generateFashionImages(analysis.features)
+      // 传入 imageDataUrl 实现 Reference Image Control
+      const images = await generateFashionImages(analysis.features, imageDataUrl)
 
       // 3. 智能合成：将 Logo、文案、底图烧录成一张图
       // 这样用户拿到的就是一张完整的 JPG，包含所有设计元素
