@@ -84,6 +84,10 @@ export const generateFashionImages = async (features, imageBase64) => {
     const compressedImage = await compressImage(imageBase64, 1024);
     const base64Data = compressedImage.split(',')[1];
 
+    if (!API_KEY) {
+        return { fusionImage: null, errors: { global: "API Key 缺失。请在 Zeabur/Vercel 环境变量中配置 VITE_GEMINI_API_KEY。" } };
+    }
+
     // 核心 Prompt：双人同框，前世今生，强调自然互动 + 人脸相似度
     const fusionPrompt = `
       Generate a high-fashion magazine cover image featuring TWO women.
