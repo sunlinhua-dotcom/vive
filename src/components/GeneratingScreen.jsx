@@ -60,10 +60,15 @@ function GeneratingScreen({ uploadedImage, loadingText }) {
 
                     <div className="progress-percentage">{Math.floor(progress)}%</div>
 
-                    {/* 超时安抚：如果超过 60% (约1分钟)，显示提示 */}
+                    {/* 常驻提示：管理用户预期 */}
+                    <div className="wait-warning fade-in" style={{ marginTop: '20px', color: '#c5a065', fontSize: '0.9rem', maxWidth: '80%' }}>
+                        为呈现极致的 8K 级光影细节，<br />本次生成可能需要 <b>3～5 分钟</b>，请勿关闭页面。
+                    </div>
+
+                    {/* 超时安抚：如果超过 60% (约1分钟)，显示额外提示 */}
                     {progress > 60 && (
                         <div className="slow-notice fade-in">
-                            AI 正在精细绘制双人细节，请多给我一点时间...
+                            AI 正在精细绘制您的面部微表情...
                         </div>
                     )}
                 </div>
