@@ -10,6 +10,50 @@
     justify-content: center;
 }
 
+/* === 移动端适配 (iPhone) === */
+@media (max-width: 768px) {
+    .result-section {
+        padding: 20px 0;
+        /* 减少内边距 */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 100vh;
+        overflow-y: auto;
+    }
+
+    .layout-container {
+        flex-direction: column;
+        gap: 20px;
+        margin-top: 10px;
+        width: 100%;
+        align-items: center;
+        /* 强制子元素居中 */
+    }
+
+    /* 手机上彻底隐藏左侧信息栏 */
+    .info-panel {
+        display: none !important;
+    }
+
+    /* 海报卡片适配 */
+    .poster-card {
+        width: 90vw !important;
+        /* 宽度占屏幕 90% */
+        height: auto !important;
+        /* 高度自动 */
+        aspect-ratio: 3/4;
+        /* 强制锁定 3:4 比例 */
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        /* 更强的阴影 */
+        border-radius: 4px;
+        /* 轻微圆角 */
+        margin: 0 auto;
+        /* 居中 */
+    }
+}
+
 /* 布局容器 */
 .layout-container {
     display: flex;
