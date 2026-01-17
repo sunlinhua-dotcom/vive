@@ -92,33 +92,36 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             await new Promise(r => { logoImg.onload = r; logoImg.onerror = r; });
 
             if (logoImg.width > 0) {
-                // 放大 Logo：从 0.35 -> 0.55 (占据一半以上宽度)
-                const logoW = targetWidth * 0.55;
+                // 复刻参考图：Logo 居中，两侧放日期
+                // Logo 宽度调回 40%，给左右文字留空间
+                const logoW = targetWidth * 0.40;
                 const logoH = (logoImg.height / logoImg.width) * logoW;
                 const logoX = (targetWidth - logoW) / 2;
-                const logoY = 30; // 绝对顶部
+                const logoY = 60; // 顶部留白，不贴顶，保持呼吸感
 
-                // 投影
+                // 1. 绘制 Logo (中间)
                 ctx.shadowColor = "rgba(0,0,0,0.8)";
                 ctx.shadowBlur = 15;
                 ctx.shadowOffsetY = 5;
-
                 ctx.drawImage(logoImg, logoX, logoY, logoW, logoH);
 
-                // [已移除] "SINCE 1898" (Logo自带)
+                // 计算 Logo 中心线 Y 坐标，用于对齐文字
+                const centerY = logoY + logoH / 2;
+
+                // 2. 绘制左侧日期 (MARCH 2026) -> 垂直居中于 Logo
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#FFFFFF';
+                ctx.textBaseline = 'middle'; // 垂直居中
+                // 字体参考图中是全大写 serif
+                ctx.font = `${targetWidth * 0.035}px "Playfair Display", serif`;
+                ctx.shadowBlur = 8;
+                ctx.fillText(`${month} ${year}`, 50, centerY);
+
+                // 3. 绘制右侧农历 -> 垂直居中于 Logo
+                ctx.textAlign = 'right';
+                ctx.font = `${targetWidth * 0.025}px "Noto Serif SC", serif`;
+                ctx.fillText("农历丙午年 虎月", targetWidth - 50, centerY);
             }
-
-            // --- E. 绘制顶部日期 ---
-            ctx.textAlign = 'left';
-            ctx.fillStyle = '#FFFFFF';
-            ctx.font = `${targetWidth * 0.03}px "Playfair Display", serif`;
-            ctx.shadowColor = "rgba(0,0,0,0.8)";
-            ctx.shadowBlur = 8;
-            ctx.fillText(`${month} ${year}`, 50, 100);
-
-            ctx.textAlign = 'right';
-            ctx.font = `${targetWidth * 0.025}px "Noto Serif SC", serif`;
-            ctx.fillText("农历丙午年 虎月", targetWidth - 50, 100);
 
             // --- F. 绘制底部内容 (左侧) ---
             const footerY = targetHeight - 60;
