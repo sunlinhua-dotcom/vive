@@ -88,36 +88,68 @@ export const generateFashionImages = async (features, imageBase64) => {
         return { fusionImage: null, errors: { global: "API Key 缺失。请在 Zeabur/Vercel 环境变量中配置 VITE_GEMINI_API_KEY。" } };
     }
 
-    // 核心 Prompt：双人同框，前世今生，强调自然互动 + 人脸相似度
+    // --- VIVE 摩登衣橱系统 (随机抽取，拒绝千篇一律) ---
+    const styles = [
+        {
+            name: "Classic",
+            vintage: "Rich Crimson Red Velvet Qipao with golden dragon embroidery",
+            modern: "Sharp Black Yves Saint Laurent style Le Smoking suit"
+        },
+        {
+            name: "Ethereal",
+            vintage: "Champagne Gold Silk Qipao with pearl accents",
+            modern: "Minimalist White Architectural Structure Dress"
+        },
+        {
+            name: "Mysterious",
+            vintage: "Deep Emerald Green Satin Qipao",
+            modern: "Futuristic Silver Metallic Avant-Garde Outfit"
+        },
+        {
+            name: "Bold",
+            vintage: "Black Lace Qipao with silver thread",
+            modern: "Bold Burgundy Red High-Fashion Power Suit"
+        },
+        {
+            name: "Elegant",
+            vintage: "Sapphire Blue Velvet Qipao",
+            modern: "Pearl White Silk Slip Dress with Oversized Blazer"
+        },
+        {
+            name: "Romantic",
+            vintage: "Dusty Pink Silk Qipao with floral patterns",
+            modern: "Cream colored oversized suit with corset"
+        }
+    ];
+    // 随机选一套
+    const selectedStyle = styles[Math.floor(Math.random() * styles.length)];
+    console.log(`[Fusion] Selected Style: ${selectedStyle.name}`);
+
+    // 核心 Prompt
     const fusionPrompt = `
       Generate a high-fashion magazine cover image featuring TWO women.
       
       **STRICT REFERENCE CONTROL**: 
       - The provided image MUST be used as the **STRUCTURAL BLUEPRINT** and **FACE REFERENCE**.
       - **Face Identity**: The generated women MUST look like the person in the uploaded image. Use the exact eye shape, nose structure, and lip shape described here: [${features}].
-      - **ControlNet-like Fidelity**: Maintain the user's facial proportions and distinguishing features strictly.
-      
-      **CORE IDENTITY**: Both women represent the SAME PERSON (the user) in two different eras.
+      - **Make them look like the SAME PERSON in two different eras.**
       
       Concept: "Double Life / Timeless Encounter".
       Aspect Ratio: 3:4 (Portrait).
       
-      COMPOSITION & POSE (Crucial):
-      - Two women posing together intimately and naturally, NOT a split screen. 
-      - They should look like twins or sisters (Past self and Present self).
-      - **Pose**: Leaning against each other back-to-back, OR standing shoulder-to-shoulder holding hands, OR one resting head on the other's shoulder. 
-      - The interaction must feel organic and emotional.
-      - Face forward to camera, clear facial details.
+      COMPOSITION & POSE:
+      - Two women posing together intimately (back-to-back, or holding hands).
+      - Natural interaction, cinematic lighting.
       
-      OUTFITS:
-      - Woman 1 (Vintage): 1930s Shanghai Cheongsam (Qipao), finger waves hairstyle, fitting the user's face.
-      - Woman 2 (Modern): 2026 modern luxury minimalist fashion, sleek hair, fitting the user's face.
+      OUTFITS (Style: ${selectedStyle.name}):
+      - Woman 1 (Vintage 1930s): ${selectedStyle.vintage}, finger waves hairstyle.
+      - Woman 2 (Modern 2026): ${selectedStyle.modern}, sleek wet-look hair or bob.
       
       STYLE:
-      - Cinematic lighting that blends the vintage and modern atmospheres seamlessly.
-      - VIVE brand aesthetic (Red, Gold, Black).
-      - Masterpiece, 8k resolution, photorealistic face, highly detailed skin texture.
-      - **CRITICAL**: Pure photography ONLY. NO TEXT, NO LOGO, NO WATERMARK, NO TYPOGRAPHY in the background or foreground. Keep the image clean.
+      - Magazine Cover Aesthetic.
+      - VIVE Brand Colors (Red, Gold, Black, White) blended naturally.
+      - Masterpiece, 8k resolution, photorealistic skin texture.
+      - NO TEXT in background.
     `;
 
     try {
