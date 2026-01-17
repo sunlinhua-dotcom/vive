@@ -82,7 +82,11 @@ function ResultSection({ results, onReset }) {
                                     ) : (
                                         <div className="placeholder-image">
                                             <div>生成失败</div>
-                                            {errors?.global && <div className="error-debug">{errors.global}</div>}
+                                            {errors?.global && (
+                                                <div className="error-debug">
+                                                    {typeof errors.global === 'string' ? errors.global.replace(/^"|"$/g, '') : JSON.stringify(errors.global)}
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
