@@ -84,9 +84,11 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             // [已移除] 水印 "MODERN VIVE" 以免遮挡人脸
 
             // --- D. 绘制顶部 Logo ---
-            // 加载 Logo
-            const logoSrc = `/logo-${logoColor}.png`;
+            // 加载 Logo (强制转小写)
+            const safeColor = (logoColor || 'white').toLowerCase();
+            const logoSrc = `/logo-${safeColor}.png`;
             const logoImg = new Image();
+            logoImg.crossOrigin = "Anonymous";
             logoImg.src = logoSrc;
 
             await new Promise(r => { logoImg.onload = r; logoImg.onerror = r; });

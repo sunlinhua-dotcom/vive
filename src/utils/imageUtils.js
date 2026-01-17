@@ -1,28 +1,37 @@
 // 图片压缩工具
-export const compressImage = (base64Str, maxWidth = 800) => {
+export const compressImage = (base64Str, maxWidth = 600) => {
     return new Promise((resolve) => {
-        let img = new Image();
+        const img = new Image();
         img.src = base64Str;
         img.onload = () => {
-            let canvas = document.createElement('canvas');
             let width = img.width;
             let height = img.height;
 
-            if (width > maxWidth) {
-                height = Math.round((height * maxWidth) / width);
-                width = maxWidth;
+            // 强制限制最大宽/高为 600px，防止 502 Bad Gateway
+            if (width > height) {
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+            } else {
+                if (height > maxWidth) {
+                    width = Math.round((width * maxWidth) / height);
+                    height = maxWidth;
+                }
             }
 
+            const canvas = document.createElement('canvas');
             canvas.width = width;
             canvas.height = height;
-            let ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
 
-            // 压缩质量 0.7
-            resolve(canvas.toDataURL('image/jpeg', 0.7));
+            // 0.5 质量，确保 Base64 字符串足够短
+            resolve(canvas.toDataURL('image/jpeg', 0.5));
         };
         img.onerror = () => {
-            resolve(base64Str); // 如果压缩失败，返回原图
+            // 极端兜底
+            resolve(base64Str);
         };
     });
 };
