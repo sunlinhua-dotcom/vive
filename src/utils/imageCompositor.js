@@ -84,30 +84,39 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             // [已移除] 水印 "MODERN VIVE" 以免遮挡人脸
 
             // --- D. 绘制顶部 Logo ---
-            // 加载 Logo (强制转小写)
-            const safeColor = (logoColor || 'white').toLowerCase();
-            const logoSrc = `/logo-${safeColor}.png`;
+            // 动态导入处理工具
+            const { processLogo } = await import('./logoProcessor');
+
+            // 强制将 Logo 处理为透明底 + 纯白色 (适合深色海报)
+            // 无论原图是什么颜色，这里强转白色
+            const processedLogoUrl = await processLogo('/vive-logo-light.jpg', {
+                threshold: 230,
+                targetColor: 'white' // 强转白色
+            });
+
             const logoImg = new Image();
-            logoImg.crossOrigin = "Anonymous";
-            logoImg.src = logoSrc;
+            logoImg.crossOrigin = "Anonymous"; // Ensure cross-origin is set for processed image if it's a data URL or from a different origin
+            logoImg.src = processedLogoUrl;
 
             await new Promise(r => { logoImg.onload = r; logoImg.onerror = r; });
 
             if (logoImg.width > 0) {
-                // 复刻参考图：Logo 居中，两侧放日期
-                // Logo 宽度调回 40%，给左右文字留空间
                 // 5. 绘制 Logo (上方居中)
-                // 使用 multiply 混合模式去除白底
+                // 不需要混合模式了，已经是透明白字
                 ctx.save();
-                ctx.globalCompositeOperation = 'multiply';
+                // ctx.globalCompositeOperation = 'multiply'; // 不需要了
 
                 const logoWidth = canvas.width * 0.25; // 宽度占 25%
                 const logoHeight = logoImg.height * (logoWidth / logoImg.width);
                 const logoX = (canvas.width - logoWidth) / 2;
                 const logoY = 60; // 距离顶部 60px
 
+                // 加一点阴影让白色Logo更清晰
+                ctx.shadowColor = "rgba(0,0,0,0.5)";
+                ctx.shadowBlur = 10;
+
                 ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
-                ctx.restore(); // 恢复正常混合模式
+                ctx.restore();
 
                 // 1. 绘制 Logo (中间)
                 ctx.shadowColor = "rgba(0,0,0,0.8)";

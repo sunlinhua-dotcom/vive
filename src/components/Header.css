@@ -26,16 +26,7 @@
     height: 70px;
     width: auto;
     display: block;
-    /* 强制正片叠底，让白底变透明 */
-    mix-blend-mode: color-burn;
-    opacity: 0.9;
-    /* 如果 color-burn 太强，可以回退到 multiply */
-}
-
-@supports not (mix-blend-mode: color-burn) {
-    .brand-logo {
-        mix-blend-mode: multiply;
-    }
+    /* 已通过 JS 去除白底，无需混合模式 */
 }
 
 .header-tagline {
