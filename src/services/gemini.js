@@ -7,17 +7,20 @@ const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 axios.defaults.timeout = 180000; // 3分钟超时
 const BASE_URL = import.meta.env.VITE_GEMINI_BASE_URL;
 
+// 创建一个用于 OpenAI 兼容接口的 axios 实例 (主要用于 Chat/分析)
 const apiClient = axios.create({
     baseURL: BASE_URL,
     headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${API_KEY}`
     },
-    timeout: 0 // 移除超时限制，完全等待服务端响应
+    timeout: 0 // 移除超时限制
 });
 
 /**
  * 步骤 1: 分析用户图片并生成文案
+ * 注意：切换到 Google 官方 API 后，模型名称必须使用官方标准名。
+ * 推荐使用 gemini-1.5-flash 或 gemini-2.0-flash-exp
  */
 export const analyzeImageAndGenerateCopy = async (imageBase64) => {
     try {
@@ -43,9 +46,12 @@ export const analyzeImageAndGenerateCopy = async (imageBase64) => {
       请直接返回JSON对象。
     `;
 
-        console.log("正在调用 Gemini Flash 分析图片...");
+        console.log("正在调用 Gemini (Official) 分析图片...");
+
+        // 使用 Google 官方支持的模型名
+        // gemini-1.5-flash 是目前性价比最高的 Vision 模型
         const response = await apiClient.post('/chat/completions', {
-            model: "gemini-3-flash-preview",
+            model: "gemini-1.5-flash",
             messages: [
                 {
                     role: "user",
@@ -68,6 +74,7 @@ export const analyzeImageAndGenerateCopy = async (imageBase64) => {
 
     } catch (error) {
         console.error("Gemini Analysis Error:", error);
+        // 出错兜底
         return {
             features: "Asian woman, oval face, almond eyes, elegant features, black hair",
             keyword: "#传奇的摩登",
@@ -78,8 +85,8 @@ export const analyzeImageAndGenerateCopy = async (imageBase64) => {
 };
 
 /**
- * 步骤 2: 生成图片 (重构版：生成一张"古今双妹"同框图)
- * 关键修正: 必须传入 imageBase64，让 AI "看着图" 画，实现真正的 Reference Image 生图
+ * 步骤 2: 生成图片 (使用 Google Native API + Gemini 2.0 Flash Exp)
+ * 只有 Native API + gemini-2.0-flash-exp 才支持直接返回 Base64 图片数据
  */
 export const generateFashionImages = async (features, imageBase64) => {
     // 压缩图片以符合 API 大小限制 (稍微压一下，太大会报错)
@@ -118,12 +125,9 @@ export const generateFashionImages = async (features, imageBase64) => {
 
     // 随机抽取函数
     const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
     const color1 = pick(colors);
     const fabric1 = pick(fabrics);
     const vintageItem = pick(vintageStyles);
-
-    // 现代装颜色尽量与复古装呼应或对比
     const color2 = Math.random() > 0.5 ? color1 : pick(colors);
     const fabric2 = pick(fabrics);
     const modernItem = pick(modernStyles);
@@ -131,9 +135,9 @@ export const generateFashionImages = async (features, imageBase64) => {
     const generatedVintage = `${color1} ${fabric1} ${vintageItem}`;
     const generatedModern = `${color2} ${fabric2} ${modernItem}`;
 
-    console.log(`[Fusion] Style: ${generatedVintage} | ${generatedModern}`);
+    console.log(`[Fusion] Native Style: ${generatedVintage} | ${generatedModern}`);
 
-    // 核心 Prompt
+    // Google Native Prompt
     const fusionPrompt = `
       Generate a high-fashion magazine cover image featuring TWO women.
       
@@ -162,53 +166,58 @@ export const generateFashionImages = async (features, imageBase64) => {
     `;
 
     try {
-        console.log(`[Fusion] 请求 Chat API (Vision) 生成双人同框图...`);
+        console.log(`[Fusion] 请求 Google Native API (gemini-2.0-flash-exp)...`);
 
-        // 尝试通过 Chat 接口触发绘图，同时传入文本Prompt和图片
-        const res = await apiClient.post('/chat/completions', {
-            model: "gemini-3-pro-image-preview",
-            messages: [
-                {
-                    role: "user",
-                    content: [
-                        { type: "text", text: fusionPrompt },
-                        {
-                            type: "image_url",
-                            image_url: {
-                                url: `data:image/jpeg;base64,${base64Data}`
-                            }
-                        }
-                    ]
-                }
-            ]
+        // 使用 Google 原生端点 (绕过 /openai/ wrapper)
+        // 这个模型集成了生图能力，是目前官方最强版本
+        const nativeUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${API_KEY}`;
+
+        const nativePayload = {
+            contents: [{
+                parts: [
+                    { text: fusionPrompt },
+                    { inline_data: { mime_type: "image/jpeg", data: base64Data } }
+                ]
+            }],
+            generationConfig: {
+                response_mime_type: "image/jpeg"
+            }
+        };
+
+        // 直接用 axios 调用原生 URL
+        const res = await axios.post(nativeUrl, nativePayload, {
+            headers: { 'Content-Type': 'application/json' },
+            timeout: 180000 // 3分钟超时
         });
 
-        if (res.data.choices && res.data.choices[0]) {
-            const content = res.data.choices[0].message.content;
+        if (res.data.candidates && res.data.candidates.length > 0) {
+            const part = res.data.candidates[0].content.parts[0];
 
-            // 提取图片 URL
-            const urlMatch = content.match(/https?:\/\/[^\s)]+?\.(png|jpg|jpeg|webp)/i) ||
-                content.match(/!\[.*?\]\((.*?)\)/);
-
-            if (urlMatch) {
-                const url = urlMatch[1] || urlMatch[0];
-                // 移除可能的括号
-                const cleanUrl = url.replace(/[()]/g, '');
-                // 返回单一结果对象
+            // 情况 A: 直接返回了 Base64 图片数据
+            if (part.inline_data && part.inline_data.data) {
+                console.log("[Fusion] 收到 Base64 图片数据");
                 return {
-                    fusionImage: cleanUrl,
+                    fusionImage: `data:${part.inline_data.mime_type || 'image/jpeg'};base64,${part.inline_data.data}`,
                     errors: null
                 };
             }
 
-            console.warn(`[Fusion] 未找到图片URL`);
-            return { fusionImage: null, errors: { global: `AI生成了文本但未返回图片 URL` } };
+            // 情况 B: 返回了文本
+            if (part.text) {
+                console.warn("[Fusion] API返回了文本而非图片:", part.text.substring(0, 100));
+                return { fusionImage: null, errors: { global: `AI未生成图片，返回文本: ${part.text.substring(0, 50)}...` } };
+            }
         }
-        return { fusionImage: null, errors: { global: "AI未返回有效内容" } };
+
+        return { fusionImage: null, errors: { global: "API响应格式不符合预期" } };
 
     } catch (err) {
         const msg = err.response ? JSON.stringify(err.response.data) : err.message;
-        console.error(`[Fusion] Error:`, msg);
-        return { fusionImage: null, errors: { global: msg } };
+        console.error(`[Fusion] Native API Error:`, msg);
+        let userMsg = "生成失败";
+        if (msg.includes("SAFETY")) userMsg = "图片内容触发生命安全拦截";
+        if (msg.includes("429")) userMsg = "请求过于频繁，请稍后再试";
+        // 如果是 404，可能是 gemini-2.0-flash-exp 暂时不可用，建议切回 imagen
+        return { fusionImage: null, errors: { global: `${userMsg} (${err.message})` } };
     }
 };
