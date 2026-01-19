@@ -51,8 +51,12 @@
     outline-offset: 4px;
 
     /* 去掉 padding，让图片填满 */
-    background: #000;
-    /* 改为黑色背景，万一图片没填满也更酷 */
+    background: transparent !important;
+    /* 强制透明，绝不留白 */
+    padding: 0 !important;
+    /* 强制无内边距 */
+    border-radius: 0 !important;
+    /* 强制直角 */
 
     /* 增加一个内阴影，让图片看起来像是嵌进去的 */
     box-shadow:
