@@ -57,32 +57,46 @@
   .desktop-brand-side {
     display: flex;
     flex: 1;
-    /* 占据剩余空间，或者固定比例 */
+    /* 占据剩余空间 */
     justify-content: center;
     align-items: center;
     position: relative;
     background-color: var(--vive-red);
+    /* 纯 CSS Art Deco 纹理：扇形光束 */
     background-image:
-      linear-gradient(135deg, rgba(82, 10, 18, 0.9) 0%, rgba(139, 30, 41, 0.8) 100%),
-      url('/vive-logo-dark.jpg');
-    /* 可以换成一张复古海报图 */
+      repeating-linear-gradient(45deg,
+        rgba(0, 0, 0, 0.1) 0px,
+        rgba(0, 0, 0, 0.1) 2px,
+        transparent 2px,
+        transparent 8px),
+      radial-gradient(circle at 50% 120%, rgba(197, 160, 101, 0.3) 0%, rgba(139, 30, 41, 0) 60%);
     background-size: cover;
-    background-position: center;
-    background-blend-mode: overlay;
     color: var(--vive-gold);
     overflow: hidden;
-    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
-    /* 侧边阴影 */
+    box-shadow: 10px 0 50px rgba(0, 0, 0, 0.3);
+    /* 更深的阴影增加立体感 */
     z-index: 3;
+    /* 增加复古暗角 */
+    box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.6);
   }
 
-  /* 增加一些装饰纹理 */
+  /* Art Deco 装饰框线 */
   .desktop-brand-side::before {
     content: '';
     position: absolute;
-    inset: 20px;
-    border: 1px solid rgba(197, 160, 101, 0.3);
-    /* 金色边框 */
+    inset: 40px;
+    border: 2px solid rgba(197, 160, 101, 0.2);
+    border-radius: 4px;
+    pointer-events: none;
+    background: transparent;
+  }
+
+  /* 内层装饰线，增加层次 */
+  .desktop-brand-side::after {
+    content: '';
+    position: absolute;
+    inset: 50px;
+    border: 1px solid rgba(197, 160, 101, 0.1);
     pointer-events: none;
   }
 
@@ -91,53 +105,65 @@
     z-index: 2;
     padding: 60px;
     max-width: 600px;
+    /* 文字浮起感 */
+    text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   }
 
   .brand-hero-title {
     font-family: 'Playfair Display', serif;
     font-size: 5rem;
+    /* 大气标题 */
     line-height: 1.1;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     letter-spacing: 0.1em;
     font-weight: 700;
-    text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    color: var(--vive-gold);
+    /* 渐变金色文字 */
+    background: linear-gradient(to bottom, #E6CFA5, #C5A065);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .brand-hero-subtitle {
     font-family: 'Songti SC', serif;
     font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.9);
-    letter-spacing: 0.2em;
+    color: rgba(255, 255, 255, 0.8);
+    letter-spacing: 0.3em;
     text-transform: uppercase;
+    font-weight: 300;
   }
 
   .brand-divider {
-    width: 60px;
-    height: 2px;
-    background: var(--vive-gold);
-    margin: 30px auto;
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--vive-gold), transparent);
+    margin: 40px auto;
   }
 
   .brand-story {
     font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
+    font-size: 1.4rem;
     font-style: italic;
-    color: rgba(255, 255, 255, 0.7);
-    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.8;
   }
 
   /* 右侧交互区调整 */
   .interaction-side {
     flex: 0 0 500px;
-    /* 固定宽度，或者是百分比 40% */
+    /* 黄金比例宽度 */
     min-width: 450px;
-    background: rgba(255, 255, 255, 0.4);
-    /* 半透明玻璃态 */
-    backdrop-filter: blur(20px);
-    /* 磨砂玻璃 */
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05);
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.7);
+    /* 增加不透明度，提升质感 */
+    backdrop-filter: blur(40px);
+    /* 强力磨砂 */
+    -webkit-backdrop-filter: blur(40px);
+    border-left: 1px solid rgba(255, 255, 255, 0.4);
+    /* 玻璃边缘高光 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* 垂直居中内容 */
   }
 }
 
@@ -149,7 +175,38 @@
 }
 
 /* 之前的背景装饰字全部移除，因为左侧栏有了 */
+/* 之前的背景装饰字全部移除，因为左侧栏有了 */
 .app::after,
 .app::before {
   display: none;
+}
+
+/* Mobile 专属优化 */
+@media (max-width: 1023px) {
+  .app {
+    flex-direction: column;
+  }
+
+  .interaction-side {
+    width: 100%;
+    min-height: 100vh;
+    flex: auto;
+    /* 重置 flex 属性 */
+    min-width: 0;
+    /* 防止 overflow */
+    border-left: none;
+    /* 移除桌面端的边框 */
+    background: transparent;
+    /* 手机端直接透出 body 全局背景 */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+  }
+
+  .main-content {
+    justify-content: flex-start;
+    /* 手机端内容偏上一点可能更好，或者保持居中 */
+    padding-top: 40px;
+    padding-bottom: 80px;
+  }
 }
