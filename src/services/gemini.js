@@ -3,24 +3,20 @@ import axios from 'axios';
 import { compressImage } from '../utils/imageUtils';
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-// Google Native OpenAI-Compatible Endpoint: https://generativelanguage.googleapis.com/v1beta/openai/
-axios.defaults.timeout = 180000; // 3分钟超时
 const BASE_URL = import.meta.env.VITE_GEMINI_BASE_URL;
 
-// 创建一个用于 OpenAI 兼容接口的 axios 实例 (主要用于 Chat/分析)
+// Axios 实例 (用于分析)
 const apiClient = axios.create({
     baseURL: BASE_URL,
     headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${API_KEY}`
     },
-    timeout: 0 // 移除超时限制
+    timeout: 180000 // 3分钟
 });
 
 /**
  * 步骤 1: 分析用户图片并生成文案
- * 注意：切换到 Google 官方 API 后，模型名称必须使用官方标准名。
- * 推荐使用 gemini-1.5-flash 或 gemini-2.0-flash-exp
  */
 export const analyzeImageAndGenerateCopy = async (imageBase64) => {
     try {
@@ -46,35 +42,32 @@ export const analyzeImageAndGenerateCopy = async (imageBase64) => {
       请直接返回JSON对象。
     `;
 
-        console.log("正在调用 Gemini (Official) 分析图片...");
+        console.log("正在调用 Gemini Flash 分析图片...");
 
-        // 使用 Google 官方支持的模型名
-        // gemini-1.5-flash 是目前性价比最高的 Vision 模型
-        const response = await apiClient.post('/chat/completions', {
-            model: "gemini-1.5-flash",
-            messages: [
-                {
-                    role: "user",
-                    content: [
-                        { type: "text", text: prompt },
-                        {
-                            type: "image_url",
-                            image_url: {
-                                url: `data:image/jpeg;base64,${base64Data}`
-                            }
-                        }
+        // 分析使用 gemini-3-flash-preview (文本模型)
+        const response = await fetch(`${BASE_URL}/models/gemini-3-flash-preview:generateContent`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [
+                        { text: prompt },
+                        { inline_data: { mime_type: "image/jpeg", data: base64Data } }
                     ]
-                }
-            ],
-            response_format: { type: "json_object" }
+                }]
+            })
         });
 
-        const content = response.data.choices[0].message.content.replace(/```json/g, '').replace(/```/g, '').trim();
-        return JSON.parse(content);
+        const data = await response.json();
+        const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+        const cleanContent = content.replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(cleanContent);
 
     } catch (error) {
         console.error("Gemini Analysis Error:", error);
-        // 出错兜底
         return {
             features: "Asian woman, oval face, almond eyes, elegant features, black hair",
             keyword: "#传奇的摩登",
@@ -85,25 +78,20 @@ export const analyzeImageAndGenerateCopy = async (imageBase64) => {
 };
 
 /**
- * 步骤 2: 生成图片 (使用 Google Native API + Gemini 2.0 Flash Exp)
- * 只有 Native API + gemini-2.0-flash-exp 才支持直接返回 Base64 图片数据
+ * 步骤 2: 生成图片 (APIYI + gemini-3-pro-image-preview)
  */
 export const generateFashionImages = async (features, imageBase64) => {
-    // 压缩图片以符合 API 大小限制 (稍微压一下，太大会报错)
     const compressedImage = await compressImage(imageBase64, 1024);
     const base64Data = compressedImage.split(',')[1];
 
     if (!API_KEY) {
-        return { fusionImage: null, errors: { global: "API Key 缺失。请在 Zeabur/Vercel 环境变量中配置 VITE_GEMINI_API_KEY。" } };
+        return { fusionImage: null, errors: { global: "API Key 缺失。请配置 VITE_GEMINI_API_KEY。" } };
     }
 
-    // --- VIVE 摩登衣橱混搭引擎 (无限组合) ---
-    // 材质库 (注重质感、重工)
+    // --- VIVE 摩登衣橱混搭引擎 ---
     const fabrics = ["Rich Velvet", "Heavy Silk Satin", "Structured Wool Tweed", "French Lace", "Brocade with Gold Thread", "Matte Leather", "Sequined Fabric"];
-    // 颜色库 (VIVE 品牌色系 & 高级灰调，拒绝荧光/银色)
     const colors = ["Deep Crimson Red", "Jet Black", "Champagne Gold", "Dark Emerald Green", "Navy Blue", "Pearl White", "Burgundy", "Chocolate Brown"];
 
-    // Vintage 款式库 (1930s Shanghai)
     const vintageStyles = [
         "Cheongsam with high mandarin collar and cap sleeves",
         "Sleeveless Qipao with floor-length hem",
@@ -112,8 +100,6 @@ export const generateFashionImages = async (features, imageBase64) => {
         "Art Deco style dress with geometric patterns"
     ];
 
-    // Modern 款式库 (2026 High Fashion - Heavy/Bold Style)
-    // 拒绝 futuristic，强调剪裁和力量感
     const modernStyles = [
         "Oversized Sharp Blazer with wide-leg trousers (Power Suit)",
         "Structured Asymmetrical Dress with architectural details",
@@ -123,7 +109,6 @@ export const generateFashionImages = async (features, imageBase64) => {
         "All-black Tuxedo style suit for women (Le Smoking)"
     ];
 
-    // 随机抽取函数
     const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
     const color1 = pick(colors);
     const fabric1 = pick(fabrics);
@@ -135,9 +120,9 @@ export const generateFashionImages = async (features, imageBase64) => {
     const generatedVintage = `${color1} ${fabric1} ${vintageItem}`;
     const generatedModern = `${color2} ${fabric2} ${modernItem}`;
 
-    console.log(`[Fusion] Native Style: ${generatedVintage} | ${generatedModern}`);
+    console.log(`[Fusion] Style: ${generatedVintage} | ${generatedModern}`);
 
-    // Google Native Prompt
+    // 核心 Prompt
     const fusionPrompt = `
       Generate a high-fashion magazine cover image featuring TWO women.
       
@@ -166,58 +151,62 @@ export const generateFashionImages = async (features, imageBase64) => {
     `;
 
     try {
-        console.log(`[Fusion] 请求 Google Native API (gemini-2.0-flash-exp)...`);
+        console.log(`[Fusion] 请求 APIYI gemini-3-pro-image-preview...`);
 
-        // 使用 Google 原生端点 (绕过 /openai/ wrapper)
-        // 这个模型集成了生图能力，是目前官方最强版本
-        const nativeUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${API_KEY}`;
-
-        const nativePayload = {
-            contents: [{
-                parts: [
-                    { text: fusionPrompt },
-                    { inline_data: { mime_type: "image/jpeg", data: base64Data } }
-                ]
-            }],
-            generationConfig: {
-                response_mime_type: "image/jpeg"
-            }
-        };
-
-        // 直接用 axios 调用原生 URL
-        const res = await axios.post(nativeUrl, nativePayload, {
-            headers: { 'Content-Type': 'application/json' },
-            timeout: 180000 // 3分钟超时
+        // 使用 APIYI 提供的调用格式
+        const response = await fetch(`${BASE_URL}/models/gemini-3-pro-image-preview:generateContent`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [
+                        { text: fusionPrompt },
+                        { inline_data: { mime_type: "image/jpeg", data: base64Data } }
+                    ]
+                }],
+                generationConfig: {
+                    responseModalities: ["IMAGE"],
+                    imageConfig: {
+                        aspectRatio: "3:4", // 竖版海报
+                        imageSize: "1K"
+                    }
+                }
+            })
         });
 
-        if (res.data.candidates && res.data.candidates.length > 0) {
-            const part = res.data.candidates[0].content.parts[0];
+        const data = await response.json();
 
-            // 情况 A: 直接返回了 Base64 图片数据
-            if (part.inline_data && part.inline_data.data) {
-                console.log("[Fusion] 收到 Base64 图片数据");
-                return {
-                    fusionImage: `data:${part.inline_data.mime_type || 'image/jpeg'};base64,${part.inline_data.data}`,
-                    errors: null
-                };
-            }
+        // 检查错误
+        if (data.error) {
+            console.error("[Fusion] API Error:", data.error);
+            return { fusionImage: null, errors: { global: data.error.message || JSON.stringify(data.error) } };
+        }
 
-            // 情况 B: 返回了文本
-            if (part.text) {
-                console.warn("[Fusion] API返回了文本而非图片:", part.text.substring(0, 100));
-                return { fusionImage: null, errors: { global: `AI未生成图片，返回文本: ${part.text.substring(0, 50)}...` } };
-            }
+        // 提取图片 Base64
+        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.inline_data?.data) {
+            const imageBase64 = data.candidates[0].content.parts[0].inline_data.data;
+            const mimeType = data.candidates[0].content.parts[0].inline_data.mime_type || 'image/jpeg';
+            console.log("[Fusion] 收到 Base64 图片");
+            return {
+                fusionImage: `data:${mimeType};base64,${imageBase64}`,
+                errors: null
+            };
+        }
+
+        // 如果返回的是文本
+        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+            const text = data.candidates[0].content.parts[0].text;
+            console.warn("[Fusion] API返回文本:", text.substring(0, 100));
+            return { fusionImage: null, errors: { global: `AI未生成图片: ${text.substring(0, 50)}...` } };
         }
 
         return { fusionImage: null, errors: { global: "API响应格式不符合预期" } };
 
     } catch (err) {
-        const msg = err.response ? JSON.stringify(err.response.data) : err.message;
-        console.error(`[Fusion] Native API Error:`, msg);
-        let userMsg = "生成失败";
-        if (msg.includes("SAFETY")) userMsg = "图片内容触发生命安全拦截";
-        if (msg.includes("429")) userMsg = "请求过于频繁，请稍后再试";
-        // 如果是 404，可能是 gemini-2.0-flash-exp 暂时不可用，建议切回 imagen
-        return { fusionImage: null, errors: { global: `${userMsg} (${err.message})` } };
+        console.error(`[Fusion] Error:`, err);
+        return { fusionImage: null, errors: { global: err.message } };
     }
 };
