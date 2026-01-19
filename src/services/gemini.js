@@ -1,5 +1,4 @@
 
-import axios from 'axios';
 import { compressImage } from '../utils/imageUtils';
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
@@ -7,6 +6,7 @@ const BASE_URL = import.meta.env.VITE_GEMINI_BASE_URL;
 
 /**
  * 步骤 1: 分析用户图片并生成文案
+ * 注意：使用 gemini-3-pro-image-preview 因为 APIYI 账户只支持这个模型
  */
 export const analyzeImageAndGenerateCopy = async (imageBase64) => {
     try {
@@ -29,12 +29,13 @@ export const analyzeImageAndGenerateCopy = async (imageBase64) => {
       2. 'keyword': 为用户生成一个"摩登关键词"，格式为"#XXXX"（例如 #明媚的玫瑰, #传奇的摩登），要有VIVE双妹的品牌调性。
       3. 'attitude': 用一句简短的话总结用户的"摩登态度"，要在15个字以内。
       4. 'loading_text': 生成一句优美的、带有时间穿越感的等待文案。
-      请直接返回JSON对象。
+      请直接返回JSON对象，不要包含任何其他内容。
     `;
 
-        console.log("正在调用 Gemini Flash 分析图片...");
+        console.log("正在调用 Gemini 分析图片...");
 
-        const response = await fetch(`${BASE_URL}/models/gemini-3-flash-preview:generateContent`, {
+        // 使用 gemini-3-pro-image-preview (APIYI 账户支持的模型)
+        const response = await fetch(`${BASE_URL}/models/gemini-3-pro-image-preview:generateContent`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${API_KEY}`,
@@ -51,12 +52,21 @@ export const analyzeImageAndGenerateCopy = async (imageBase64) => {
         });
 
         const data = await response.json();
+
+        // 检查错误
+        if (data.error) {
+            console.error("Analysis API Error:", data.error);
+            throw new Error(data.error.message);
+        }
+
         const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+        console.log("Analysis raw content:", content.substring(0, 200));
         const cleanContent = content.replace(/```json/g, '').replace(/```/g, '').trim();
         return JSON.parse(cleanContent);
 
     } catch (error) {
         console.error("Gemini Analysis Error:", error);
+        // 兜底数据
         return {
             features: "Asian woman, oval face, almond eyes, elegant features, black hair",
             keyword: "#传奇的摩登",
@@ -142,7 +152,6 @@ export const generateFashionImages = async (features, imageBase64) => {
     try {
         console.log(`[Fusion] 请求 APIYI gemini-3-pro-image-preview...`);
 
-        // 使用 APIYI 提供的调用格式 (注意字段使用驼峰命名)
         const response = await fetch(`${BASE_URL}/models/gemini-3-pro-image-preview:generateContent`, {
             method: 'POST',
             headers: {
@@ -185,11 +194,10 @@ export const generateFashionImages = async (features, imageBase64) => {
             };
         }
 
-        // 兼容下划线命名 (inline_data/mime_type)
+        // 兼容下划线命名
         if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.inline_data?.data) {
             const imageBase64 = data.candidates[0].content.parts[0].inline_data.data;
             const mimeType = data.candidates[0].content.parts[0].inline_data.mime_type || 'image/jpeg';
-            console.log("[Fusion] 收到 Base64 图片 (下划线格式)");
             return {
                 fusionImage: `data:${mimeType};base64,${imageBase64}`,
                 errors: null
