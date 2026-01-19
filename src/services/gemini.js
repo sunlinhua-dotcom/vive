@@ -5,16 +5,6 @@ import { compressImage } from '../utils/imageUtils';
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const BASE_URL = import.meta.env.VITE_GEMINI_BASE_URL;
 
-// Axios 实例 (用于分析)
-const apiClient = axios.create({
-    baseURL: BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`
-    },
-    timeout: 180000 // 3分钟
-});
-
 /**
  * 步骤 1: 分析用户图片并生成文案
  */
@@ -44,7 +34,6 @@ export const analyzeImageAndGenerateCopy = async (imageBase64) => {
 
         console.log("正在调用 Gemini Flash 分析图片...");
 
-        // 分析使用 gemini-3-flash-preview (文本模型)
         const response = await fetch(`${BASE_URL}/models/gemini-3-flash-preview:generateContent`, {
             method: 'POST',
             headers: {
@@ -55,7 +44,7 @@ export const analyzeImageAndGenerateCopy = async (imageBase64) => {
                 contents: [{
                     parts: [
                         { text: prompt },
-                        { inline_data: { mime_type: "image/jpeg", data: base64Data } }
+                        { inlineData: { mimeType: "image/jpeg", data: base64Data } }
                     ]
                 }]
             })
@@ -153,7 +142,7 @@ export const generateFashionImages = async (features, imageBase64) => {
     try {
         console.log(`[Fusion] 请求 APIYI gemini-3-pro-image-preview...`);
 
-        // 使用 APIYI 提供的调用格式
+        // 使用 APIYI 提供的调用格式 (注意字段使用驼峰命名)
         const response = await fetch(`${BASE_URL}/models/gemini-3-pro-image-preview:generateContent`, {
             method: 'POST',
             headers: {
@@ -164,13 +153,13 @@ export const generateFashionImages = async (features, imageBase64) => {
                 contents: [{
                     parts: [
                         { text: fusionPrompt },
-                        { inline_data: { mime_type: "image/jpeg", data: base64Data } }
+                        { inlineData: { mimeType: "image/jpeg", data: base64Data } }
                     ]
                 }],
                 generationConfig: {
                     responseModalities: ["IMAGE"],
                     imageConfig: {
-                        aspectRatio: "3:4", // 竖版海报
+                        aspectRatio: "3:4",
                         imageSize: "1K"
                     }
                 }
@@ -185,11 +174,22 @@ export const generateFashionImages = async (features, imageBase64) => {
             return { fusionImage: null, errors: { global: data.error.message || JSON.stringify(data.error) } };
         }
 
-        // 提取图片 Base64
+        // 提取图片 Base64 (APIYI 使用驼峰命名 inlineData/mimeType)
+        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.inlineData?.data) {
+            const imageBase64 = data.candidates[0].content.parts[0].inlineData.data;
+            const mimeType = data.candidates[0].content.parts[0].inlineData.mimeType || 'image/jpeg';
+            console.log("[Fusion] 收到 Base64 图片");
+            return {
+                fusionImage: `data:${mimeType};base64,${imageBase64}`,
+                errors: null
+            };
+        }
+
+        // 兼容下划线命名 (inline_data/mime_type)
         if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.inline_data?.data) {
             const imageBase64 = data.candidates[0].content.parts[0].inline_data.data;
             const mimeType = data.candidates[0].content.parts[0].inline_data.mime_type || 'image/jpeg';
-            console.log("[Fusion] 收到 Base64 图片");
+            console.log("[Fusion] 收到 Base64 图片 (下划线格式)");
             return {
                 fusionImage: `data:${mimeType};base64,${imageBase64}`,
                 errors: null
@@ -203,6 +203,7 @@ export const generateFashionImages = async (features, imageBase64) => {
             return { fusionImage: null, errors: { global: `AI未生成图片: ${text.substring(0, 50)}...` } };
         }
 
+        console.error("[Fusion] 未知响应格式:", JSON.stringify(data).substring(0, 200));
         return { fusionImage: null, errors: { global: "API响应格式不符合预期" } };
 
     } catch (err) {
