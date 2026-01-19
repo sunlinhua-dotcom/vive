@@ -183,6 +183,7 @@
     /* 让数字稍微叠在文字下面一点 */
 }
 
+/* ...existing code... */
 .slow-notice {
     font-family: 'Songti SC', serif;
     font-size: 0.8rem;
@@ -191,4 +192,26 @@
     margin-top: 20px;
     max-width: 240px;
     line-height: 1.5;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+    .generating-screen::before {
+        display: none;
+        /* 手机端隐藏 TIME TRAVEL 背景字 */
+    }
+
+    .image-scanner {
+        width: 180px;
+        /* 缩小一点 */
+        height: 240px;
+    }
+
+    .loading-text {
+        font-size: 1rem;
+    }
+
+    .progress-percentage {
+        font-size: 1.5rem;
+    }
 }

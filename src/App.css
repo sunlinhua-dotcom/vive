@@ -52,5 +52,6 @@
 
   .app::after {
     display: none;
+    /* 手机端隐藏背景大字，保持干净 */
   }
 }
