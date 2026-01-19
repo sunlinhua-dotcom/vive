@@ -96,19 +96,26 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             if (logoImg.width > 0) {
                 // 复刻参考图：Logo 居中，两侧放日期
                 // Logo 宽度调回 40%，给左右文字留空间
-                const logoW = targetWidth * 0.40;
-                const logoH = (logoImg.height / logoImg.width) * logoW;
-                const logoX = (targetWidth - logoW) / 2;
-                const logoY = 60; // 顶部留白，不贴顶，保持呼吸感
+                // 5. 绘制 Logo (上方居中)
+                // 使用 multiply 混合模式去除白底
+                ctx.save();
+                ctx.globalCompositeOperation = 'multiply';
+
+                const logoWidth = canvas.width * 0.25; // 宽度占 25%
+                const logoHeight = logoImg.height * (logoWidth / logoImg.width);
+                const logoX = (canvas.width - logoWidth) / 2;
+                const logoY = 60; // 距离顶部 60px
+
+                ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
+                ctx.restore(); // 恢复正常混合模式
 
                 // 1. 绘制 Logo (中间)
                 ctx.shadowColor = "rgba(0,0,0,0.8)";
                 ctx.shadowBlur = 15;
                 ctx.shadowOffsetY = 5;
-                ctx.drawImage(logoImg, logoX, logoY, logoW, logoH);
 
                 // 计算 Logo 中心线 Y 坐标，用于对齐文字
-                const centerY = logoY + logoH / 2;
+                const centerY = logoY + logoHeight / 2;
 
                 // 2. 绘制左侧日期 (MARCH 2026) -> 垂直居中于 Logo
                 ctx.textAlign = 'left';
