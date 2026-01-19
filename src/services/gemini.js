@@ -3,6 +3,8 @@ import axios from 'axios';
 import { compressImage } from '../utils/imageUtils';
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+// Google Native OpenAI-Compatible Endpoint: https://generativelanguage.googleapis.com/v1beta/openai/
+axios.defaults.timeout = 180000; // 3分钟超时
 const BASE_URL = import.meta.env.VITE_GEMINI_BASE_URL;
 
 const apiClient = axios.create({
