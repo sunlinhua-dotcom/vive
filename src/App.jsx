@@ -97,31 +97,48 @@ function App() {
 
   return (
     <div className="app">
-      <Header />
+      {/* 左侧：品牌视觉区 (仅 Desktop 显示) */}
+      <div className="desktop-brand-side">
+        <div className="brand-visual-content">
+          <h1 className="brand-hero-title">MODERN<br />ENCOUNTER</h1>
+          <p className="brand-hero-subtitle">1930s Shanghai Chic · Since 1898</p>
+          <div className="brand-divider"></div>
+          <p className="brand-story">
+            Across time and space,<br />
+            rediscover your timeless elegance.
+          </p>
+        </div>
+      </div>
 
-      <main className="main-content">
-        {step === 'upload' && (
-          <UploadSection onImageUpload={handleImageUpload} />
-        )}
+      {/* 右侧：功能交互区 */}
+      <div className="interaction-side">
+        <Header />
 
-        {step === 'generating' && (
-          <GeneratingScreen
-            uploadedImage={uploadedImage}
-            loadingText={loadingText}
-          />
-        )}
+        <main className="main-content">
+          {step === 'upload' && (
+            <UploadSection onImageUpload={handleImageUpload} />
+          )}
 
-        {step === 'result' && generatedResults && (
-          <ResultSection
-            results={generatedResults}
-            onReset={handleReset}
-          />
-        )}
-      </main>
+          {step === 'generating' && (
+            <GeneratingScreen
+              uploadedImage={uploadedImage}
+              loadingText={loadingText}
+            />
+          )}
 
-      <Footer />
+          {step === 'result' && generatedResults && (
+            <ResultSection
+              results={generatedResults}
+              onReset={handleReset}
+            />
+          )}
+        </main>
+
+        <Footer />
+      </div>
     </div>
   )
 }
+
 
 export default App

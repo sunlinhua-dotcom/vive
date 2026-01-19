@@ -1,48 +1,36 @@
 /* VIVE 双妹 AI月份牌 - 全局样式 */
 
 :root {
-  /* 品牌色彩 - 复古奢华 */
-  --vive-red: #8B0000;
-  --vive-deep-red: #5C0000;
-  --vive-gold: #D4AF37;
-  --vive-gold-light: #E8C547;
-  --vive-cream: #F5E6D3;
-  --vive-ivory: #FFFEF5;
+  /* 品牌色 - 2026 Modern VIVE Palette */
+  --vive-red: #8B1E29;
+  /* 深胭脂红 */
+  --vive-deep-red: #5C0E16;
+  /* 这种深红更有质感 */
+  --vive-gold: #C5A065;
+  /* 哑光香槟金 */
+  --vive-gold-light: #E6CFA5;
+  /* 浅金高光 */
   --vive-black: #1A1A1A;
-  --vive-charcoal: #2D2D2D;
+  /* 墨黑 */
+  --vive-cream: #F3E5D8;
+  /* 复古米黄 (更暖) */
+  --vive-light: #FAF6F0;
+  /* 象牙白 */
 
-  /* 渐变 */
-  --gradient-luxury: linear-gradient(135deg, var(--vive-red) 0%, var(--vive-deep-red) 100%);
-  --gradient-gold: linear-gradient(135deg, var(--vive-gold) 0%, var(--vive-gold-light) 100%);
-  --gradient-dark: linear-gradient(180deg, var(--vive-black) 0%, var(--vive-charcoal) 100%);
-
-  /* 字体 */
-  --font-serif: 'Noto Serif SC', 'Playfair Display', 'STSong', serif;
-  --font-display: 'Playfair Display', 'Noto Serif SC', serif;
+  /* 字体系统 */
+  --font-serif: 'Playfair Display', 'Songti SC', 'Noto Serif SC', serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
 
   /* 间距 */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --spacing-2xl: 48px;
-  --spacing-3xl: 64px;
+  --spacing-md: 20px;
+  --spacing-lg: 40px;
+  --spacing-xl: 80px;
 
-  /* 圆角 */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-
-  /* 阴影 */
-  --shadow-elegant: 0 4px 20px rgba(139, 0, 0, 0.15);
-  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.12);
-  --shadow-hover: 0 12px 40px rgba(139, 0, 0, 0.2);
-
-  /* 动画 */
-  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  /* 质感阴影 */
+  --shadow-elegant: 0 10px 40px rgba(139, 30, 41, 0.1);
+  --shadow-float: 0 20px 60px rgba(0, 0, 0, 0.15);
 }
 
 * {
@@ -54,16 +42,40 @@
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  height: 100%;
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  padding: 0;
   min-height: 100vh;
-  /* 添加细腻的噪点纹理增加质感 */
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E"), var(--vive-bg-gradient);
+  width: 100%;
+
+  /* 核心修复：背景色彻底全屏 */
+  background-color: var(--vive-cream);
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(197, 160, 101, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(139, 30, 41, 0.03) 0%, transparent 40%);
+
+  color: var(--vive-black);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* 全局纹理覆盖层 - 永远全屏静止 */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 9999;
+  /* 确保纹理覆盖一切，但不挡点击 */
 }
 
 #root {

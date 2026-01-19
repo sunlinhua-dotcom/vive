@@ -1,37 +1,25 @@
+/* UI 重构：杂志风全屏布局 */
+
 .app {
   min-height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow-x: hidden;
+  /* 移动端默认布局：单列纵向 */
   display: flex;
   flex-direction: column;
-  background: var(--vive-cream);
-  position: relative;
-  overflow: hidden;
 }
 
-/* 背景装饰 */
-/* 移除红色光晕，保持干净 */
-/*.app::before {
-  content: '';
-  ...
-}*/
-
-.app::after {
-  content: 'MODERN';
-  position: fixed;
-  top: 50%;
-  left: -10%;
-  transform: translateY(-50%) rotate(-90deg);
-  font-family: 'Playfair Display', serif;
-  /* 确保统一字体 */
-  font-size: clamp(80px, 15vw, 200px);
-  font-weight: 700;
-  color: var(--vive-gold);
-  /* 改为金色 */
-  opacity: 0.05;
-  /* 极淡 */
-  letter-spacing: 0.2em;
-  pointer-events: none;
-  z-index: 0;
-  white-space: nowrap;
+/* 右侧交互区（移动端占满全屏） */
+.interaction-side {
+  width: 100%;
+  min-height: 100vh;
+  /* 确保占满 */
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 2;
+  transition: all 0.5s ease;
 }
 
 .main-content {
@@ -40,18 +28,128 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-lg);
-  position: relative;
-  z-index: 1;
+  padding: var(--spacing-lg) var(--spacing-md);
+  width: 100%;
+  max-width: 500px;
+  /* 移动端内容限制宽度，防止太宽难看 */
+  margin: 0 auto;
 }
 
-@media (max-width: 768px) {
-  .main-content {
-    padding: var(--spacing-md);
+/* 移动端默认隐藏左侧品牌区 */
+.desktop-brand-side {
+  display: none;
+}
+
+/* ------------------------------------------------------------------
+   Desktop 布局 (>= 1024px) - 开启双栏杂志模式
+   ------------------------------------------------------------------ */
+@media (min-width: 1024px) {
+  .app {
+    flex-direction: row;
+    /* 改为横向 */
+    align-items: stretch;
+    justify-content: center;
+    padding: 0;
+    /* Web端铺满，或者给一点外边距做成浮空卡片？这里先做铺满 */
   }
 
-  .app::after {
-    display: none;
-    /* 手机端隐藏背景大字，保持干净 */
+  /* 左侧品牌视觉区 */
+  .desktop-brand-side {
+    display: flex;
+    flex: 1;
+    /* 占据剩余空间，或者固定比例 */
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background-color: var(--vive-red);
+    background-image:
+      linear-gradient(135deg, rgba(82, 10, 18, 0.9) 0%, rgba(139, 30, 41, 0.8) 100%),
+      url('/vive-logo-dark.jpg');
+    /* 可以换成一张复古海报图 */
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay;
+    color: var(--vive-gold);
+    overflow: hidden;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
+    /* 侧边阴影 */
+    z-index: 3;
   }
+
+  /* 增加一些装饰纹理 */
+  .desktop-brand-side::before {
+    content: '';
+    position: absolute;
+    inset: 20px;
+    border: 1px solid rgba(197, 160, 101, 0.3);
+    /* 金色边框 */
+    pointer-events: none;
+  }
+
+  .brand-visual-content {
+    text-align: center;
+    z-index: 2;
+    padding: 60px;
+    max-width: 600px;
+  }
+
+  .brand-hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 5rem;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .brand-hero-subtitle {
+    font-family: 'Songti SC', serif;
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .brand-divider {
+    width: 60px;
+    height: 2px;
+    background: var(--vive-gold);
+    margin: 30px auto;
+  }
+
+  .brand-story {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+  }
+
+  /* 右侧交互区调整 */
+  .interaction-side {
+    flex: 0 0 500px;
+    /* 固定宽度，或者是百分比 40% */
+    min-width: 450px;
+    background: rgba(255, 255, 255, 0.4);
+    /* 半透明玻璃态 */
+    backdrop-filter: blur(20px);
+    /* 磨砂玻璃 */
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05);
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* 超大屏优化 */
+@media (min-width: 1600px) {
+  .brand-hero-title {
+    font-size: 7rem;
+  }
+}
+
+/* 之前的背景装饰字全部移除，因为左侧栏有了 */
+.app::after,
+.app::before {
+  display: none;
 }
