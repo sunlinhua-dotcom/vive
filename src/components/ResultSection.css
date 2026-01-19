@@ -1,4 +1,4 @@
-/* ResultSection.css - 极致融合版 */
+/* ResultSection.css - 极致融合版 (追加按钮样式) */
 
 .result-section {
     width: 100%;
@@ -13,93 +13,111 @@
 /* === 移动端适配 (iPhone) === */
 @media (max-width: 768px) {
     .result-section {
-        padding: 20px 0;
-        /* 减少内边距 */
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
+        padding: 40px 20px;
         min-height: 100vh;
         overflow-y: auto;
+        /* 增加底部空间防止按钮贴边 */
+        padding-bottom: 100px;
     }
 
     .layout-container {
         flex-direction: column;
-        gap: 20px;
-        margin-top: 10px;
+        gap: 30px;
         width: 100%;
         align-items: center;
-        /* 强制子元素居中 */
     }
 
-    /* 手机上彻底隐藏左侧信息栏 */
+    /* 手机上显示精简版信息 */
     .info-panel {
-        display: none !important;
+        display: flex !important;
+        align-items: center;
+        text-align: center;
+        order: -1;
+        /* 放在海报上方 */
+        margin-bottom: 10px;
+    }
+
+    .info-keyword {
+        font-size: 2rem !important;
+        margin: 5px 0 !important;
+    }
+
+    .info-attitude {
+        border-left: none !important;
+        padding-left: 0 !important;
     }
 
     /* 海报卡片适配 */
     .poster-card {
-        width: 90vw !important;
-        /* 宽度占屏幕 90% */
+        width: 100% !important;
+        max-width: 350px;
         height: auto !important;
-        /* 高度自动 */
         aspect-ratio: 3/4;
-        /* 强制锁定 3:4 比例 */
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-        /* 更强的阴影 */
-        border-radius: 4px;
-        /* 轻微圆角 */
-        margin: 0 auto;
-        /* 居中 */
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        border: 4px solid #fff;
+        /* 增加拍立得/相框感 */
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        width: 100%;
+        max-width: 300px;
+        gap: 15px !important;
+    }
+
+    .action-btn {
+        width: 100%;
     }
 }
 
 /* 布局容器 */
 .layout-container {
     display: flex;
-    flex-direction: row;
-    /* 默认 PC：左右布局 */
     align-items: center;
-    /* 垂直居中 */
     justify-content: center;
-    gap: 60px;
+    gap: 80px;
+    /* 拉大间距 */
     width: 100%;
     max-width: 1200px;
-    position: relative;
-    z-index: 2;
 }
 
-/* 左侧信息面板 (PC可见) */
+/* 左侧信息面板 */
 .info-panel {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    text-align: right;
-    color: #8B1E1E;
-    max-width: 300px;
-    flex-shrink: 0;
+    align-items: flex-start;
+    /* 左对齐 */
+    text-align: left;
+    max-width: 320px;
 }
 
 .info-title {
-    font-family: var(--font-serif);
-    font-size: 0.8rem;
-    letter-spacing: 0.1em;
-    opacity: 0.6;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.2em;
+    color: var(--vive-red);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    opacity: 0.8;
 }
 
 .info-keyword {
-    font-family: "Noto Serif SC", serif;
-    font-size: 2.5rem;
+    font-family: 'Songti SC', 'Noto Serif SC', serif;
+    font-size: 3.5rem;
     font-weight: 700;
-    margin: 10px 0;
+    color: var(--vive-black);
+    line-height: 1.2;
+    margin: 0 0 20px 0;
 }
 
 .info-attitude {
-    font-family: var(--font-serif);
+    font-family: 'Playfair Display', serif;
     font-size: 1.2rem;
     font-style: italic;
-    color: #C5A065;
-    /* 金色 */
+    color: var(--vive-gold);
+    line-height: 1.6;
+    border-left: 2px solid var(--vive-red);
+    padding-left: 20px;
 }
 
 /* === 海报卡片 === */
@@ -114,7 +132,7 @@
     /* 默认黑底，防闪烁 */
 }
 
-/* === 图像层 - 放在最底层，但要处理亮度以适应白字 === */
+/* === 图像层 === */
 .poster-image-area {
     position: absolute;
     top: 0;
@@ -128,197 +146,48 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* 稍微压暗一点点，保证白色文字在任何背景下都可见，这是杂志惯用手法 */
+    /* 稍微压暗一点点，保证白色文字在任何背景下都可见 */
     filter: brightness(0.9);
 }
 
-.placeholder-image {
-    width: 100%;
-    height: 100%;
-    background: #333;
-    color: #666;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* === Header - 浮在图片上，无背景，靠投影 === */
-.poster-header-row {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 24px 20px;
-    z-index: 20;
-    /* 在水印之上 */
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-}
-
-/* 文字通用阴影：保证在浅色图片上也能看清 */
-.text-shadow-effect {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.header-left,
-.header-right {
-    flex: 1;
-    font-family: var(--font-serif);
-    color: #fff;
-    font-size: 0.7rem;
-    letter-spacing: 0.1em;
-    padding-top: 10px;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-    /* 细微投影 */
-}
-
-.header-right {
-    text-align: right;
-}
-
-.header-center {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-}
-
-.logo-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.logo-since {
-    color: #fff;
-    font-size: 0.5rem;
-    letter-spacing: 0.15em;
-    margin-bottom: 4px;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-}
-
-.main-logo {
-    height: 50px;
-    /* 大气 */
-    width: auto;
-    /* 核心：黑底白字图 + Screen = 透明白字 */
-    mix-blend-mode: screen;
-    filter: contrast(1.2) brightness(1.2);
-    opacity: 0.95;
-}
-
-.logo-cn {
-    color: #fff;
-    font-family: "Noto Serif SC", serif;
-    font-size: 0.9rem;
-    letter-spacing: 0.4em;
-    margin-top: 4px;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-}
-
-/* === 水印 - 沉在底部，极淡 === */
-.background-watermark {
-    position: absolute;
-    top: 15%;
-    left: 0;
-    width: 100%;
-    z-index: 2;
-    /* 在图片之上，但在文字之下 */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    pointer-events: none;
-    mix-blend-mode: overlay;
-    /* 叠加模式，让文字融入图片纹理 */
-    opacity: 0.3;
-    /* 极淡 */
-}
-
-.watermark-line {
-    font-family: var(--font-display);
-    font-size: 7.5rem;
-    font-weight: 700;
-    line-height: 0.8;
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.watermark-line.indent {
-    margin-left: 60px;
-}
-
-.watermark-line.smaller {
-    font-size: 3rem;
-    margin-top: 20px;
-    letter-spacing: 0.2em;
-}
-
-
-/* === Footer - 浮在图片上，无背景 === */
-.poster-footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    padding: 30px 20px;
-    z-index: 20;
-    color: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-}
-
-.footer-left {
-    max-width: 50%;
-}
-
-.footer-label {
-    font-size: 0.7rem;
-    font-family: var(--font-serif);
-    margin-bottom: 6px;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-}
-
-.footer-keyword {
-    font-family: "Noto Serif SC", serif;
-    font-size: 1.8rem;
-    font-weight: 500;
-    line-height: 1.1;
-    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-}
-
-.footer-right {
-    width: 45%;
-}
-
-.calendar-grid {
-    font-family: 'Helvetica Neue', sans-serif;
-    font-size: 0.55rem;
-    text-align: center;
-    color: rgba(255, 255, 255, 0.9);
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
-}
-
-.calendar-week-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 6px;
-    font-weight: 700;
-    opacity: 0.8;
-}
-
-.calendar-week-row span {
-    width: 14%;
-}
-
-.calendar-days-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    row-gap: 4px;
-}
-
-/* 按钮 */
+/* === 按钮样式 === */
 .action-buttons {
     margin-top: 30px;
     display: flex;
     gap: 20px;
+}
+
+.action-btn {
+    padding: 14px 32px;
+    font-family: 'Songti SC', serif;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    outline: none;
+    /* 默认摩登样式：实心双妹红 */
+    background-color: var(--vive-red);
+    color: #fff;
+    min-width: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(139, 30, 41, 0.2);
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(139, 30, 41, 0.3);
+}
+
+.action-btn.secondary {
+    background-color: transparent;
+    border: 1px solid var(--vive-red);
+    color: var(--vive-red);
+    box-shadow: none;
+}
+
+.action-btn.secondary:hover {
+    background-color: rgba(139, 30, 41, 0.05);
 }

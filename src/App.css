@@ -8,17 +8,11 @@
 }
 
 /* 背景装饰 */
-.app::before {
+/* 移除红色光晕，保持干净 */
+/*.app::before {
   content: '';
-  position: fixed;
-  top: -50%;
-  right: -30%;
-  width: 80%;
-  height: 100%;
-  background: radial-gradient(ellipse at center, rgba(139, 0, 0, 0.03) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
-}
+  ...
+}*/
 
 .app::after {
   content: 'MODERN';
@@ -26,10 +20,14 @@
   top: 50%;
   left: -10%;
   transform: translateY(-50%) rotate(-90deg);
-  font-family: var(--font-display);
+  font-family: 'Playfair Display', serif;
+  /* 确保统一字体 */
   font-size: clamp(80px, 15vw, 200px);
   font-weight: 700;
-  color: rgba(139, 0, 0, 0.03);
+  color: var(--vive-gold);
+  /* 改为金色 */
+  opacity: 0.05;
+  /* 极淡 */
   letter-spacing: 0.2em;
   pointer-events: none;
   z-index: 0;
