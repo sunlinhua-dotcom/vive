@@ -210,9 +210,13 @@
 
 @media (max-width: 480px) {
     .upload-section::before {
-        font-size: 4rem;
-        /* 移动端背景文字调小 */
-        top: -10px;
+        display: none;
+        /* 手机上隐藏 "MODERN" 背景字，防止太乱 */
+    }
+
+    .upload-section {
+        padding-top: var(--spacing-xl);
+        /* 增加顶部间距 */
     }
 
     .upload-area {
@@ -220,22 +224,45 @@
     }
 
     .features {
-        flex-direction: column;
-        gap: var(--spacing-md);
+        flex-direction: row;
+        /* 手机上也尝试并排，或者紧凑的一行 */
+        flex-wrap: wrap;
+        /* 允许换行 */
+        gap: 10px;
         width: 100%;
-        padding: 0 var(--spacing-lg);
+        padding: 0 10px;
         box-sizing: border-box;
     }
 
     .feature-divider {
         display: none;
-        /* 移动端隐藏加号 */
     }
 
     .feature-item {
-        width: 100%;
-        background: rgba(255, 255, 255, 0.6);
-        justify-content: center;
-        box-sizing: border-box;
+        width: 48%;
+        /* 并排显示 */
+        flex: 1;
+        padding: 10px;
+        /* 减小内边距 */
+        flex-direction: column;
+        /* 图标文字垂直排列 */
+        text-align: center;
+        gap: 5px;
+        background: rgba(255, 255, 255, 0.4);
+    }
+
+    .feature-icon {
+        font-size: 1.5rem;
+        /* 缩小图标 */
+    }
+
+    .feature-title {
+        font-size: 0.9rem;
+    }
+
+    .feature-desc {
+        font-size: 0.6rem;
+        display: none;
+        /* 手机上也许可以隐藏描述，太挤了，或者保留但放小 */
     }
 }
