@@ -26,7 +26,9 @@
     height: 70px;
     width: auto;
     display: block;
-    /* 已通过 JS 去除白底，无需混合模式 */
+    /* 双重保险：JS 去白底 + CSS 正片叠底 */
+    /* 这样即使加载原图，白底也会变透明 */
+    mix-blend-mode: multiply;
 }
 
 .header-tagline {
