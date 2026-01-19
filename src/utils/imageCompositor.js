@@ -167,20 +167,43 @@ export const composeFinalImage = async (baseImageUrl, data) => {
                 ctx.fillText(d, calX + i * cellW + cellW / 2, calY);
             });
 
-            // Days
+            // Days (Dynamic & Real)
             ctx.globalAlpha = 1.0;
             ctx.font = `${targetWidth * 0.02}px sans-serif`;
-            let day = 1;
-            for (let r = 1; r <= 5; r++) {
+
+            // 1. 解析月份为索引 (0-11)
+            const monthMap = {
+                "JANUARY": 0, "FEBRUARY": 1, "MARCH": 2, "APRIL": 3, "MAY": 4, "JUNE": 5,
+                "JULY": 6, "AUGUST": 7, "SEPTEMBER": 8, "OCTOBER": 9, "NOVEMBER": 10, "DECEMBER": 11
+            };
+            const mIndex = monthMap[(month || "JANUARY").toUpperCase()] || 0;
+            const yNum = parseInt(year) || 2026;
+
+            // 2. 计算当月第一天是周几 (JS getDay: 0=Sun, 1=Mon... 6=Sat)
+            const firstDate = new Date(yNum, mIndex, 1);
+            const jsDay = firstDate.getDay();
+            // 我们的表头是 MON(0) -> SUN(6)
+            // 转换：Sun(0) => 6, Mon(1) => 0, Tue(2) => 1 ...
+            const startOffset = (jsDay + 6) % 7;
+
+            // 3. 计算当月总天数 (下个月的第0天 = 当月最后一天)
+            const daysInMonth = new Date(yNum, mIndex + 1, 0).getDate();
+
+            let currentDay = 1;
+            // 最多绘制 6 行，足以覆盖任何月份
+            for (let r = 1; r <= 6; r++) {
                 for (let c = 0; c < 7; c++) {
-                    if (day <= 31) {
-                        if (r === 1 && c < 2) { } // 空格
-                        else {
-                            ctx.fillText(day.toString(), calX + c * cellW + cellW / 2, calY + r * cellH);
-                            day++;
-                        }
+                    // 第一行：检查起始偏移
+                    if (r === 1 && c < startOffset) {
+                        continue; // 空白
+                    }
+
+                    if (currentDay <= daysInMonth) {
+                        ctx.fillText(currentDay.toString(), calX + c * cellW + cellW / 2, calY + r * cellH);
+                        currentDay++;
                     }
                 }
+                if (currentDay > daysInMonth) break;
             }
 
             // 导出
