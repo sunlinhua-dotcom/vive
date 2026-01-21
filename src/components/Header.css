@@ -44,6 +44,10 @@
     color: var(--vive-red);
     letter-spacing: 0.2rem;
     font-weight: 600;
+    /* 强制去除可能存在的调试边框 */
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
 }
 
 @media (max-width: 480px) {
