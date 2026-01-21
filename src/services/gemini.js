@@ -166,7 +166,10 @@ export const generateFashionImages = async (features, imageBase64) => {
       Concept: "Double Life / Timeless Encounter".
       Aspect Ratio: 3:4 (Portrait).
       
-      COMPOSITION & POSE:
+      **CRITICAL COMPOSITION**:
+      - **HEADROOM**: Leave significant EMPTY SPACE at the TOP of the image (about 15-20% of the frame height) for text overlay.
+      - Position the subjects' HEADS in the UPPER-MIDDLE section, NOT at the very top edge.
+      - Subjects should be positioned slightly LOWER in the frame than typical portraits.
       - Two women posing together intimately (back-to-back, or holding hands).
       - Natural interaction, cinematic lighting.
       
