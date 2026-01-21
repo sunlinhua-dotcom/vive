@@ -1,223 +1,182 @@
-/* GeneratingScreen.css - 摩登时光版 */
-
 .generating-screen {
-    width: 100%;
-    min-height: 80vh;
-    /* 保证居中 */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
     position: relative;
-}
-
-/* 装饰背景字 */
-.generating-screen::before {
-    content: "TIME TRAVEL";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-family: 'Playfair Display', serif;
-    font-size: 15vw;
-    color: var(--vive-gold);
-    opacity: 0.03;
-    z-index: 0;
-    white-space: nowrap;
-    pointer-events: none;
-}
-
-.content-wrapper {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 50px;
-}
-
-/* 摩登扫描框 - ArtDeco 风格 */
-.image-scanner {
-    width: 240px;
-    height: 320px;
-    /* 3:4 比例 */
-    overflow: hidden;
-    position: relative;
-
-    /* 只用外轮廓线装饰，不用内边框，让图片贴边 */
-    border: none !important;
-    /* 移除内边框 */
-    outline: 2px solid var(--vive-gold);
-    /* 外轮廓线 */
-    outline-offset: 4px;
-    /* 轮廓线离容器有 4px 间距 */
-
-    /* 去掉 padding 和背景 */
-    background: transparent !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-
-    /* 阴影 */
-    box-shadow:
-        0 0 0 1px var(--vive-gold),
-        /* 用 box-shadow 模拟 1px 紧贴边框 */
-        0 20px 50px rgba(139, 30, 41, 0.15);
-}
-
-/* 角标装饰 */
-.image-scanner::after {
-    content: '';
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    width: 40px;
-    height: 40px;
-    border-top: 2px solid var(--vive-red);
-    border-right: 2px solid var(--vive-red);
-}
-
-.image-scanner::before {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: -8px;
-    width: 40px;
-    height: 40px;
-    border-bottom: 2px solid var(--vive-red);
-    border-left: 2px solid var(--vive-red);
-}
-
-.source-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: center top;
-    /* 保证人脸不被切掉 */
-    filter: sepia(0.2) contrast(1.1);
-    display: block;
-    z-index: 1;
-    /* 在扫描线下面 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: #F8F1E4;
 }
 
-/* 扫描线：改成一束光的扫描 */
-.scan-line {
+/* Time Tunnel Visuals */
+.time-tunnel {
+    position: relative;
+    width: 260px;
+    height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 3rem;
+}
+
+.pulse-ring {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 10px;
-    background: linear-gradient(to bottom,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.8) 50%,
-            rgba(255, 255, 255, 0) 100%);
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
-    animation: scan 3s ease-in-out infinite;
-    z-index: 2;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    /* Gold */
+    border-radius: 50%;
+    opacity: 0;
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-@keyframes scan {
+.ring-1 {
+    width: 100%;
+    height: 100%;
+    animation-delay: 0s;
+}
+
+.ring-2 {
+    width: 100%;
+    height: 100%;
+    animation-delay: 1s;
+}
+
+.ring-3 {
+    width: 100%;
+    height: 100%;
+    animation-delay: 2s;
+}
+
+@keyframes pulse {
     0% {
-        top: -20%;
+        transform: scale(0.8);
         opacity: 0;
+        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.2);
     }
 
-    20% {
+    50% {
         opacity: 1;
-    }
-
-    80% {
-        opacity: 1;
+        box-shadow: 0 0 20px 10px rgba(212, 175, 55, 0.1);
     }
 
     100% {
-        top: 120%;
+        transform: scale(1.5);
         opacity: 0;
     }
 }
 
-/* 状态区域 */
-.status-container {
-    width: 300px;
+/* Avatar in Animation */
+.avatar-container {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    z-index: 10;
+    border: 2px solid rgba(255, 215, 0, 0.8);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.tunnel-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: sepia(0.4) contrast(1.1);
+    /* Slight vintage look */
+}
+
+/* Status Display */
+.status-display {
+    text-align: center;
+    z-index: 2;
+    margin-bottom: 2rem;
+}
+
+.year-counter {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    font-weight: 700;
+    color: #D4AF37;
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+    line-height: 1;
+    margin-bottom: 1rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.phase-text {
+    font-family: 'Songti SC', serif;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    letter-spacing: 2px;
+    margin-bottom: 2rem;
+    height: 24px;
+    /* Prevent layout shift */
+}
+
+/* Real Progress Bar */
+.real-progress-container {
+    width: 240px;
+    margin-top: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
-.loading-text {
-    font-family: 'Songti SC', 'Noto Serif SC', serif;
-    font-size: 1.2rem;
-    color: var(--vive-red);
-    letter-spacing: 0.1em;
-    min-height: 1.5em;
+.real-progress-track {
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.real-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #D4AF37 0%, #F8F1E4 100%);
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.6);
+    border-radius: 3px;
+    transition: width 0.3s ease-out;
+}
+
+.real-progress-number {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    color: var(--vive-gold);
+    letter-spacing: 2px;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.9;
+}
+
+/* Updated Branding */
+.brand-watermark {
+    position: absolute;
+    bottom: 3rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.3);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0.6;
+}
+
+.brand-vive {
+    color: var(--vive-gold);
     font-weight: 600;
 }
 
-/* 极细进度条 */
-.progress-bar-container {
-    width: 100%;
-    height: 1px;
-    /* 极细 */
-    background: rgba(139, 30, 41, 0.1);
-    position: relative;
-    margin-top: 10px;
-}
-
-.progress-bar-fill {
-    height: 100%;
-    background: var(--vive-red);
-    position: absolute;
-    left: 0;
-    top: 0;
-    transition: width 0.3s ease-out;
-    box-shadow: 0 0 10px var(--vive-red);
-}
-
-.progress-percentage {
-    font-family: 'Playfair Display', serif;
-    font-size: 2rem;
-    color: var(--vive-gold);
-    opacity: 0.3;
-    font-weight: 700;
-    margin-top: -10px;
-    /* 让数字稍微叠在文字下面一点 */
-}
-
-/* ...existing code... */
-.slow-notice {
-    font-family: 'Songti SC', serif;
+.brand-x {
+    color: rgba(255, 255, 255, 0.3);
+    font-weight: 300;
     font-size: 0.8rem;
-    color: var(--vive-black);
-    opacity: 0.5;
-    margin-top: 20px;
-    max-width: 240px;
-    line-height: 1.5;
 }
 
-/* 移动端优化 */
-@media (max-width: 768px) {
-    .generating-screen::before {
-        display: none;
-        /* 手机端隐藏 TIME TRAVEL 背景字 */
-    }
-
-    .image-scanner {
-        width: 180px;
-        /* 缩小一点 */
-        height: 240px;
-    }
-
-    .loading-text {
-        font-size: 1rem;
-    }
-
-    .progress-percentage {
-        font-size: 1.5rem;
-    }
+.brand-partner {
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 400;
 }

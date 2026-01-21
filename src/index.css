@@ -51,12 +51,8 @@ body {
   min-height: 100vh;
   width: 100%;
 
-  /* 核心修复：背景色彻底全屏 */
-  background-color: var(--vive-cream);
-  background-image:
-    radial-gradient(circle at 10% 20%, rgba(197, 160, 101, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(139, 30, 41, 0.03) 0%, transparent 40%);
-
+  /* Reset background so App.css controls the theme */
+  background: black;
   color: var(--vive-black);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;

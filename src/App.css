@@ -1,212 +1,44 @@
-/* UI 重构：杂志风全屏布局 */
-
+/* Global Mobile-First Layout - "Portal of Time" Aesthetic */
 .app {
-  min-height: 100vh;
   width: 100%;
+  min-height: 100vh;
   position: relative;
   overflow-x: hidden;
-  /* 移动端默认布局：单列纵向 */
   display: flex;
   flex-direction: column;
+  /* Global Cinematic Background */
+  background: url('/ui-background.jpg') center/cover no-repeat;
+  /* Dark overlay for text readability */
+  box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.9);
+  color: #F8F1E4;
 }
 
-/* 右侧交互区（移动端占满全屏） */
-.interaction-side {
-  width: 100%;
-  min-height: 100vh;
-  /* 确保占满 */
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  z-index: 2;
-  transition: all 0.5s ease;
+/* Global Overlay */
+.app::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 10, 5, 0.85);
+  /* Global darken overlay */
+  backdrop-filter: blur(2px);
+  z-index: 0;
+  pointer-events: none;
 }
 
+/* Main Content Container */
 .main-content {
   flex: 1;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-lg) var(--spacing-md);
-  width: 100%;
-  max-width: 500px;
-  /* 移动端内容限制宽度，防止太宽难看 */
-  margin: 0 auto;
+  /* No padding on container itself, let children handle safe areas */
 }
 
-/* 移动端默认隐藏左侧品牌区 */
-.desktop-brand-side {
-  display: none;
-}
-
-/* ------------------------------------------------------------------
-   Desktop 布局 (>= 1024px) - 开启双栏杂志模式
-   ------------------------------------------------------------------ */
-@media (min-width: 1024px) {
-  .app {
-    flex-direction: row;
-    /* 改为横向 */
-    align-items: stretch;
-    justify-content: center;
-    padding: 0;
-    /* Web端铺满，或者给一点外边距做成浮空卡片？这里先做铺满 */
-  }
-
-  /* 左侧品牌视觉区 */
-  .desktop-brand-side {
-    display: flex;
-    flex: 1;
-    /* 占据剩余空间 */
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    background-color: var(--vive-red);
-    /* 纯 CSS Art Deco 纹理：扇形光束 */
-    background-image:
-      repeating-linear-gradient(45deg,
-        rgba(0, 0, 0, 0.1) 0px,
-        rgba(0, 0, 0, 0.1) 2px,
-        transparent 2px,
-        transparent 8px),
-      radial-gradient(circle at 50% 120%, rgba(197, 160, 101, 0.3) 0%, rgba(139, 30, 41, 0) 60%);
-    background-size: cover;
-    color: var(--vive-gold);
-    overflow: hidden;
-    box-shadow: 10px 0 50px rgba(0, 0, 0, 0.3);
-    /* 更深的阴影增加立体感 */
-    z-index: 3;
-    /* 增加复古暗角 */
-    box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.6);
-  }
-
-  /* Art Deco 装饰框线 */
-  .desktop-brand-side::before {
-    content: '';
-    position: absolute;
-    inset: 40px;
-    border: 2px solid rgba(197, 160, 101, 0.2);
-    border-radius: 4px;
-    pointer-events: none;
-    background: transparent;
-  }
-
-  /* 内层装饰线，增加层次 */
-  .desktop-brand-side::after {
-    content: '';
-    position: absolute;
-    inset: 50px;
-    border: 1px solid rgba(197, 160, 101, 0.1);
-    pointer-events: none;
-  }
-
-  .brand-visual-content {
-    text-align: center;
-    z-index: 2;
-    padding: 60px;
-    max-width: 600px;
-    /* 文字浮起感 */
-    text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  }
-
-  .brand-hero-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 5rem;
-    /* 大气标题 */
-    line-height: 1.1;
-    margin-bottom: 24px;
-    letter-spacing: 0.1em;
-    font-weight: 700;
-    color: var(--vive-gold);
-    /* 渐变金色文字 */
-    background: linear-gradient(to bottom, #E6CFA5, #C5A065);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .brand-hero-subtitle {
-    font-family: 'Songti SC', serif;
-    font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.8);
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    font-weight: 300;
-  }
-
-  .brand-divider {
-    width: 80px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--vive-gold), transparent);
-    margin: 40px auto;
-  }
-
-  .brand-story {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
-    font-style: italic;
-    color: rgba(255, 255, 255, 0.6);
-    line-height: 1.8;
-  }
-
-  /* 右侧交互区调整 */
-  .interaction-side {
-    flex: 0 0 500px;
-    /* 黄金比例宽度 */
-    min-width: 450px;
-    background: rgba(255, 255, 255, 0.7);
-    /* 增加不透明度，提升质感 */
-    backdrop-filter: blur(40px);
-    /* 强力磨砂 */
-    -webkit-backdrop-filter: blur(40px);
-    border-left: 1px solid rgba(255, 255, 255, 0.4);
-    /* 玻璃边缘高光 */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    /* 垂直居中内容 */
-  }
-}
-
-/* 超大屏优化 */
-@media (min-width: 1600px) {
-  .brand-hero-title {
-    font-size: 7rem;
-  }
-}
-
-/* 之前的背景装饰字全部移除，因为左侧栏有了 */
-/* 之前的背景装饰字全部移除，因为左侧栏有了 */
-.app::after,
-.app::before {
-  display: none;
-}
-
-/* Mobile 专属优化 */
-@media (max-width: 1023px) {
-  .app {
-    flex-direction: column;
-  }
-
-  .interaction-side {
-    width: 100%;
-    min-height: 100vh;
-    flex: auto;
-    /* 重置 flex 属性 */
-    min-width: 0;
-    /* 防止 overflow */
-    border-left: none;
-    /* 移除桌面端的边框 */
-    background: transparent;
-    /* 手机端直接透出 body 全局背景 */
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    box-shadow: none;
-  }
-
-  .main-content {
-    justify-content: flex-start;
-    /* 手机端内容偏上一点可能更好，或者保持居中 */
-    padding-top: 40px;
-    padding-bottom: 80px;
-  }
+/* Ensure no desktop split view logic interferes */
+.desktop-brand-side,
+.interaction-side {
+  display: none !important;
 }

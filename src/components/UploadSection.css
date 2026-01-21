@@ -1,48 +1,42 @@
-/* 全局容器：沉浸式深色香槟金氛围 */
+/* Upload Section - Transparent Container */
 .upload-section {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /* 居中内容，减少上下空白 */
-    gap: 1.5rem;
-    /* 紧凑布局 */
-    min-height: 100vh;
-    padding: 1rem;
+    gap: 4vh;
+    /* Evenly distribute vertically */
+    flex: 1;
+    /* Grow to fill main-content */
+    width: 100%;
+    min-height: 100%;
+    /* Ensure full height */
+    padding: 2rem 1.5rem;
     position: relative;
-    /* 使用 AI 生成的 Art Deco 背景 */
-    background: url('/ui-background.jpg') center/cover no-repeat;
-    /* 增加暗角，聚焦中心 */
-    box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.9);
+    background: transparent;
+    /* Rely on global App background */
+    box-shadow: none;
+    /* Remove local shadow */
     overflow: hidden;
     color: #F8F1E4;
-    /* 提亮文字颜色 */
 }
 
-/* 增加遮罩层让背景不喧宾夺主 - 加深以提高文字清晰度 */
+/* Remove local overlay since App.css handles it */
 .upload-section::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(15, 10, 5, 0.85);
-    /* 更深的遮罩 */
-    z-index: 0;
-    backdrop-filter: blur(2px);
-    /* 轻微模糊背景细节 */
+    display: none;
 }
 
 /* 顶部 Header 区域 */
 .upload-header {
     text-align: center;
-    margin-bottom: 0.5rem;
     position: relative;
     z-index: 2;
+    margin-top: 1rem;
 }
 
 .upload-title {
     font-family: 'Playfair Display', serif;
-    font-size: 2rem;
-    /* 金色渐变更亮一点 */
+    font-size: 2.2rem;
     background: linear-gradient(135deg, #FFF5C2 0%, #D4AF37 50%, #A67C00 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -54,22 +48,20 @@
 .upload-subtitle {
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.8);
-    /* 提高对比度 */
     letter-spacing: 4px;
     text-transform: uppercase;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
-/* 核心交互区：时光之门 (Portal) */
+/* 核心交互区：时光之门 (Portal) - Maximize size */
 .upload-area {
     width: 100%;
-    max-width: 280px;
-    /* 稍微缩小以适应紧凑布局 */
+    max-width: 320px;
+    /* Slightly larger on mobile */
     aspect-ratio: 3/4;
-    border-radius: 140px 140px 16px 16px;
+    border-radius: 160px 160px 20px 20px;
     position: relative;
-    background: rgba(30, 30, 30, 0.4);
-    /* 深色半透明底 */
+    background: rgba(30, 30, 30, 0.3);
     border: 1px solid rgba(212, 175, 55, 0.4);
     display: flex;
     flex-direction: column;
@@ -77,11 +69,11 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(5px);
     overflow: hidden;
     box-shadow:
-        0 0 0 1px rgba(0, 0, 0, 0.5),
-        0 10px 30px -10px rgba(0, 0, 0, 0.8);
+        0 0 0 1px rgba(0, 0, 0, 0.2),
+        0 10px 30px -10px rgba(0, 0, 0, 0.5);
     z-index: 2;
 }
 
@@ -98,8 +90,8 @@
 
 /* 上传图标容器 */
 .upload-icon {
-    width: 56px;
-    height: 56px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
     border: 1px solid rgba(255, 215, 0, 0.6);
     display: flex;
@@ -108,13 +100,6 @@
     margin-bottom: 1rem;
     color: #FFD700;
     transition: all 0.5s ease;
-}
-
-.upload-area:hover .upload-icon {
-    transform: scale(1.1) rotate(90deg);
-    border-color: var(--vive-gold);
-    background: rgba(197, 160, 101, 0.1);
-    box-shadow: 0 0 15px rgba(197, 160, 101, 0.4);
 }
 
 .upload-text {
@@ -126,7 +111,7 @@
 .upload-main-text {
     display: block;
     font-family: 'Playfair Display', serif;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     color: #FFF;
     margin-bottom: 0.5rem;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
@@ -143,13 +128,14 @@
     display: none;
 }
 
-/* 装饰性特征 */
+/* Features bar */
 .features {
     display: flex;
     align-items: center;
     gap: 1.5rem;
     margin-top: 1rem;
     z-index: 2;
+    opacity: 0.9;
 }
 
 .feature-item {
@@ -157,38 +143,33 @@
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    border: none;
     background: transparent;
     padding: 0;
+    color: var(--vive-gold);
 }
 
 .feature-title {
     font-size: 0.75rem;
     color: #D4AF37;
     letter-spacing: 1px;
-    font-weight: 400;
 }
 
 .feature-desc {
-    font-size: 0.6rem;
-    color: rgba(255, 255, 255, 0.5);
-    /* 提高些许亮度 */
-    letter-spacing: 0.5px;
-    display: block;
+    display: none;
 }
 
+/* Simplify for mobile */
 .feature-divider {
     color: rgba(255, 255, 255, 0.2);
     font-weight: 100;
 }
 
-/* 底部区域 */
+/* Footer - Floating Glass Pill */
 .upload-footer {
     width: 100%;
     text-align: center;
-    margin-top: 1rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 2rem;
+    border: none;
     position: relative;
     z-index: 2;
 }
@@ -196,45 +177,88 @@
 .footer-slogan {
     font-family: 'Songti SC', serif;
     font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.6);
     letter-spacing: 2px;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 /* Partner Branding - 玻璃卡片样式优化 */
+/* Partner Branding - 玻璃卡片样式优化 */
 .partner-branding {
-    background: rgba(0, 0, 0, 0.4);
-    /* 黑色半透明衬底 */
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    /* 极细边框 */
+    background: linear-gradient(180deg, rgba(30, 30, 30, 0.85) 0%, rgba(10, 10, 10, 0.98) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.4);
     border-radius: 16px;
-    padding: 1.2rem;
+    padding: 1rem 1.5rem;
     width: fit-content;
     margin: 0 auto;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.partner-badge {
+    font-size: 0.55rem;
+    color: var(--vive-gold);
+    letter-spacing: 1.5px;
+    background: rgba(212, 175, 55, 0.1);
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    margin-bottom: 0.3rem;
+    white-space: nowrap;
+}
+
+.partner-content-row {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.partner-info-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    padding-left: 1rem;
+}
+
+.brand-role {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.8);
+    letter-spacing: 2px;
+    line-height: 1.4;
+    font-weight: 500;
 }
 
 .partner-logo-container {
-    animation: breathing 4s ease-in-out infinite;
+    filter: brightness(1.2) contrast(1.1);
 }
 
-@keyframes breathing {
-    0% {
-        opacity: 0.9;
-        transform: scale(1);
-    }
+/* Collab Header */
+.header-collab {
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    color: var(--vive-gold);
+    text-transform: uppercase;
+    margin-bottom: 0rem;
+    opacity: 0.9;
+}
 
-    50% {
-        opacity: 1;
-        transform: scale(1.02);
-        filter: brightness(1.1);
-    }
-
-    100% {
-        opacity: 0.9;
-        transform: scale(1);
-    }
+/* Campaign Tagline */
+.campaign-tagline {
+    font-family: 'Songti SC', serif;
+    font-size: 0.9rem;
+    color: #F8F1E4;
+    letter-spacing: 2px;
+    text-align: center;
+    margin-top: 1rem;
+    font-weight: 300;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    opacity: 0.9;
 }
 
 /* 动画：入场 */
@@ -254,12 +278,7 @@
     }
 }
 
-@media (max-width: 480px) {
-    .upload-section {
-        padding: 1rem;
-        gap: 1.5rem;
-    }
-
+@media (max-width: 380px) {
     .upload-title {
         font-size: 1.8rem;
     }
@@ -267,9 +286,27 @@
     .upload-area {
         max-width: 260px;
     }
+}
 
-    .feature-desc {
-        display: none;
-        /* 手机上隐藏描述以防拥挤 */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
     }
+}
+
+.upload-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(212, 175, 55, 0.3);
+    border-top-color: var(--vive-gold);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.processing-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
 }
