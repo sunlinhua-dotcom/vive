@@ -19,7 +19,7 @@ function App() {
   const startPolling = (taskId) => {
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`http://localhost:3004/api/status/${taskId}`);
+        const res = await fetch(`/api/status/${taskId}`);
         if (!res.ok) throw new Error("Status check failed");
 
         const data = await res.json();
@@ -96,7 +96,7 @@ function App() {
 
     try {
       // Submit to Backend Queue
-      const response = await fetch('http://localhost:3004/api/generate', {
+      const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageDataUrl })
@@ -115,7 +115,7 @@ function App() {
 
     } catch (error) {
       console.error("Workflow failed:", error);
-      alert("提交失败，请确保后台服务已启动 (localhost:3004)");
+      alert("提交失败，请稍后再试");
       setStep('upload');
     }
   }
