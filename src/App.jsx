@@ -129,7 +129,7 @@ function App() {
 
       {step === 'generating' && (
         <GeneratingScreen
-          sourceImage={uploadedImage}
+          uploadedImage={uploadedImage}
           loadingText={loadingText}
           progress={progress}
         />
