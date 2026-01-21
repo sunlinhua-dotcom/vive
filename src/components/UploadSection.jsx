@@ -1,17 +1,27 @@
 import { useRef, useState } from 'react'
+import { compressFile } from '../utils/imageUtils'
 import './UploadSection.css'
 
 function UploadSection({ onImageUpload }) {
     const fileInputRef = useRef(null)
     const [isDragging, setIsDragging] = useState(false)
 
-    const handleFileSelect = (file) => {
+    const handleFileSelect = async (file) => {
         if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader()
-            reader.onload = (e) => {
-                onImageUpload(e.target.result)
+            try {
+                // 前端直接压缩：最大宽1024px，质量0.7
+                // 这将瞬间把 10MB 的照片变成 ~200KB，极大加速体验
+                console.log("正在进行前端极速压缩...");
+                const compressedBase64 = await compressFile(file, 1024, 0.7);
+                console.log("压缩完成，准备上传");
+                onImageUpload(compressedBase64);
+            } catch (error) {
+                console.error("图片压缩失败:", error);
+                // 压缩失败时的兜底：使用原始 FileReader（虽然慢但能用）
+                const reader = new FileReader();
+                reader.onload = (e) => onImageUpload(e.target.result);
+                reader.readAsDataURL(file);
             }
-            reader.readAsDataURL(file)
         }
     }
 
