@@ -54,6 +54,18 @@ function UploadSection({ onImageUpload }) {
     return (
         <section className="upload-section fade-in">
             <header className="upload-header">
+                {/* 顶部联名露出：高端、低调但清晰 */}
+                <div style={{
+                    fontFamily: '"Playfair Display", serif',
+                    color: 'var(--vive-gold)',
+                    fontSize: '0.9rem',
+                    letterSpacing: '2px',
+                    marginBottom: '0.5rem',
+                    opacity: 0.9,
+                    fontWeight: 600
+                }}>
+                    VIVE <span style={{ fontSize: '0.7em', verticalAlign: 'middle', margin: '0 4px' }}>✕</span> DIGIREPUB
+                </div>
                 <h1 className="upload-title">MODERN ENCOUNTER</h1>
                 <p className="upload-subtitle">双妹·摩登奇遇</p>
             </header>
@@ -105,7 +117,58 @@ function UploadSection({ onImageUpload }) {
             </div>
 
             <div className="upload-footer">
-                全网共晒双妹月份牌 · 看见百年摩登之美
+                <div className="footer-slogan">全网共晒双妹月份牌 · 看见百年摩登之美</div>
+
+                {/* 大合数码 Digirepub 品牌深度露出 */}
+                <div className="partner-branding" style={{
+                    marginTop: '2rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '12px'
+                }}>
+                    <div style={{
+                        padding: '4px 16px',
+                        background: 'rgba(255,255,255,0.08)',
+                        border: '1px solid rgba(197, 160, 101, 0.4)',
+                        borderRadius: '20px',
+                        fontSize: '0.8rem',
+                        color: 'var(--vive-gold)',
+                        letterSpacing: '1.5px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                    }}>
+                        <span>●</span> 年会预览版 · Annual Meeting Preview
+                    </div>
+
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column', // 改为垂直布局，让Logo更大
+                        alignItems: 'center',
+                        gap: '6px',
+                        marginTop: '5px'
+                    }}>
+                        <span style={{
+                            fontSize: '0.65rem',
+                            color: 'rgba(255,255,255,0.4)',
+                            textTransform: 'uppercase',
+                            letterSpacing: '2px'
+                        }}>Official Creative AI Partner</span>
+
+                        {/* Logo 放大且保持原色 */}
+                        <img
+                            src="/digirepub-logo.png"
+                            alt="Digirepub"
+                            style={{
+                                height: '36px', // 放大到 36px
+                                objectFit: 'contain',
+                                filter: 'brightness(1.15) contrast(1.1)', // 稍微提亮增强质感
+                            }}
+                        />
+                    </div>
+                </div>
             </div>      </section>
     )
 }
