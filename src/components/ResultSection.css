@@ -1,193 +1,180 @@
-/* ResultSection.css - 极致融合版 (追加按钮样式) */
-
-.result-section {
-    width: 100%;
-    min-height: 100vh;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-/* === 移动端适配 (iPhone) === */
-@media (max-width: 768px) {
-    .result-section {
-        padding: 40px 20px;
-        min-height: 100vh;
-        overflow-y: auto;
-        /* 增加底部空间防止按钮贴边 */
-        padding-bottom: 100px;
-    }
-
-    .layout-container {
-        flex-direction: column;
-        gap: 30px;
-        width: 100%;
-        align-items: center;
-    }
-
-    /* 手机上显示精简版信息 */
-    .info-panel {
-        display: flex !important;
-        align-items: center;
-        text-align: center;
-        order: -1;
-        /* 放在海报上方 */
-        margin-bottom: 10px;
-    }
-
-    .info-keyword {
-        font-size: 2rem !important;
-        margin: 5px 0 !important;
-    }
-
-    .info-attitude {
-        border-left: none !important;
-        padding-left: 0 !important;
-    }
-
-    /* 海报卡片适配 */
-    .poster-card {
-        width: 100% !important;
-        max-width: 350px;
-        height: auto !important;
-        aspect-ratio: 3/4;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-        border: 4px solid #fff;
-        /* 增加拍立得/相框感 */
-    }
-
-    .action-buttons {
-        flex-direction: column;
-        width: 100%;
-        max-width: 300px;
-        gap: 15px !important;
-    }
-
-    .action-btn {
-        width: 100%;
-    }
-}
-
-/* 布局容器 */
-.layout-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 80px;
-    /* 拉大间距 */
-    width: 100%;
-    max-width: 1200px;
-}
-
-/* 左侧信息面板 */
-.info-panel {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    /* 左对齐 */
-    text-align: left;
-    max-width: 320px;
-}
-
-.info-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 0.9rem;
-    letter-spacing: 0.2em;
-    color: var(--vive-red);
-    text-transform: uppercase;
-    margin-bottom: 10px;
-    opacity: 0.8;
-}
-
-.info-keyword {
-    font-family: 'Songti SC', 'Noto Serif SC', serif;
-    font-size: 3.5rem;
-    font-weight: 700;
-    color: var(--vive-black);
-    line-height: 1.2;
-    margin: 0 0 20px 0;
-}
-
-.info-attitude {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.2rem;
-    font-style: italic;
-    color: var(--vive-gold);
-    line-height: 1.6;
-    border-left: 2px solid var(--vive-red);
-    padding-left: 20px;
-}
-
-/* === 海报卡片 === */
-.poster-card {
-    width: 375px;
-    height: 500px;
-    /* 3:4 比例 (375 / 3 * 4 = 500) */
+.result-screen {
     position: relative;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
-    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.25);
     background: #000;
-    /* 默认黑底，防闪烁 */
-}
-
-/* === 图像层 === */
-.poster-image-area {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-}
-
-.fusion-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    /* 稍微压暗一点点，保证白色文字在任何背景下都可见 */
-    filter: brightness(0.9);
-}
-
-/* === 按钮样式 === */
-.action-buttons {
-    margin-top: 30px;
     display: flex;
-    gap: 20px;
+    flex-direction: column;
 }
 
-.action-btn {
-    padding: 14px 32px;
-    font-family: 'Songti SC', serif;
-    font-size: 1rem;
-    letter-spacing: 0.15em;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: none;
-    outline: none;
-    /* 默认摩登样式：实心双妹红 */
-    background-color: var(--vive-red);
-    color: #fff;
-    min-width: 160px;
+/* Result Layout with Header */
+.result-header-wrapper {
+    display: none;
+    /* Hide header as requested */
+}
+
+/* Image takes available space */
+.result-image-container.theme-framed {
+    flex: 1;
+    width: 100%;
+    position: relative;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 10px rgba(139, 30, 41, 0.2);
+    background: #000;
+    /* Deep black merging with footer */
+    overflow: hidden;
+    padding: 40px 20px 20px 20px;
 }
 
-.action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(139, 30, 41, 0.3);
+.image-frame-inner {
+    width: 100%;
+    height: 100%;
+    max-width: 500px;
+    /* Constrain width on desktop */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
 }
 
-.action-btn.secondary {
-    background-color: transparent;
-    border: 1px solid var(--vive-red);
-    color: var(--vive-red);
+.result-image-content {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+    /* Deeper shadow */
+}
+
+/* On entry, subtle zoom out */
+.result-screen.fade-in .result-image-content {
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Action Dock - Minimalist "Nano" Style */
+.action-dock {
+    position: relative;
+    width: 100%;
+    background: #000;
+    z-index: 20;
+    padding: 0 0 50px 0;
+    /* More bottom breathing room */
+    border-top: none;
+    /* Clean look */
+    display: flex;
+    justify-content: center;
+}
+
+.dock-glass-panel {
+    display: flex;
+    justify-content: space-between;
+    /* Space them out nicely */
+    align-items: center;
+    width: 100%;
+    max-width: 360px;
+    /* Constrained width */
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: none;
+    padding: 0 20px;
     box-shadow: none;
 }
 
-.action-btn.secondary:hover {
-    background-color: rgba(139, 30, 41, 0.05);
+/* New Minimalist Buttons - "NANO BANANA" interpretation: Ultra-clean, Icon-driven */
+.icon-btn {
+    background: transparent;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #666;
+    /* Muted default state */
+    cursor: pointer;
+    min-width: 60px;
+    transition: all 0.3s ease;
+}
+
+.icon-btn:hover {
+    color: #fff;
+}
+
+/* Icon Styles - No Circles */
+.icon-btn .btn-icon {
+    font-size: 1.4rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+    /* No circle */
+    background: transparent;
+    /* No background */
+    transition: transform 0.2s ease;
+}
+
+.icon-btn:active .btn-icon {
+    transform: scale(0.9);
+}
+
+.icon-btn .btn-label {
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    font-weight: 400;
+    font-family: 'Songti SC', serif;
+    /* Elegant font */
+}
+
+/* PRIMARY ACTION - SAVE */
+/* Golden, Slightly larger, but elegant */
+.icon-btn.primary-pulse {
+    color: #C5A065;
+    /* VIVE Gold */
+}
+
+.icon-btn.primary-pulse .btn-icon {
+    font-size: 2rem;
+    /* Larger icon */
+    filter: drop-shadow(0 0 8px rgba(197, 160, 101, 0.4));
+    /* Golden Glow */
+}
+
+.icon-btn.primary-pulse .btn-label {
+    color: #C5A065;
+    font-weight: 500;
+}
+
+.pulse-under {
+    display: none;
+}
+
+/* Secondary Actions - Retry / Share */
+.icon-btn.secondary {
+    color: #888;
+}
+
+.icon-btn.secondary:hover {
+    color: #fff;
+}
+
+/* Removed overlapping Footer Brand */
+.result-footer-brand {
+    display: none;
 }

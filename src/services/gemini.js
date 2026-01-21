@@ -1,8 +1,29 @@
 
-import { compressImage } from '../utils/imageUtils';
+// Helper to get env vars in both Vite and Node
+const getEnv = (key) => {
+    if (typeof process !== 'undefined' && process.env && process.env[key]) {
+        return process.env[key];
+    }
+    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
+        return import.meta.env[key];
+    }
+    return '';
+};
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const BASE_URL = import.meta.env.VITE_GEMINI_BASE_URL;
+const API_KEY = getEnv('VITE_GEMINI_API_KEY');
+const BASE_URL = getEnv('VITE_GEMINI_BASE_URL');
+
+// Conditional import or mock for compressImage
+// In Node, we assume the image is already compressed/processed by the client
+import { compressImage as clientCompress } from '../utils/imageUtils.js';
+
+const compressImageSafe = async (base64, targetSize) => {
+    if (typeof window === 'undefined') {
+        // Server-side: Skip compression (or implement node-side compression later)
+        return base64;
+    }
+    return await clientCompress(base64, targetSize);
+}
 
 /**
  * 步骤 1: 分析用户图片并生成文案
@@ -10,7 +31,7 @@ const BASE_URL = import.meta.env.VITE_GEMINI_BASE_URL;
  */
 export const analyzeImageAndGenerateCopy = async (imageBase64) => {
     try {
-        const compressedImage = await compressImage(imageBase64, 512);
+        const compressedImage = await compressImageSafe(imageBase64, 512);
         const base64Data = compressedImage.split(',')[1];
 
         const prompt = `
@@ -80,32 +101,46 @@ export const analyzeImageAndGenerateCopy = async (imageBase64) => {
  * 步骤 2: 生成图片 (APIYI + gemini-3-pro-image-preview)
  */
 export const generateFashionImages = async (features, imageBase64) => {
-    const compressedImage = await compressImage(imageBase64, 1024);
+    const compressedImage = await compressImageSafe(imageBase64, 1024);
     const base64Data = compressedImage.split(',')[1];
 
     if (!API_KEY) {
         return { fusionImage: null, errors: { global: "API Key 缺失。请配置 VITE_GEMINI_API_KEY。" } };
     }
 
-    // --- VIVE 摩登衣橱混搭引擎 ---
-    const fabrics = ["Rich Velvet", "Heavy Silk Satin", "Structured Wool Tweed", "French Lace", "Brocade with Gold Thread", "Matte Leather", "Sequined Fabric"];
-    const colors = ["Deep Crimson Red", "Jet Black", "Champagne Gold", "Dark Emerald Green", "Navy Blue", "Pearl White", "Burgundy", "Chocolate Brown"];
+    // --- VIVE 摩登衣橱混搭引擎 (Premium Polish) ---
+    const fabrics = [
+        "Lustrous Silk Brocade with gold embroidery",
+        "Heavy Glossy Satin",
+        "Rich Embossed Velvet",
+        "Intricate French Chantilly Lace",
+        "Luxurious Wool Tweed",
+        "Supple High-Gloss Leather"
+    ];
+    const colors = [
+        "Deep Imperial Red",
+        "Midnight Jet Black",
+        "Antique Champagne Gold",
+        "Royal Emerald Green",
+        "Classic Pearl White",
+        "Rich Burgundy Wine"
+    ];
 
     const vintageStyles = [
-        "Cheongsam with high mandarin collar and cap sleeves",
-        "Sleeveless Qipao with floor-length hem",
-        "Qipao paired with a faux fur shawl",
-        "Qipao with intricate peony embroidery",
-        "Art Deco style dress with geometric patterns"
+        "High-collar sleeveless Qipao with gold piping and side slits",
+        "Traditional Silk Qipao with hand-embroidered floral motifs",
+        "Vintage 1930s Evening Cheongsam with a velvet cape",
+        "Art Deco Geometric Pattern Dress with fringe details",
+        "Double-breasted vintage coat over a fitted silk dress"
     ];
 
     const modernStyles = [
-        "Oversized Sharp Blazer with wide-leg trousers (Power Suit)",
-        "Structured Asymmetrical Dress with architectural details",
-        "Old Money Aesthetic Tweed Set",
-        "Minimalist Slip Dress combined with a heavy wool coat",
-        "High-waisted tailored pants with a corset top",
-        "All-black Tuxedo style suit for women (Le Smoking)"
+        "High-fashion Sharp-shouldered Blazer with floor-length trousers",
+        "Architectural Asymmetrical Silk Dress with sculptural pleats",
+        "Premium Tweed Set with gold-button details (High-end Chic)",
+        "Draped Silk Slip Dress with a heavy tailored wool overcoat",
+        "Luxe Corseted Bodice with high-waisted wide-leg wool pants",
+        "Feminine Tuxedo (Le Smoking) in high-sheen satin and wool"
     ];
 
     const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -123,12 +158,10 @@ export const generateFashionImages = async (features, imageBase64) => {
 
     // 核心 Prompt
     const fusionPrompt = `
-      Generate a high-fashion magazine cover image featuring TWO women.
-      
-      **STRICT REFERENCE CONTROL**: 
-      - The provided image MUST be used as the **STRUCTURAL BLUEPRINT** and **FACE REFERENCE**.
-      - **Face Identity**: The generated women MUST look like the person in the uploaded image. Use the exact eye shape, nose structure, and lip shape described here: [${features}].
-      - **Make them look like the SAME PERSON in two different eras.**
+      **Character Reference**: 
+      - Use the provided image as a visual reference for facial features and ethnicity.
+      - Create a new artistic interpretation that captures the essence of the subject.
+      - **Style**: Cinematic High-Fashion Portrait (Shanghai 1930s Aesthetic).
       
       Concept: "Double Life / Timeless Encounter".
       Aspect Ratio: 3:4 (Portrait).
@@ -141,12 +174,15 @@ export const generateFashionImages = async (features, imageBase64) => {
       - Woman 1 (Vintage 1930s): ${generatedVintage}, 1930s finger waves hair.
       - Woman 2 (Modern 2026): ${generatedModern}, sleek modern hair.
       
+      **CRITICAL RESTRICTIONS**:
+      - **NO TEXT**. DO NOT generate any letters, words, logos, or magazine titles.
+      - **NO TYPOGRAPHY**. The image must be a CLEAN photograph only.
+      - **NO BORDERS** or frames.
+      
       STYLE:
       - **Heaviness & Quality**: Use textures like Velvet, Wool, and Satin. AVOID plastic, neon, or futuristic silver metal.
-      - Magazine Cover Aesthetic.
       - VIVE Brand Atmosphere (Luxury, Timeless, Shanghai).
       - Masterpiece, 8k resolution, photorealistic skin texture.
-      - NO TEXT in background.
     `;
 
     try {
@@ -183,10 +219,17 @@ export const generateFashionImages = async (features, imageBase64) => {
             return { fusionImage: null, errors: { global: data.error.message || JSON.stringify(data.error) } };
         }
 
-        // 提取图片 Base64 (APIYI 使用驼峰命名 inlineData/mimeType)
-        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.inlineData?.data) {
-            const imageBase64 = data.candidates[0].content.parts[0].inlineData.data;
-            const mimeType = data.candidates[0].content.parts[0].inlineData.mimeType || 'image/jpeg';
+        // 检查 finishReason
+        const candidate = data.candidates?.[0];
+        if (candidate?.finishReason === 'SAFETY') {
+            console.error("[Fusion] Blocked by Safety Filters");
+            return { fusionImage: null, errors: { global: "AI生成被安全策略拦截，请尝试换一张照片。" } };
+        }
+
+        // 提取图片 Base64
+        if (candidate?.content?.parts?.[0]?.inlineData?.data) {
+            const imageBase64 = candidate.content.parts[0].inlineData.data;
+            const mimeType = candidate.content.parts[0].inlineData.mimeType || 'image/jpeg';
             console.log("[Fusion] 收到 Base64 图片");
             return {
                 fusionImage: `data:${mimeType};base64,${imageBase64}`,
@@ -195,9 +238,9 @@ export const generateFashionImages = async (features, imageBase64) => {
         }
 
         // 兼容下划线命名
-        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.inline_data?.data) {
-            const imageBase64 = data.candidates[0].content.parts[0].inline_data.data;
-            const mimeType = data.candidates[0].content.parts[0].inline_data.mime_type || 'image/jpeg';
+        if (candidate?.content?.parts?.[0]?.inline_data?.data) {
+            const imageBase64 = candidate.content.parts[0].inline_data.data;
+            const mimeType = candidate.content.parts[0].inline_data.mime_type || 'image/jpeg';
             return {
                 fusionImage: `data:${mimeType};base64,${imageBase64}`,
                 errors: null
@@ -205,8 +248,8 @@ export const generateFashionImages = async (features, imageBase64) => {
         }
 
         // 如果返回的是文本
-        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-            const text = data.candidates[0].content.parts[0].text;
+        if (candidate?.content?.parts?.[0]?.text) {
+            const text = candidate.content.parts[0].text;
             console.warn("[Fusion] API返回文本:", text.substring(0, 100));
             return { fusionImage: null, errors: { global: `AI未生成图片: ${text.substring(0, 50)}...` } };
         }
