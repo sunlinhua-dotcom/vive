@@ -28,9 +28,9 @@ self.onmessage = async (e) => {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(bitmap, 0, 0, width, height);
 
-        // Export to WebP Blob (much faster and smaller)
+        // Export to JPEG (Best compatibility with AI APIs)
         const blob = await canvas.convertToBlob({
-            type: 'image/webp',
+            type: 'image/jpeg',
             quality: quality
         });
 
