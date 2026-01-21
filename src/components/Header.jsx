@@ -22,9 +22,9 @@ function Header() {
                         <img src="/vive-logo-light.jpg" alt="Loading..." className="brand-logo" style={{ opacity: 0 }} />
                     )}
                 </div>
-                <div className="header-tagline">
+                {/* <div className="header-tagline">
                     <span className="tagline-text">衣而奇华 · 虎月</span>
-                </div>
+                </div> */}
             </div>
         </header>
     )
