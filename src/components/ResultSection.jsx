@@ -64,7 +64,7 @@ const ResultSection = ({ resultImage, onRetry, onShare }) => {
                                 <path d="M20 12H3" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         </div>
-                        <span className="btn-label">分享</span>
+                        <span className="btn-label">晒给闺蜜</span>
                     </button>
                 </div>
             </div>

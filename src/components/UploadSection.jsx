@@ -33,8 +33,8 @@ function UploadSection({ onImageUpload }) {
         <div className="upload-section fade-in">
             <div className="upload-header">
                 <div className="header-collab">VIVE x DIGIREPUB</div>
-                <div className="upload-title">MODERN ENCOUNTER</div>
-                <div className="upload-subtitle">双 妹 · 摩 登 奇 遇</div>
+                <div className="upload-title">TIMELESS CHIC</div>
+                <div className="upload-subtitle">双妹 · 寻找世上的另一个你</div>
             </div>
 
             {/* Upload Area */}
@@ -48,7 +48,7 @@ function UploadSection({ onImageUpload }) {
                     <div className="processing-state">
                         <div className="upload-spinner"></div>
                         <div className="upload-main-text" style={{ marginTop: '1.5rem', fontSize: '0.9rem' }}>
-                            正在凝练光影...
+                            正在穿越时光...
                         </div>
                     </div>
                 ) : (
@@ -61,8 +61,8 @@ function UploadSection({ onImageUpload }) {
                             </svg>
                         </div>
                         <div className="upload-text">
-                            <span className="upload-main-text">Unlock Your Modern Look</span>
-                            <span className="upload-hint">点击或拖拽照片，开启百年穿越</span>
+                            <span className="upload-main-text">Who were you in 1930?</span>
+                            <span className="upload-hint">上传一张自拍，揭开你的民国前世</span>
                         </div>
                     </>
                 )}
@@ -70,21 +70,21 @@ function UploadSection({ onImageUpload }) {
 
             {/* Campaign Tagline */}
             <div className="campaign-tagline">
-                全网共晒双妹月份牌 · 看见百年摩登之美
+                寻回东方骨相美 · 闺蜜圈都在晒的摩登大片
             </div>
 
             {/* Features (Decorative) */}
             <div className="features">
                 <div className="feature-item">
-                    <span className="feature-title">8K 画质</span>
+                    <span className="feature-title">画报级质感</span>
                 </div>
                 <div className="feature-divider">|</div>
                 <div className="feature-item">
-                    <span className="feature-title">AI 定制</span>
+                    <span className="feature-title">独家高定</span>
                 </div>
                 <div className="feature-divider">|</div>
                 <div className="feature-item">
-                    <span className="feature-title">梦回 1930</span>
+                    <span className="feature-title">惊艳朋友圈</span>
                 </div>
             </div>
 
