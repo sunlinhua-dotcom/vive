@@ -30,39 +30,18 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             ctx.fillStyle = "#1a1a1a";
             ctx.fillRect(0, 0, targetWidth, targetHeight);
 
-            // --- B. 智能贴图 (Fit, Don't Cut) ---
-            const imgRatio = img.width / img.height;
-            const targetRatio = targetWidth / targetHeight; // 0.75
+            // --- B. 智能贴图 (Strict Full Bleed / Cover Mode) ---
+            // 用户要求：画面要是一体的 (One Piece)，拒绝分离感。
+            // 策略：无论原图比例如何，强制 Cover 铺满整个 3:4 画布。
+            // 可能会裁切掉左右或上下部分，但保证画面完整无黑边/无模糊底。
 
-            let dWidth, dHeight, dx, dy;
+            const scale = Math.max(targetWidth / img.width, targetHeight / img.height);
+            const dWidth = img.width * scale;
+            const dHeight = img.height * scale;
 
-            if (imgRatio >= 1) {
-                // 情况1：源图是宽图或方图 (1:1, 4:3)
-                // 策略：宽度撑满，高度自然算。保留完整左右内容（双人图核心）
-                // 结果：上下会有留白。这正好！顶部留白放Logo，底部留白放日历。
-                dWidth = targetWidth;
-                dHeight = dWidth / imgRatio;
-                dx = 0;
-                // 垂直位置：放在中间偏下一点，给人脸留出顶部Logo空间
-                // 如果是方图(h=1024)，目标1365，留白341。
-                // 建议 topPadding = 150 (放Logo), 剩下空间给底部
-                dy = (targetHeight - dHeight) / 2 + 50;
-
-                // 但如果留白太多不好看，用一个放大的模糊背景垫底
-                ctx.save();
-                ctx.filter = 'blur(40px) brightness(0.4)';
-                ctx.drawImage(img, 0, 0, targetWidth, targetHeight); // 铺满模糊
-                ctx.restore();
-            } else {
-                // 情况2：源图已经是竖图 (1:2, 9:16)
-                // 策略：Cover 模式，稍微裁切上下，通过调整让脸能在中间
-                // (对于双人全身照，通常脸在上方1/3处)
-                const scale = Math.max(targetWidth / img.width, targetHeight / img.height);
-                dWidth = img.width * scale;
-                dHeight = img.height * scale;
-                dx = (targetWidth - dWidth) / 2;
-                dy = (targetHeight - dHeight) / 2;
-            }
+            // 居中裁切
+            const dx = (targetWidth - dWidth) / 2;
+            const dy = (targetHeight - dHeight) / 2;
 
             ctx.drawImage(img, dx, dy, dWidth, dHeight);
 
@@ -135,10 +114,6 @@ export const composeFinalImage = async (baseImageUrl, data) => {
                 ctx.shadowBlur = 8;
                 ctx.fillText(`${month} ${year}`, 50, centerY);
 
-                // 3. 绘制右侧农历 -> 垂直居中于 Logo
-                ctx.textAlign = 'right';
-                ctx.font = `${targetWidth * 0.025}px "Noto Serif SC", serif`;
-                ctx.fillText("农历丙午年 虎月", targetWidth - 50, centerY);
             }
 
             // --- F. 绘制底部内容 (左侧) ---

@@ -8,13 +8,11 @@ export default {
     theme: {
         extend: {
             colors: {
-                primary: "#8B3A3A", // Vintage Maroon
-                "background-light": "#F9F4EF", // Creamy Paper
-                "background-dark": "#1C1917", // Warm Charcoal/Dark Brown
-                "gold-accent": "#C5A065", // Matches the gold in the logo
-                "text-light": "#5C2525",
-                "text-dark": "#E6D5B8",
-                "brand-gold": "#B8955F", // Specific logo gold
+                primary: "#B8955F", // Brand Gold
+                "background-dark": "#1A1412", // Deep Chocolate/Black
+                "gold-accent": "#C5A065", 
+                "text-gold": "#E6D5B8",
+                "border-gold": "rgba(184, 149, 95, 0.3)",
             },
             fontFamily: {
                 display: ['"Playfair Display"', 'serif'],
@@ -24,7 +22,7 @@ export default {
                 DEFAULT: "0.5rem",
             },
             backgroundImage: {
-                'paper-texture': "url('https://www.transparenttextures.com/patterns/cream-paper.png')",
+                'sunray': "radial-gradient(circle at 50% 120%, #2A1D18 0%, #1A1412 70%)",
             }
         },
     },

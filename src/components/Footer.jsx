@@ -1,22 +1,19 @@
 
 function Footer() {
     return (
-        <footer className="w-full max-w-md z-10 pb-6 pt-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <div className="w-8 h-px bg-brand-gold/40 mx-auto mb-6"></div>
-            <div className="flex justify-between items-center px-6 text-xs tracking-[0.25em] font-light text-brand-gold">
-                <div className="flex flex-col items-center group cursor-pointer transition-opacity hover:opacity-100 opacity-80">
-                    <span>东情西韵</span>
-                </div>
-                <div className="flex flex-col items-center group cursor-pointer transition-opacity hover:opacity-100 opacity-80">
-                    <span>奢美方兴</span>
-                </div>
-                <div className="flex flex-col items-center group cursor-pointer transition-opacity hover:opacity-100 opacity-80">
-                    <span>智识先锋</span>
-                </div>
+        <footer className="w-full max-w-lg z-10 pb-6 md:pb-12 pt-0 animate-fade-in flex flex-col items-center" style={{ animationDelay: '0.3s' }}>
+
+            {/* Using the Official Provided Combined Logo - Guaranteed 100% Accuracy */}
+            <div className="flex items-center justify-center w-full px-10 pt-2 transition-all duration-700">
+                <img
+                    src="/combined-logo-official.png"
+                    alt="VIVE x DIGIREPUB Official"
+                    className="w-full max-w-[340px] md:max-w-[420px] h-auto pointer-events-none drop-shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
+                />
             </div>
-            <div className="mt-8 text-center">
-                <p className="text-[9px] uppercase tracking-widest opacity-30">Luxury Vintage Fashion · 2026</p>
-            </div>
+
+            {/* Hidden accessibility text */}
+            <p className="sr-only">VIVE x DIGIREPUB Official Partnership 2026</p>
         </footer>
     );
 }

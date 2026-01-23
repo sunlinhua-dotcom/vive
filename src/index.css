@@ -1,37 +1,158 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+    --color-primary: #B8955F;
+    /* 品牌金 */
+    --color-background-dark: #1A1412;
+    /* 深褐黑 */
+    --color-gold-accent: #C5A065;
+    /* 哑光香槟金 */
+    --color-text-gold: #E6D5B8;
+    --color-border-gold: rgba(184, 149, 95, 0.3);
+
+    --font-display: "Playfair Display", serif;
+    --font-serif: "Noto Serif SC", serif;
+}
 
 @layer base {
-  body {
-    @apply bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark font-serif antialiased transition-colors duration-300 min-h-screen relative overflow-hidden flex flex-col items-center;
-    min-height: max(884px, 100dvh);
-  }
+    :root {
+        color-scheme: dark;
+    }
 
-  /* 全局纹理覆盖层 */
-  .paper-overlay {
-    @apply absolute inset-0 opacity-40 pointer-events-none mix-blend-multiply dark:mix-blend-overlay bg-paper-texture z-0;
-  }
+    body {
+        @apply text-text-gold antialiased m-0 p-0 overflow-hidden;
+        font-family: "Microsoft YaHei", "Heiti SC", sans-serif;
+        height: 100vh;
+        height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        background-color: #080605;
+        position: relative;
+    }
+
+    /* Absolute Final Background Image - User Provided */
+    body::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background-image: url('/BACKGROUND.jpeg');
+        background-size: cover;
+        background-position: center bottom;
+        background-repeat: no-repeat;
+    }
+
+    *:focus {
+        outline: none !important;
+    }
 }
 
 .text-gradient-gold {
-  background: linear-gradient(to bottom, #C5A065, #A68248);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+    background: linear-gradient(to bottom, #F7EBD3 0%, #B8955F 50%, #8A6A3D 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+@layer components {
+
+    /* 装饰画框容器 */
+    .deco-frame {
+        @apply relative border border-primary/30 p-8 transition-all duration-700;
+        background: linear-gradient(180deg, rgba(26, 20, 18, 0.8) 0%, rgba(10, 8, 7, 0.9) 100%);
+    }
+
+    /* 顶部栅栏线条 */
+    .deco-lines-top {
+        @apply absolute top-1 left-1/2 -translate-x-1/2 flex space-x-[2px];
+    }
+
+    .deco-line {
+        @apply h-1.5 w-[0.5px] bg-primary/40;
+    }
+
+    /* 放射状装饰角 */
+    .deco-corner-radiating {
+        @apply absolute w-12 h-12 pointer-events-none;
+    }
+
+    .radiating-line {
+        @apply absolute bg-primary/40 origin-bottom-left;
+        height: 0.5px;
+        width: 100%;
+    }
+
+    .corner-tl {
+        @apply top-0 left-0 border-t border-l border-primary/60;
+    }
+
+    .corner-tr {
+        @apply top-0 right-0 border-t border-r border-primary/60;
+    }
+
+    .corner-bl {
+        @apply bottom-0 left-0 border-b border-l border-primary/60;
+    }
+
+    .corner-br {
+        @apply bottom-0 right-0 border-b border-r border-primary/60;
+    }
+
+    /* Art Deco 扇形装饰 */
+    .deco-fan-container {
+        @apply absolute -bottom-1 left-1/2 -translate-x-1/2 w-24 h-12 flex items-end justify-center overflow-hidden pointer-events-none;
+    }
+
+    .deco-fan-blade {
+        @apply absolute border-[0.5px] border-primary/40 origin-bottom;
+    }
+
+    /* 太阳射线效果 - 更细腻 */
+    .sunray-bg {
+        position: fixed;
+        bottom: -30%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 300%;
+        height: 120%;
+        background: repeating-conic-gradient(from 180deg at 50% 100%,
+                transparent 0deg,
+                transparent 0.2deg,
+                rgba(184, 149, 95, 0.04) 0.3deg,
+                transparent 0.5deg);
+        pointer-events: none;
+        z-index: 0;
+        mask-image: radial-gradient(circle at 50% 100%, black 20%, transparent 80%);
+    }
+
+    .deco-border-premium::after {
+        content: "";
+        @apply absolute inset-[3px] border border-primary/10 pointer-events-none;
+    }
+}
+
+.text-gradient-gold {
+    background: linear-gradient(to bottom, #E6D5B8, #B8955F);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.8s ease-out forwards;
+    animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+h1 {
+    line-height: 1.1 !important;
+    word-break: break-word;
 }
