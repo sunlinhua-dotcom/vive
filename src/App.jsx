@@ -6,7 +6,6 @@ import GeneratingScreen from './components/GeneratingScreen'
 import ResultSection from './components/ResultSection'
 import Footer from './components/Footer'
 import { analyzeImageAndGenerateCopy, generateFashionImages } from './services/gemini'
-import './App.css'
 
 function App() {
   const [step, setStep] = useState('upload') // 'upload' | 'generating' | 'result'
@@ -36,22 +35,18 @@ function App() {
     setLoadingText("正在读取您的摩登密码...")
 
     try {
-      // 1. 调用 Gemini Flash 分析图片并生成文案
       setProgress(15)
       const analysis = await analyzeImageAndGenerateCopy(imageDataUrl)
 
-      // 更新加载文案
       if (analysis.loading_text) {
         setLoadingText(analysis.loading_text)
       }
       setProgress(30)
 
-      // 2. 调用 Gemini Image 生成图片
       setLoadingText("正在创造您的跨时空双生...")
       const images = await generateFashionImages(analysis.features, imageDataUrl)
       setProgress(70)
 
-      // 3. 智能合成：将 Logo、文案、底图烧录成一张图
       setLoadingText("正在为您合成摩登月份牌...")
 
       let finalImage = images.fusionImage;
@@ -61,7 +56,6 @@ function App() {
 
       if (images.fusionImage && !images.fusionImage.startsWith('ERROR')) {
         try {
-          // 动态导入合成引擎以节省初始包体积
           const { composeFinalImage } = await import('./utils/imageCompositor');
 
           const compositeData = {
@@ -73,9 +67,7 @@ function App() {
           };
 
           setProgress(85)
-          console.log("Starting composition...");
           finalImage = await composeFinalImage(images.fusionImage, compositeData);
-          console.log("Composition success!");
           setProgress(100)
 
         } catch (composeError) {
@@ -83,7 +75,6 @@ function App() {
         }
       }
 
-      // 4. 组合结果
       const result = {
         month,
         year,
@@ -95,10 +86,7 @@ function App() {
       };
 
       setGeneratedResults(result)
-
-      // Save to localStorage
       localStorage.setItem('vive_result', JSON.stringify(result));
-
       setStep('result')
 
     } catch (error) {
@@ -119,41 +107,54 @@ function App() {
   }
 
   return (
-    <div className="app">
-      {/* 左侧：品牌视觉区 (仅 Desktop 显示) */}
+    <div className="relative min-h-screen w-full flex flex-col items-center justify-between py-8 px-6">
+      {/* Background Decorations */}
+      <div className="paper-overlay"></div>
+      <div className="absolute -top-32 -right-32 w-96 h-96 bg-gold-accent opacity-5 dark:opacity-10 rounded-full blur-3xl z-0"></div>
+      <div className="absolute bottom-0 -left-20 w-80 h-80 bg-primary opacity-5 dark:opacity-10 rounded-full blur-3xl z-0"></div>
 
-      {/* 全屏内容 */}
-      {step === 'upload' && (
-        <UploadSection onImageUpload={handleImageUpload} />
-      )}
+      {/* Header - Always visible on upload, hides on other steps if desired or keep fixed */}
+      {step === 'upload' && <Header />}
 
-      {step === 'generating' && (
-        <GeneratingScreen
-          uploadedImage={uploadedImage}
-          loadingText={loadingText}
-          progress={progress}
-        />
-      )}
+      {/* Main Content */}
+      <div className="flex-grow w-full flex flex-col items-center justify-center z-10">
+        {step === 'upload' && (
+          <UploadSection onImageUpload={handleImageUpload} />
+        )}
 
-      {step === 'result' && generatedResults && (
-        <ResultSection
-          resultImage={generatedResults.fusionImage}
-          onRetry={handleReset}
-          onShare={() => {
-            if (navigator.share && generatedResults.fusionImage) {
-              fetch(generatedResults.fusionImage)
-                .then(res => res.blob())
-                .then(blob => {
-                  const file = new File([blob], 'vive-modern-encounter.jpg', { type: 'image/jpeg' });
-                  navigator.share({ files: [file], title: 'VIVE 摩登奇遇' });
-                })
-                .catch(err => console.error('Share failed:', err));
-            } else {
-              alert('您的浏览器不支持原生分享，请长按图片保存后分享');
-            }
-          }}
-        />
-      )}
+        {step === 'generating' && (
+          <div className="w-full max-w-md">
+            <GeneratingScreen
+              uploadedImage={uploadedImage}
+              loadingText={loadingText}
+              progress={progress}
+            />
+          </div>
+        )}
+
+        {step === 'result' && generatedResults && (
+          <ResultSection
+            resultImage={generatedResults.fusionImage}
+            onRetry={handleReset}
+            onShare={() => {
+              if (navigator.share && generatedResults.fusionImage) {
+                fetch(generatedResults.fusionImage)
+                  .then(res => res.blob())
+                  .then(blob => {
+                    const file = new File([blob], 'vive-modern-encounter.jpg', { type: 'image/jpeg' });
+                    navigator.share({ files: [file], title: 'VIVE 摩登奇遇' });
+                  })
+                  .catch(err => console.error('Share failed:', err));
+              } else {
+                alert('您的浏览器不支持原生分享，请长按图片保存后分享');
+              }
+            }}
+          />
+        )}
+      </div>
+
+      {/* Footer - Always visible on upload */}
+      {step === 'upload' && <Footer />}
     </div>
   )
 }
