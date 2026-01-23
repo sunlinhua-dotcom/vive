@@ -1,4 +1,3 @@
-
 // Helper to get env vars in both Vite and Node
 const getEnv = (key) => {
     if (typeof process !== 'undefined' && process.env && process.env[key]) {
@@ -10,56 +9,83 @@ const getEnv = (key) => {
     return '';
 };
 
-const API_KEY = getEnv('VITE_GEMINI_API_KEY');
-const BASE_URL = getEnv('VITE_GEMINI_BASE_URL');
+const BASE_URL = getEnv('VITE_GEMINI_BASE_URL') || 'https://apiyi.com/v1';
+
+// 1. 文案 API (Flash)
+// 优先读取环境变量，本地开发可使用 fallback
+const TEXT_API_KEY = getEnv('VITE_GEMINI_TEXT_API_KEY') || 'sk-zu5cm3pPZaEyIwz85a5bCb76546f4b1d92BaA08aAc3f7404';
+const TEXT_MODEL = 'gemini-3-flash-preview';
+
+// 2. 图形 API (Pro Image)
+// 优先读取环境变量，本地开发可使用 fallback
+const IMAGE_API_KEY = getEnv('VITE_GEMINI_IMAGE_API_KEY') || 'sk-qMB7fSJhKZmebuFL0b823fE2Af274cCc9a1e62A5990aF1F6';
+const IMAGE_MODEL = 'gemini-3-pro-image-preview';
 
 // Conditional import or mock for compressImage
 // In Node, we assume the image is already compressed/processed by the client
-import { compressImage as clientCompress } from '../utils/imageUtils.js';
 
-const compressImageSafe = async (base64, targetSize) => {
-    if (typeof window === 'undefined') {
-        // Server-side: Skip compression (or implement node-side compression later)
-        return base64;
-    }
-    return await clientCompress(base64, targetSize);
-}
+
+// Helper to strip data URL header if present
+const ensureBase64 = (str) => {
+    if (!str) return '';
+    if (str.includes(',')) return str.split(',')[1];
+    return str;
+};
 
 /**
  * 步骤 1: 分析用户图片并生成文案
- * 注意：使用 gemini-3-pro-image-preview 因为 APIYI 账户只支持这个模型
+ * 使用模型: gemini-3-flash-preview
  */
 export const analyzeImageAndGenerateCopy = async (imageBase64) => {
     try {
-        const compressedImage = await compressImageSafe(imageBase64, 512);
-        const base64Data = compressedImage.split(',')[1];
+        // Assume input is already compressed from App.jsx
+        const base64Data = ensureBase64(imageBase64);
 
         const prompt = `
-      你是一个精通面相学和时尚摄影的专家。请极其仔细地分析这张自拍照中人物的**面部硬特征**。
-      目标是让画师能根据你的描述画出非常相似的人。
+      You are the Chief Copywriter for the luxury brand "VIVE (双妹)".
       
-      请完成以下任务，并以json格式返回：
-      1. 'features': **[CRITICAL]** 用精确的英文描述面部特征。包括：
-         - Face Shape (e.g. oval, square, high cheekbones)
-         - Eyes (e.g. almond, monolid, double eyelid, eye color, eye distance)
-         - Nose (e.g. high bridge, button nose, wide/narrow)
-         - Lips (e.g. full, thin, cupid's bow)
-         - Hair (e.g. length, texture, color, parting)
-         - Distinguishing marks (e.g. moles)
-         - [Keep it concise but strictly anatomical]
-      2. 'keyword': 为用户生成一个"摩登关键词"，格式为"#XXXX"（例如 #明媚的玫瑰, #传奇的摩登），要有VIVE双妹的品牌调性。
-      3. 'attitude': 用一句简短的话总结用户的"摩登态度"，要在15个字以内。
-      4. 'loading_text': 生成一句优美的、带有时间穿越感的等待文案。
-      请直接返回JSON对象，不要包含任何其他内容。
+      **TASK 1: VISUAL ANALYSIS (For Artist)**
+      Analyze the uploaded selfie for facial structure to help an artist recreate the face.
+      - **'features'**: RETURN A JSON STRING. Precisely describe the anatomy: Face shape, eye shape/distance, nose structure, lip shape, and distinctive marks. (Strictly anatomical, no flowery language).
+
+      **TASK 2: BRAND COPYWRITING (The Core Task)**
+      Analyze the **Vibe / Spirit / Aura** of the person in the photo.
+      - IGNORE Gender and Age. (A young girl can be #Sharp, an old man can be #Vibrant).
+      - Focus on the *ENERGY*: Is it sharp? Gentle? Proud? Calm? Fiery? Elegant?
+      
+      **CRITICAL INSTRUCTION: STRICT SELECTION ONLY**
+      - You must **SELECT** one entry EXACTLY as written from the **Brand Reference Library** below.
+      - **DO NOT** edit, rewrite, or modify the text. 
+      - **DO NOT** invent new keywords. 
+      - The output "keyword" and "attitude" must match the library 100%.
+
+      **BRAND REFERENCE LIBRARY (Strict Pool):**
+      1. #锐意先锋 | 以锋芒之姿，诠释当代风范。
+      2. #赤诚摩登 | 以赤诚底色，挥洒摩登意气。
+      3. #独立自洽 | 于方寸之间，自有天地广阔。
+      4. #无畏锋芒 | 以破局之姿，重塑摩登定义。
+      5. #如花明媚 | 让本色盛放，不负鎏金岁月。
+      6. #如狮无畏 | 心有大格局，自有万千气象。
+      7. #尽态极妍 | 登场即焦点，演绎摩登风范。
+      8. #传世之美 | 岁月不败我，沉淀非凡底蕴。
+      9. #东情西韵 | 蕴东方风骨，彰显摩登格调。
+
+      **OUTPUT FORMAT (JSON):**
+      {
+        "features": "...",
+        "keyword": "#selected_keyword", 
+        "attitude": "selected_attitude",
+        "loading_text": "Generating a poetic loading message about time travel..."
+      }
     `;
 
-        console.log("正在调用 Gemini 分析图片...");
+        console.log(`正在调用 ${TEXT_MODEL} 分析图片...`);
 
-        // 使用 gemini-3-pro-image-preview (APIYI 账户支持的模型)
-        const response = await fetch(`${BASE_URL}/models/gemini-3-pro-image-preview:generateContent`, {
+        // 使用用户指定的新文案 API
+        const response = await fetch(`${BASE_URL}/models/${TEXT_MODEL}:generateContent`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${API_KEY}`,
+                'Authorization': `Bearer ${TEXT_API_KEY}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
@@ -98,103 +124,87 @@ export const analyzeImageAndGenerateCopy = async (imageBase64) => {
 };
 
 /**
- * 步骤 2: 生成图片 (APIYI + gemini-3-pro-image-preview)
+ * 步骤 2: 生成图片 (使用 APIYI + gemini-3-pro-image-preview)
  */
 export const generateFashionImages = async (features, imageBase64) => {
-    const compressedImage = await compressImageSafe(imageBase64, 1024);
-    const base64Data = compressedImage.split(',')[1];
+    // Assume input is already compressed from App.jsx
+    const base64Data = ensureBase64(imageBase64);
 
-    if (!API_KEY) {
-        return { fusionImage: null, errors: { global: "API Key 缺失。请配置 VITE_GEMINI_API_KEY。" } };
+    if (!IMAGE_API_KEY) {
+        return { fusionImage: null, errors: { global: "Image API Key 缺失。" } };
     }
 
-    // --- VIVE 摩登衣橱混搭引擎 (Premium Polish) ---
-    const fabrics = [
-        "Lustrous Silk Brocade with gold embroidery",
-        "Heavy Glossy Satin",
-        "Rich Embossed Velvet",
-        "Intricate French Chantilly Lace",
-        "Luxurious Wool Tweed",
-        "Supple High-Gloss Leather"
-    ];
-    const colors = [
-        "Deep Imperial Red",
-        "Midnight Jet Black",
-        "Antique Champagne Gold",
-        "Royal Emerald Green",
-        "Classic Pearl White",
-        "Rich Burgundy Wine"
+    // --- VIVE 摩登衣橱混搭引擎 (Double Life / 1920s vs 2026s) ---
+    // User Request: "1920老上海年代的用户 和 2026年年代的用户的合拍照 在art deco装修风格的室内"
+
+    // 1920s Vintage Style (Woman 1)
+    const vintagePool = [
+        "Traditional Silk Qipao with high collar and hand-embroidered peacocks",
+        "Velvet Cheongsam with pearl necklace and finger-wave hairstyle",
+        "Classic 1920s Shanghai sleeveless Qipao in emerald green silk",
+        "Art Deco beaded evening dress with a feather fan (Shanghai socialite style)"
     ];
 
-    const vintageStyles = [
-        "High-collar sleeveless Qipao with gold piping and side slits",
-        "Traditional Silk Qipao with hand-embroidered floral motifs",
-        "Vintage 1930s Evening Cheongsam with a velvet cape",
-        "Art Deco Geometric Pattern Dress with fringe details",
-        "Double-breasted vintage coat over a fitted silk dress"
-    ];
-
-    const modernStyles = [
-        "High-fashion Sharp-shouldered Blazer with floor-length trousers",
-        "Architectural Asymmetrical Silk Dress with sculptural pleats",
-        "Premium Tweed Set with gold-button details (High-end Chic)",
-        "Draped Silk Slip Dress with a heavy tailored wool overcoat",
-        "Luxe Corseted Bodice with high-waisted wide-leg wool pants",
-        "Feminine Tuxedo (Le Smoking) in high-sheen satin and wool"
+    // 2026s Modern Style (Woman 2)
+    const modernPool = [
+        "Futuristic structural blazer dress with metallic accents",
+        "Minimalist high-fashion white silk gown (Celine/YSL vibe)",
+        "Sheer architectural evening gown with sharp shoulders",
+        "Modern Interpretation of Qipao: Leather and lace fusion",
+        "Sleek black velvet tuxedo suit (Le Smoking style)"
     ];
 
     const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-    const color1 = pick(colors);
-    const fabric1 = pick(fabrics);
-    const vintageItem = pick(vintageStyles);
-    const color2 = Math.random() > 0.5 ? color1 : pick(colors);
-    const fabric2 = pick(fabrics);
-    const modernItem = pick(modernStyles);
+    const style1920 = pick(vintagePool);
+    const style2026 = pick(modernPool);
 
-    const generatedVintage = `${color1} ${fabric1} ${vintageItem}`;
-    const generatedModern = `${color2} ${fabric2} ${modernItem}`;
+    console.log(`[Fusion] 1920s: ${style1920} | 2026s: ${style2026}`);
 
-    console.log(`[Fusion] Style: ${generatedVintage} | ${generatedModern}`);
-
-    // 核心 Prompt
+    // 核心 Prompt - 终极版 (Double Life)
     const fusionPrompt = `
-      **Character Reference**: 
-      - Use the provided image as a visual reference for facial features and ethnicity.
-      - Create a new artistic interpretation that captures the essence of the subject.
-      - **Style**: Cinematic High-Fashion Portrait (Shanghai 1930s Aesthetic).
+      **CRITICAL MISSION**: 
+      Create a "Double Life" cinematic portrait featuring **TWO WOMEN** (Twin Sisters) posing together in a luxurious room.
       
-      Concept: "Double Life / Timeless Encounter".
-      Aspect Ratio: 3:4 (Portrait).
+      **1. IDENTITY & GENDER (MANDATORY)**:
+      - **FORCE FEMALE**: Regardless of the uploaded photo's gender (even if male/child), verify the facial features but transform them into **TWO SOPHISTICATED ADULT WOMEN**.
+      - Both women must share the *same facial identity* (based on the user's face) but look like sisters.
+      - **Authentic Face**: Do not make them look like generic AI models. Preserve the unique eye shape/nose/mouth of the user, just feminized.
+
+      **2. THE TWO FIGURES (Timeline Clash)**:
+      - **Woman A (Left/Front) - The 1920s Soul**:
+        - Outfit: ${style1920}.
+        - Hair/Makeup: Vintage 1930s Shanghai finger waves, red lips, retro vibe.
+        - Attitude: Classic, reserved, mysterious.
       
-      **CRITICAL COMPOSITION**:
-      - **HEADROOM**: Leave significant EMPTY SPACE at the TOP of the image (about 15-20% of the frame height) for text overlay.
-      - Position the subjects' HEADS in the UPPER-MIDDLE section, NOT at the very top edge.
-      - Subjects should be positioned slightly LOWER in the frame than typical portraits.
-      - Two women posing together intimately (back-to-back, or holding hands).
-      - Natural interaction, cinematic lighting.
+      - **Woman B (Right/Back) - The 2026s Modern Spirit**:
+        - Outfit: ${style2026}.
+        - Hair/Makeup: Sleek, modern, sharp, minimalist high-fashion.
+        - Attitude: Confident, edgy, futuristic.
+
+      **3. ENVIRONMENT (Art Deco Interior)**:
+        - **Scene**: A luxurious **Art Deco Interior Room** (e.g., a hotel lobby, a vintage mansion, a jazz lounge).
+        - Details: Geometric floor tiles, velvet curtains, stained glass, warm amber lighting. 
+        - **NOT a flat graphic background**. It must be a 3D realistic ROOM.
+
+      **4. CRITICAL COMPOSITION (Unified Space & "Magazine Cover")**:
+      - **ONE SINGLE IMAGE**: Generate a complete, continuous Art Deco interior scene. Do NOT create a collage or split screen.
+      - **Composition**: The women stand in a high-ceilinged room. 
+      - **HEADROOM (Top 25%)**: The upper part of the image MUST be the room's high ceiling (e.g., elegant molding, upper curtains, or dim amber ambiance). It should be relatively **UNCLUTTERED** to allow for a Logo overlay later.
+      - **SUBJECT POSITION**: Position the women in the **BOTTOM 3/4** of the frame. Their heads should be below the top quarter line.
+      - **NO TEXT**: The AI must NOT generate any text. The image must be a **clean photograph** without any magazine logos, titles, or watermarks.
+      - **FULL BLEED**: Covers the entire canvas.
       
-      OUTFITS (High Fashion & Heavy Texture):
-      - Woman 1 (Vintage 1930s): ${generatedVintage}, 1930s finger waves hair.
-      - Woman 2 (Modern 2026): ${generatedModern}, sleek modern hair.
-      
-      **CRITICAL RESTRICTIONS**:
-      - **NO TEXT**. DO NOT generate any letters, words, logos, or magazine titles.
-      - **NO TYPOGRAPHY**. The image must be a CLEAN photograph only.
-      - **NO BORDERS** or frames.
-      
-      STYLE:
-      - **Heaviness & Quality**: Use textures like Velvet, Wool, and Satin. AVOID plastic, neon, or futuristic silver metal.
-      - VIVE Brand Atmosphere (Luxury, Timeless, Shanghai).
-      - Masterpiece, 8k resolution, photorealistic skin texture.
+      **5. Quality**:
+      - Masterpiece, 8k resolution, photorealistic skin texture, dramatic cinematic lighting.
     `;
 
     try {
-        console.log(`[Fusion] 请求 APIYI gemini-3-pro-image-preview...`);
+        console.log(`[Fusion] 请求 ${IMAGE_MODEL}...`);
 
-        const response = await fetch(`${BASE_URL}/models/gemini-3-pro-image-preview:generateContent`, {
+        const response = await fetch(`${BASE_URL}/models/${IMAGE_MODEL}:generateContent`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${API_KEY}`,
+                'Authorization': `Bearer ${IMAGE_API_KEY}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({

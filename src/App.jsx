@@ -24,31 +24,61 @@ function App() {
           setGeneratedResults(parsed);
           setStep('result');
         }
-      } catch (e) { /* ignore */ }
+      } catch { /* ignore */ }
     }
   }, []);
+
+  // Import compression utility at top level if possible, or inside dynamically
+  // To avoid breaking existing imports, we'll use dynamic import for utility or assume it's available via gemini service's transitive import? 
+  // Better to import it directly. But since I can't easily change top imports without reading file start, I'll use the one from utils.
 
   const handleImageUpload = async (imageDataUrl) => {
     setUploadedImage(imageDataUrl)
     setStep('generating')
     setProgress(5)
-    setLoadingText("正在读取您的摩登密码...")
+    setLoadingText("正在极速连接摩登时空 (并行加速中)...")
 
     try {
-      setProgress(15)
-      const analysis = await analyzeImageAndGenerateCopy(imageDataUrl)
+      // 1. 统一压缩 (Unified Compression) - Client Side
+      // Target 1024px is good for both Text Analysis and Image Generation
+      setProgress(10)
+      const { compressImage } = await import('./utils/imageUtils');
+      const compressedImage = await compressImage(imageDataUrl, 1024);
 
-      if (analysis.loading_text) {
-        setLoadingText(analysis.loading_text)
-      }
-      setProgress(30)
+      // 2. 并行执行 (Parallel Processing)
+      setProgress(20)
+      setLoadingText("正在同时解析面孔与编织梦境...")
 
-      setLoadingText("正在创造您的跨时空双生...")
-      const images = await generateFashionImages(analysis.features, imageDataUrl)
-      setProgress(70)
+      // 启动一个定时器，每 500ms 增加 1-2%，直到 75%
+      const progressInterval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 75) return prev;
+          return prev + Math.random() * 3;
+        });
+      }, 500);
 
+      const analysisPromise = analyzeImageAndGenerateCopy(compressedImage)
+        .then(res => {
+          console.log("Text Analysis Done");
+          setLoadingText("您的摩登关键词已浮现...") // 中间反馈
+          return res;
+        });
+
+      const imagePromise = generateFashionImages(null, compressedImage)
+        .then(res => {
+          console.log("Image Generation Done");
+          return res;
+        });
+
+      // Wait for both
+      const [analysis, images] = await Promise.all([analysisPromise, imagePromise]);
+
+      // 清除定时器，跳到 85%
+      clearInterval(progressInterval);
+      setProgress(85);
       setLoadingText("正在为您合成摩登月份牌...")
 
+      // 3. 后处理 (Composition)
       let finalImage = images.fusionImage;
       const currentDate = new Date()
       const month = currentDate.toLocaleString('en-US', { month: 'long' }).toUpperCase()
@@ -66,7 +96,7 @@ function App() {
             logoColor: 'white'
           };
 
-          setProgress(85)
+          setProgress(90)
           finalImage = await composeFinalImage(images.fusionImage, compositeData);
           setProgress(100)
 
@@ -107,17 +137,18 @@ function App() {
   }
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center justify-between py-8 px-6">
-      {/* Background Decorations */}
-      <div className="paper-overlay"></div>
-      <div className="absolute -top-32 -right-32 w-96 h-96 bg-gold-accent opacity-5 dark:opacity-10 rounded-full blur-3xl z-0"></div>
-      <div className="absolute bottom-0 -left-20 w-80 h-80 bg-primary opacity-5 dark:opacity-10 rounded-full blur-3xl z-0"></div>
+    <div className="relative h-screen w-full flex flex-col items-center justify-between py-2 px-6 overflow-hidden">
+      {/* Background Decorations & Effects */}
+      <div className="sunray-bg"></div>
 
-      {/* Header - Always visible on upload, hides on other steps if desired or keep fixed */}
+      {/* Subtle Vignette */}
+      <div className="fixed inset-0 pointer-events-none z-[1] bg-[radial-gradient(circle_at_center,transparent_30%,rgba(0,0,0,0.4)_100%)]"></div>
+
+      {/* Header */}
       {step === 'upload' && <Header />}
 
       {/* Main Content */}
-      <div className="flex-grow w-full flex flex-col items-center justify-center z-10">
+      <div className="flex-grow w-full flex flex-col items-center justify-center z-10 py-2">
         {step === 'upload' && (
           <UploadSection onImageUpload={handleImageUpload} />
         )}
@@ -135,7 +166,7 @@ function App() {
         {step === 'result' && generatedResults && (
           <ResultSection
             resultImage={generatedResults.fusionImage}
-            onRetry={handleReset}
+            onReset={handleReset}
             onShare={() => {
               if (navigator.share && generatedResults.fusionImage) {
                 fetch(generatedResults.fusionImage)
