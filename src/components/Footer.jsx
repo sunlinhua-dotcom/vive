@@ -6,7 +6,7 @@ function Footer() {
             {/* Using the Official Provided Combined Logo - Guaranteed 100% Accuracy */}
             <div className="flex items-center justify-center w-full px-10 pt-2 transition-all duration-700">
                 <img
-                    src="/combined-logo-official.png"
+                    src="/footer-logo.png"
                     alt="VIVE x DIGIREPUB Official"
                     className="w-full max-w-[340px] md:max-w-[420px] h-auto pointer-events-none drop-shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
                 />
