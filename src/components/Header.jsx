@@ -1,3 +1,4 @@
+import headerLogo from '../assets/header-logo.png';
 
 function Header() {
     return (
@@ -12,7 +13,7 @@ function Header() {
             {/* Main Visual Logo */}
             <div className="flex flex-col items-center w-full max-w-[280px] md:max-w-[380px] px-4">
                 <img
-                    src="/header-logo.png"
+                    src={headerLogo}
                     alt="MODERN VIVE 摩登双妹"
                     className="w-full h-auto drop-shadow-[0_4px_40px_rgba(184,149,95,0.4)] pointer-events-none"
                 />
