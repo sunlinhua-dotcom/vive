@@ -25,9 +25,7 @@ function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  if (isAdmin) {
-    return <Admin />;
-  }
+
 
   const [step, setStep] = useState('upload') // 'upload' | 'generating' | 'result'
   // ... existing state initialization ...
@@ -169,6 +167,7 @@ function App() {
       setStep('result')
 
     } catch (error) {
+      clearInterval(progressInterval);
       console.error("Workflow failed:", error)
       const errorMsg = error.response ? `API Error: ${error.response.status}` : error.message;
       alert(`抱歉，生成中断。\n错误详情: ${errorMsg}\n请尝试刷新页面或检查网络。`)
@@ -185,6 +184,9 @@ function App() {
     setProgress(0)
   }
 
+  if (isAdmin) {
+    return <Admin />;
+  }
 
   return (
     <div className="relative h-screen w-full flex flex-col items-center justify-between py-2 px-6 overflow-hidden">

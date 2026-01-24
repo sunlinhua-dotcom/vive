@@ -1,14 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { getConfig, saveConfig, resetConfig } from '../services/config';
 
 const Admin = () => {
     const [config, setConfig] = useState(getConfig());
     const [activeTab, setActiveTab] = useState('model'); // 'model' | 'prompts'
     const [status, setStatus] = useState('');
-
-    useEffect(() => {
-        setConfig(getConfig());
-    }, []);
 
     const handleChange = (section, key, value) => {
         if (section) {
