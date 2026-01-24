@@ -2,7 +2,16 @@
 import React from 'react'
 
 function GeneratingScreen({ uploadedImage, loadingText, progress = 0 }) {
-    const year = 2026 - Math.floor((2026 - 1930) * (progress / 100));
+    // Countdown Logic:
+    // Starts at 2026. Only begins decreasing after progress > 15% to avoid jumping to 2007 immediately.
+    // Maps range [15, 100] -> [2026, 1930]
+    const currentYear = 2026;
+    const targetYear = 1930;
+    const triggerThreshold = 15; // Wait until 15% progress (App jumps to 10 then 20)
+
+    const year = progress <= triggerThreshold
+        ? currentYear
+        : Math.floor(currentYear - (currentYear - targetYear) * ((progress - triggerThreshold) / (100 - triggerThreshold)));
 
     return (
         <div className="flex flex-col items-center justify-center w-full min-h-[50vh] space-y-12 animate-fade-in py-8">
