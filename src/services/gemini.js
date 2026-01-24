@@ -158,7 +158,17 @@ export const generateFashionImages = async (features, imageBase64) => {
     const style1920 = pick(vintagePool);
     const style2026 = pick(modernPool);
 
-    console.log(`[Fusion] 1920s: ${style1920} | 2026s: ${style2026}`);
+    // Random Scene Variations (Art Deco Theme)
+    const scenePool = [
+        "A grand **Art Deco Hotel Lobby in 1930s Shanghai**, marble floors, palm plants, geometric gold railings",
+        "A dimly lit **Private Jazz Lounge**, velvet booth seating, amber lighting, vintage crystal glassware",
+        "A **Luxurious Art Deco Dressing Room (Boudoir)**, triple mirrors, perfume bottles, satin drapes",
+        "An **Elegant Art Deco Ballroom Balcony**, overlooking a party, theatrical curtains, cinematic depth",
+        "A **Vintage Orient Express Train Cabin**, mahogany wood, brass fittings, plush seating, passing city lights outside"
+    ];
+    const selectedScene = pick(scenePool);
+
+    console.log(`[Fusion] 1920s: ${style1920} | 2026s: ${style2026} | Scene: ${selectedScene}`);
 
     // 核心 Prompt - 终极版 (Double Life)
     const fusionPrompt = `
@@ -182,9 +192,9 @@ export const generateFashionImages = async (features, imageBase64) => {
         - Attitude: Confident, edgy, futuristic.
 
       **3. ENVIRONMENT (Art Deco Interior)**:
-        - **Scene**: A luxurious **Art Deco Interior Room** (e.g., a hotel lobby, a vintage mansion, a jazz lounge).
-        - Details: Geometric floor tiles, velvet curtains, stained glass, warm amber lighting. 
-        - **NOT a flat graphic background**. It must be a 3D realistic ROOM.
+        - **Scene**: ${selectedScene}.
+        - Details: Consistent with the chosen scene. Geometric patterns, luxurious textures, warm amber lighting. 
+        - **NOT a flat graphic background**. It must be a 3D realistic ROOM with depth.
 
       **4. CRITICAL COMPOSITION (Unified Space & "Magazine Cover")**:
       - **ONE SINGLE IMAGE**: Generate a complete, continuous Art Deco interior scene. Do NOT create a collage or split screen.

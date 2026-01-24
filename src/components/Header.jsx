@@ -3,7 +3,7 @@ import headerMain from '../assets/header-main.png';
 function Header() {
     return (
         <header className="w-full flex justify-center z-10 animate-fade-in pt-8 md:pt-12 pb-4" style={{ animationDelay: '0.1s' }}>
-            <div className="w-[80%] max-w-[400px] md:max-w-[500px] px-4 max-h-[180px] md:max-h-[220px] overflow-hidden">
+            <div className="w-[85%] max-w-[600px] md:max-w-[700px] px-4 max-h-[240px] md:max-h-[300px] overflow-hidden transition-all duration-700">
                 <img
                     src={headerMain}
                     alt="MODERN VIVE 摩登双妹"

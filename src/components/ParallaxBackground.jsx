@@ -9,11 +9,10 @@ const ParallaxBackground = () => {
             // Beta: Front/Back tilt (-180 to 180)
             const { gamma, beta } = event;
 
-            // Limit the tilt range to avoid extreme movements
-            // Max shift: +/- 20px
-            const maxShift = 20;
-            const x = Math.min(Math.max(gamma / 2, -maxShift), maxShift);
-            const y = Math.min(Math.max((beta - 45) / 2, -maxShift), maxShift);
+            // Max shift: +/- 50px for stronger effect
+            const maxShift = 50;
+            const x = Math.min(Math.max(gamma * 1.5, -maxShift), maxShift);
+            const y = Math.min(Math.max((beta - 45) * 1.5, -maxShift), maxShift);
 
             setOffset({ x: -x, y: -y }); // Invert for "depth" feel
         };

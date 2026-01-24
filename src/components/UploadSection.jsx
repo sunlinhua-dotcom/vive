@@ -32,7 +32,7 @@ function UploadSection({ onImageUpload }) {
             {/* The Frame - 1:1 Pixel Reconstruction of UI.png */}
             <div
                 {...getRootProps()}
-                className={`relative group w-[290px] h-[360px] md:w-[320px] md:h-[400px] cursor-pointer outline-none transition-all duration-700 ${isDragActive ? 'scale-[1.01]' : ''}`}
+                className={`relative group w-[290px] h-[360px] md:w-[320px] md:h-[400px] cursor-pointer outline-none transition-all duration-700 animate-breathe ${isDragActive ? 'scale-[1.01]' : ''}`}
             >
                 <input {...getInputProps()} />
 
@@ -98,7 +98,7 @@ function UploadSection({ onImageUpload }) {
                     ) : (
                         <div className="flex flex-col items-center space-y-12 pt-4 transition-transform duration-700 group-hover:scale-105">
                             {/* Iconic Pentaprism Camera Icon from UI.png */}
-                            <div className="relative">
+                            <div className="relative animate-float">
                                 <svg viewBox="0 0 24 24" className="w-16 h-16 md:w-20 md:h-20 fill-none stroke-[#B8955F] stroke-[0.35] opacity-90">
                                     {/* Body */}
                                     <path d="M3,8h18v12H3V8z" />
