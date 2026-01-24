@@ -7,6 +7,8 @@ import ResultSection from './components/ResultSection'
 import Footer from './components/Footer'
 import { analyzeImageAndGenerateCopy, generateFashionImages } from './services/gemini'
 
+import { getUserStorageKey, getClientUUID } from './utils/uuid'
+
 function App() {
   const [step, setStep] = useState('upload') // 'upload' | 'generating' | 'result'
   const [uploadedImage, setUploadedImage] = useState(null)
@@ -14,9 +16,12 @@ function App() {
   const [loadingText, setLoadingText] = useState("")
   const [progress, setProgress] = useState(0)
 
-  // Check for saved result on mount
+  // Check for saved result on mount (Scoped by User UUID)
   useEffect(() => {
-    const savedResult = localStorage.getItem('vive_result');
+    const userKey = getUserStorageKey('vive_result');
+    console.log(`[App] Initializing Session. Client UUID: ${getClientUUID()}`);
+
+    const savedResult = localStorage.getItem(userKey);
     if (savedResult) {
       try {
         const parsed = JSON.parse(savedResult);
@@ -116,7 +121,8 @@ function App() {
       };
 
       setGeneratedResults(result)
-      localStorage.setItem('vive_result', JSON.stringify(result));
+      const userKey = getUserStorageKey('vive_result');
+      localStorage.setItem(userKey, JSON.stringify(result));
       setStep('result')
 
     } catch (error) {
