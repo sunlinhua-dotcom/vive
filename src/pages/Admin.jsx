@@ -39,7 +39,7 @@ const Admin = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#1a1a1a] text-white p-8 font-sans">
+        <div className="h-screen overflow-y-auto bg-[#1a1a1a] text-white p-8 font-sans">
             <header className="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
                 <h1 className="text-2xl font-bold text-[#B8955F]">VIVE AI Admin Console</h1>
                 <div className="space-x-4">
