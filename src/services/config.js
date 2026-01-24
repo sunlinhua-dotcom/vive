@@ -6,19 +6,19 @@ export const DEFAULT_CONFIG = {
 
     // Gemini Settings
     gemini: {
-        baseUrl: 'https://apiyi.com/v1',
+        baseUrl: import.meta.env.VITE_AI_BASE_URL || 'https://apiyi.com/v1',
         textModel: 'gemini-3-flash-preview',
         imageModel: 'gemini-3-pro-image-preview',
         textKey: 'sk-zu5cm3pPZaEyIwz85a5bCb76546f4b1d92BaA08aAc3f7404',
         imageKey: 'sk-qMB7fSJhKZmebuFL0b823fE2Af274cCc9a1e62A5990aF1F6'
     },
 
-    // Doubao Settings (Placeholders)
+    // Doubao Settings (Volcengine)
     doubao: {
-        baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
-        model: 'doubao-pro-4k', // Text
-        imageModel: 'cv-generation', // CV
-        apiKey: ''
+        baseUrl: import.meta.env.VITE_AI_BASE_URL || 'https://api.apiyi.com/v1beta',
+        apiKey: import.meta.env.VITE_DOUBAO_API_KEY || 'sk-zu5cm3pPZaEyIwz85a5bCb76546f4b1d92BaA08aAc3f7404',
+        model: import.meta.env.VITE_DOUBAO_TEXT_MODEL || 'doubao-seed-1-8-251228', // Text
+        imageModel: import.meta.env.VITE_DOUBAO_IMAGE_MODEL || 'seedream-4-5-251128' // Image
     },
 
     // Prompts
