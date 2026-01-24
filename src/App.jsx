@@ -39,38 +39,60 @@ function App() {
   // To avoid breaking existing imports, we'll use dynamic import for utility or assume it's available via gemini service's transitive import? 
   // Better to import it directly. But since I can't easily change top imports without reading file start, I'll use the one from utils.
 
+  // Dynamic Loading Messages
+  useEffect(() => {
+    if (step === 'generating') {
+      const messages = [
+        "正在开启时光隧道 (2026 -> 1930)...",
+        "正在以此刻容颜，匹配老上海名伶...",
+        "正在为您量体裁衣，定制旗袍...",
+        "正在显影底片，定格摩登瞬间...",
+        "正在渲染 Art Deco 建筑细节...",
+        "即将抵达..."
+      ];
+      let i = 0;
+      const interval = setInterval(() => {
+        setLoadingText(messages[i % messages.length]);
+        i++;
+      }, 2500);
+      return () => clearInterval(interval);
+    }
+  }, [step]);
+
   const handleImageUpload = async (imageDataUrl) => {
     setUploadedImage(imageDataUrl)
     setStep('generating')
-    setProgress(5)
-    setLoadingText("正在极速连接摩登时空 (并行加速中)...")
+    // Start smoothly from 0
+    setProgress(0)
+
+    // Smooth Progress Simulation
+    // 0-30%: Fast (Initializing)
+    // 30-70%: Medium (AI Processing)
+    // 70-98%: Slow (Finalizing)
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 99) return prev;
+
+        let increment = 0;
+        if (prev < 30) increment = 2;       // Fast start
+        else if (prev < 70) increment = 0.5; // Steady processing
+        else increment = 0.1;               // Creep at the end
+
+        return Math.min(prev + increment, 99);
+      });
+    }, 100);
 
     try {
-      // 1. 统一压缩 (Unified Compression) - Client Side
-      // Target 1024px is good for both Text Analysis and Image Generation
-      setProgress(10)
+      // 1. Unified Compression
       const { compressImage } = await import('./utils/imageUtils');
       const compressedImage = await compressImage(imageDataUrl, 1024);
 
-      // 2. 并行执行 (Parallel Processing)
-      setProgress(20)
-      setLoadingText("正在同时解析面孔与编织梦境...")
-
-      // 启动一个定时器，每 500ms 增加 1-2%，直到 75%
-      // 启动一个定时器，每 500ms 增加，直到 98% (避免卡在 75%)
-      const progressInterval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 98) return prev;
-          // 快到 70% 时减速，超过 85% 时极慢蠕动
-          const increment = prev > 85 ? 0.2 : (prev > 70 ? 0.5 : Math.random() * 3);
-          return prev + increment;
-        });
-      }, 500);
+      // 2. Parallel Processing
+      // ... processing logic remains same, but remove manual setProgress/setLoadingText calls
 
       const analysisPromise = analyzeImageAndGenerateCopy(compressedImage)
         .then(res => {
           console.log("Text Analysis Done");
-          setLoadingText("您的摩登关键词已浮现...") // 中间反馈
           return res;
         });
 
@@ -83,10 +105,8 @@ function App() {
       // Wait for both
       const [analysis, images] = await Promise.all([analysisPromise, imagePromise]);
 
-      // 清除定时器，跳到 85%
       clearInterval(progressInterval);
-      setProgress(85);
-      setLoadingText("正在为您合成摩登月份牌...")
+      setProgress(100);
 
       // 3. 后处理 (Composition)
       let finalImage = images.fusionImage;
@@ -162,46 +182,48 @@ function App() {
       {/* Header - Always Visible */}
       <Header />
 
-      {/* Main Content */}
-      <div className="flex-grow w-full flex flex-col items-center justify-center z-10 py-2">
-        {step === 'upload' && (
-          <UploadSection onImageUpload={handleImageUpload} />
-        )}
+      {/* Main Content - Scrollable for Results */}
+      <div className="flex-grow w-full z-10 py-2 overflow-y-auto no-scrollbar">
+        <div className="w-full flex flex-col items-center justify-center min-h-full">
+          {step === 'upload' && (
+            <UploadSection onImageUpload={handleImageUpload} />
+          )}
 
-        {step === 'generating' && (
-          <div className="w-full max-w-md">
-            <GeneratingScreen
-              uploadedImage={uploadedImage}
-              loadingText={loadingText}
-              progress={progress}
+          {step === 'generating' && (
+            <div className="w-full max-w-md">
+              <GeneratingScreen
+                uploadedImage={uploadedImage}
+                loadingText={loadingText}
+                progress={progress}
+              />
+            </div>
+          )}
+
+          {step === 'result' && generatedResults && (
+            <ResultSection
+              resultImage={generatedResults.fusionImage}
+              data={generatedResults}
+              onReset={handleReset}
+              onShare={() => {
+                if (navigator.share && generatedResults.fusionImage) {
+                  fetch(generatedResults.fusionImage)
+                    .then(res => res.blob())
+                    .then(blob => {
+                      const file = new File([blob], 'vive-modern-encounter.jpg', { type: 'image/jpeg' });
+                      navigator.share({ files: [file], title: 'VIVE 摩登奇遇' });
+                    })
+                    .catch(err => console.error('Share failed:', err));
+                } else {
+                  alert('您的浏览器不支持原生分享，请长按图片保存后分享');
+                }
+              }}
             />
-          </div>
-        )}
+          )}
+        </div>
 
-        {step === 'result' && generatedResults && (
-          <ResultSection
-            resultImage={generatedResults.fusionImage}
-            data={generatedResults}
-            onReset={handleReset}
-            onShare={() => {
-              if (navigator.share && generatedResults.fusionImage) {
-                fetch(generatedResults.fusionImage)
-                  .then(res => res.blob())
-                  .then(blob => {
-                    const file = new File([blob], 'vive-modern-encounter.jpg', { type: 'image/jpeg' });
-                    navigator.share({ files: [file], title: 'VIVE 摩登奇遇' });
-                  })
-                  .catch(err => console.error('Share failed:', err));
-              } else {
-                alert('您的浏览器不支持原生分享，请长按图片保存后分享');
-              }
-            }}
-          />
-        )}
+        {/* Footer - Always visible on upload */}
+        {step === 'upload' && <Footer />}
       </div>
-
-      {/* Footer - Always visible on upload */}
-      {step === 'upload' && <Footer />}
     </div>
   )
 }
