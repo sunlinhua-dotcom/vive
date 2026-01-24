@@ -8,6 +8,8 @@ import Footer from './components/Footer'
 import { analyzeImageAndGenerateCopy, generateFashionImages } from './services/gemini'
 
 import { getUserStorageKey, getClientUUID } from './utils/uuid'
+import ParallaxBackground from './components/ParallaxBackground'
+
 
 function App() {
   const [step, setStep] = useState('upload') // 'upload' | 'generating' | 'result'
@@ -142,8 +144,12 @@ function App() {
     setProgress(0)
   }
 
+
   return (
     <div className="relative h-screen w-full flex flex-col items-center justify-between py-2 px-6 overflow-hidden">
+      {/* 3D Gyroscope Background */}
+      <ParallaxBackground />
+
       {/* Background Decorations & Effects */}
       <div className="sunray-bg"></div>
 
