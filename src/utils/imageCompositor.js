@@ -54,7 +54,7 @@ export const composeFinalImage = async (baseImageUrl, data) => {
 
             // 顶部也加一点渐变，衬托Logo
             const topGradient = ctx.createLinearGradient(0, 0, 0, 300);
-            topGradient.addColorStop(0, "rgba(0,0,0,0.8)");
+            topGradient.addColorStop(0, "rgba(0,0,0,0.4)"); // Reduced from 0.8 to 0.4 to show the ceiling
             topGradient.addColorStop(1, "transparent");
             ctx.fillStyle = topGradient;
             ctx.fillRect(0, 0, targetWidth, 300);
