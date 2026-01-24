@@ -30,17 +30,7 @@
         position: relative;
     }
 
-    /* Absolute Final Background Image - User Provided */
-    body::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        background-image: url('/BACKGROUND.jpeg');
-        background-size: cover;
-        background-position: center bottom;
-        background-repeat: no-repeat;
-    }
+
 
     *:focus {
         outline: none !important;
