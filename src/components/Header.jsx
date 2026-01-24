@@ -1,4 +1,4 @@
-import headerMain from '../assets/header-main.png';
+import headerMain from '../assets/header-main.webp';
 
 function Header() {
     return (

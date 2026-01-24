@@ -61,7 +61,7 @@ const ParallaxBackground = () => {
         <div
             className="fixed inset-[-5%] w-[110%] h-[110%] -z-50 pointer-events-none transition-transform duration-100 ease-out will-change-transform"
             style={{
-                backgroundImage: "url('/BACKGROUND.jpeg')",
+                backgroundImage: "url('/BACKGROUND.webp')",
                 backgroundSize: 'cover',
                 backgroundPosition: 'center bottom',
                 transform: `translate3d(${offset.x}px, ${offset.y}px, 0)`
