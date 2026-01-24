@@ -58,13 +58,16 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             ctx.fillStyle = gradient;
             ctx.fillRect(0, targetHeight - bottomH, targetWidth, bottomH);
 
-            // 2. 顶部渐变：为了衬托 Logo，但不能遮挡头顶细节
-            // 降低高度和透明度，仅保留丝毫阴影
-            const topH = 250;
+            // 2. 顶部渐变：为了衬托 Logo (Refined, much smoother)
+            // 增加高度到 320px 以打散过渡区，使用非线性衰减避免断层感
+            const topH = 320;
             const topGradient = ctx.createLinearGradient(0, 0, 0, topH);
-            topGradient.addColorStop(0, "rgba(0,0,0,0.6)"); // 顶部稍深 (was 0.8)
-            topGradient.addColorStop(0.4, "rgba(0,0,0,0.2)");
-            topGradient.addColorStop(1, "rgba(0,0,0,0)");
+            // Non-linear stops for natural fade
+            topGradient.addColorStop(0, "rgba(0,0,0,0.85)");   // 顶部极深，衬托Logo
+            topGradient.addColorStop(0.15, "rgba(0,0,0,0.6)"); // 快速过渡
+            topGradient.addColorStop(0.4, "rgba(0,0,0,0.3)");  // 中间层
+            topGradient.addColorStop(0.7, "rgba(0,0,0,0.1)");  // 接近透明
+            topGradient.addColorStop(1, "rgba(0,0,0,0)");      // 完全透明
             ctx.fillStyle = topGradient;
             ctx.fillRect(0, 0, targetWidth, topH);
 
