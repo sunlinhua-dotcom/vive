@@ -122,7 +122,8 @@ function App() {
       const [analysis, images] = await Promise.all([analysisPromise, imagePromise]);
 
       clearInterval(progressInterval);
-      setProgress(100);
+      // API Finished, starting composition. Set to 90% (not 100 to avoid backward jump)
+      setProgress(90);
 
       // 3. 后处理 (Composition)
       let finalImage = images.fusionImage;
@@ -142,8 +143,10 @@ function App() {
             logoColor: 'white'
           };
 
-          setProgress(90)
+          // Composition happening...
           finalImage = await composeFinalImage(images.fusionImage, compositeData);
+
+          // Done
           setProgress(100)
 
         } catch (composeError) {
