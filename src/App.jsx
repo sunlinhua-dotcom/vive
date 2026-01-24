@@ -57,10 +57,13 @@ function App() {
       setLoadingText("正在同时解析面孔与编织梦境...")
 
       // 启动一个定时器，每 500ms 增加 1-2%，直到 75%
+      // 启动一个定时器，每 500ms 增加，直到 98% (避免卡在 75%)
       const progressInterval = setInterval(() => {
         setProgress(prev => {
-          if (prev >= 75) return prev;
-          return prev + Math.random() * 3;
+          if (prev >= 98) return prev;
+          // 快到 70% 时减速，超过 85% 时极慢蠕动
+          const increment = prev > 85 ? 0.2 : (prev > 70 ? 0.5 : Math.random() * 3);
+          return prev + increment;
         });
       }, 500);
 
@@ -156,8 +159,8 @@ function App() {
       {/* Subtle Vignette */}
       <div className="fixed inset-0 pointer-events-none z-[1] bg-[radial-gradient(circle_at_center,transparent_30%,rgba(0,0,0,0.4)_100%)]"></div>
 
-      {/* Header */}
-      {step === 'upload' && <Header />}
+      {/* Header - Always Visible */}
+      <Header />
 
       {/* Main Content */}
       <div className="flex-grow w-full flex flex-col items-center justify-center z-10 py-2">
@@ -178,6 +181,7 @@ function App() {
         {step === 'result' && generatedResults && (
           <ResultSection
             resultImage={generatedResults.fusionImage}
+            data={generatedResults}
             onReset={handleReset}
             onShare={() => {
               if (navigator.share && generatedResults.fusionImage) {

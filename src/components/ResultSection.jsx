@@ -1,8 +1,10 @@
 
 import React, { useState } from 'react';
 
-function ResultSection({ resultImage, onReset }) {
+function ResultSection({ resultImage, onReset, data }) {
     const [saveMessage, setSaveMessage] = useState('');
+
+    const { month, year, keyword, attitude } = data || {};
 
     const handleSave = () => {
         // 创建一个临时 <a> 标签来触发下载
@@ -25,6 +27,21 @@ function ResultSection({ resultImage, onReset }) {
                 <img src={resultImage} alt="Modern Encounter Poster" className="w-full h-auto object-contain transition-transform duration-[4s] group-hover:scale-[1.02]" />
                 <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1500 pointer-events-none"></div>
             </div>
+
+            {/* Generated Copy & Calendar Metadata - RESTORED */}
+            {data && (
+                <div className="flex flex-col items-center space-y-4 text-center animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                    <div className="flex items-center space-x-3 text-[#B8955F]">
+                        <span className="text-[14px] md:text-[16px] font-serif tracking-[0.2em]">{month}</span>
+                        <span className="w-[1px] h-3 bg-current opacity-50"></span>
+                        <span className="text-[14px] md:text-[16px] font-serif tracking-[0.2em]">{year}</span>
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <span className="text-[18px] md:text-[22px] font-serif text-[#E6D5B8] tracking-[0.1em]">{keyword}</span>
+                        <span className="text-[12px] md:text-[14px] font-serif text-[#B8955F]/80 tracking-[0.15em]">{attitude}</span>
+                    </div>
+                </div>
+            )}
 
             {/* Action Buttons - Matching Homepage Style */}
             <div className="flex flex-col items-center space-y-6 w-full max-w-[340px] animate-fade-in" style={{ animationDelay: '0.2s' }}>
