@@ -5,7 +5,7 @@
  * 策略：Fit & Design (保留完整画面，利用留白做设计)，拒绝暴力裁剪
  */
 export const composeFinalImage = async (baseImageUrl, data) => {
-    const { month, year, keyword, attitude, logoColor = 'white' } = data;
+    const { month, year, keyword, attitude } = data;
 
     return new Promise((resolve, reject) => {
         const canvas = document.createElement('canvas');
