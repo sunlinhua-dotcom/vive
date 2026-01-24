@@ -53,7 +53,24 @@ export const analyzeImageAndGenerateCopy = async (imageBase64) => {
             const data = await callDoubaoAPI(config.doubao.baseUrl, config.doubao.apiKey, config.doubao.model, messages);
             const content = data.choices?.[0]?.message?.content || '{}';
             const cleanContent = content.replace(/```json/g, '').replace(/```/g, '').trim();
-            return JSON.parse(cleanContent);
+
+            let parsed = {};
+            try {
+                parsed = JSON.parse(cleanContent);
+            } catch (e) {
+                console.warn("Doubao JSON Parse Failed, trying regex...", e);
+                const match = cleanContent.match(/\{[\s\S]*\}/);
+                if (match) {
+                    try { parsed = JSON.parse(match[0]); } catch (e2) { /* ignore */ }
+                }
+            }
+
+            return {
+                features: parsed.features || "Asian woman, elegant features",
+                keyword: parsed.keyword || "#摩登双妹",
+                attitude: parsed.attitude || "优雅永不过时",
+                loading_text: parsed.loading_text || "正在穿越时光..."
+            };
 
         } else {
             // GEMINI IMPLEMENTATION (Original)
@@ -81,7 +98,20 @@ export const analyzeImageAndGenerateCopy = async (imageBase64) => {
 
             const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
             const cleanContent = content.replace(/```json/g, '').replace(/```/g, '').trim();
-            return JSON.parse(cleanContent);
+            let parsed = {};
+            try {
+                parsed = JSON.parse(cleanContent);
+            } catch (e) {
+                const match = cleanContent.match(/\{[\s\S]*\}/);
+                if (match) parsed = JSON.parse(match[0]);
+            }
+
+            return {
+                features: parsed.features || "Asian woman, elegant features",
+                keyword: parsed.keyword || "#摩登双妹",
+                attitude: parsed.attitude || "优雅永不过时",
+                loading_text: parsed.loading_text || "正在穿越时光..."
+            };
         }
 
     } catch (error) {
@@ -148,33 +178,37 @@ export const generateFashionImages = async (features, imageBase64) => {
     try {
         if (config.provider === 'doubao') {
             // DOUBAO IMPLEMENTATION (Image Gen)
-            // Ark CV-Generation (Not always OpenAI compatible, often specific endpoint)
-            // Assuming CV API usage:
             if (!config.doubao.apiKey) return { fusionImage: null, errors: { global: "Doubao API Key missing" } };
 
             console.log("Calling Doubao for Image Gen...");
-            // Placeholder for Doubao CV API - adapting to their specific structure if known, 
-            // otherwise assuming a similar generic POST to their endpoint.
-            // Volcengine CV usually requires signing or specific SDK. 
-            // For now, we will Mock error or try a standard structure.
-            // Real implementation requires user to provide exact endpoint in Admin.
 
-            // Standard Volcengine High-Aesthetic Image Generation (example)
-            const response = await fetch(`${config.doubao.baseUrl}/cv/images/generations`, { // Fictional standard path
+            // Use Standard OpenAI Image Endpoint (often supported by aggregators)
+            const response = await fetch(`${config.doubao.baseUrl}/images/generations`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${config.doubao.apiKey}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     prompt: fusionPrompt,
                     model: config.doubao.imageModel,
-                    image_url: `data:image/jpeg;base64,${base64Data}` // Img2Img
+                    // Note: Standard OpenAI API doesn't support 'image_url' here, but custom aggregators might.
+                    // If this fails, we might need 'multipart/form-data' or specific 'mix' endpoint.
+                    // For now, retaining the structure as requested by user intent "Redraw"
+                    image_url: `data:image/jpeg;base64,${base64Data}`
                 })
             });
             const data = await response.json();
-            // Adapt response...
+
+            // Handle various response formats
             if (data.data?.[0]?.b64_json) {
                 return { fusionImage: `data:image/jpeg;base64,${data.data[0].b64_json}`, errors: null };
+            } else if (data.data?.[0]?.url) {
+                // Convert URL to Base64 in frontend if needed, or pass URL directly (Compositor handles generic URL)
+                // But CORS might be an issue. Ideally proxy handles it.
+                // For now return URL.
+                return { fusionImage: data.data[0].url, errors: null };
             }
-            throw new Error("Doubao Image API Not Configured / Response Unknown");
+
+            console.error("Doubao Unknown Response:", data);
+            throw new Error("Doubao Image API Response Unknown");
 
         } else {
             // GEMINI IMPLEMENTATION
