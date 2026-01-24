@@ -45,6 +45,29 @@ export const composeFinalImage = async (baseImageUrl, data) => {
 
             ctx.drawImage(img, dx, dy, dWidth, dHeight);
 
+            // --- C. 氛围渐变 (Refined) ---
+
+            // 1. 底部渐变：为了让白色文字和日历清晰可见
+            // 使用多段渐变模拟指数衰减，避免"一条黑线"的感觉
+            const bottomH = 450;
+            const gradient = ctx.createLinearGradient(0, targetHeight - bottomH, 0, targetHeight);
+            gradient.addColorStop(0, "rgba(0,0,0,0)");      // 完全透明
+            gradient.addColorStop(0.3, "rgba(0,0,0,0.1)");  // 缓慢过渡
+            gradient.addColorStop(0.7, "rgba(0,0,0,0.6)");  // 加深
+            gradient.addColorStop(1, "rgba(0,0,0,0.9)");    // 底部最深
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, targetHeight - bottomH, targetWidth, bottomH);
+
+            // 2. 顶部渐变：为了衬托 Logo，但不能遮挡头顶细节
+            // 降低高度和透明度，仅保留丝毫阴影
+            const topH = 250;
+            const topGradient = ctx.createLinearGradient(0, 0, 0, topH);
+            topGradient.addColorStop(0, "rgba(0,0,0,0.6)"); // 顶部稍深 (was 0.8)
+            topGradient.addColorStop(0.4, "rgba(0,0,0,0.2)");
+            topGradient.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.fillStyle = topGradient;
+            ctx.fillRect(0, 0, targetWidth, topH);
+
 
 
 
