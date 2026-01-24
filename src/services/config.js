@@ -2,7 +2,7 @@
 // Default Configuration
 export const DEFAULT_CONFIG = {
     // Model Provider: 'gemini' | 'doubao'
-    provider: 'gemini',
+    provider: import.meta.env.VITE_AI_PROVIDER || 'gemini',
 
     // Gemini Settings
     gemini: {
@@ -15,10 +15,10 @@ export const DEFAULT_CONFIG = {
 
     // Doubao Settings (Volcengine)
     doubao: {
-        baseUrl: import.meta.env.VITE_AI_BASE_URL || 'https://api.apiyi.com/v1beta',
+        baseUrl: import.meta.env.VITE_AI_BASE_URL || 'https://api.apiyi.com/v1',
         apiKey: import.meta.env.VITE_DOUBAO_API_KEY || 'sk-zu5cm3pPZaEyIwz85a5bCb76546f4b1d92BaA08aAc3f7404',
-        model: import.meta.env.VITE_DOUBAO_TEXT_MODEL || 'doubao-seed-1-8-251228', // Text
-        imageModel: import.meta.env.VITE_DOUBAO_IMAGE_MODEL || 'seedream-4-5-251128' // Image
+        model: import.meta.env.VITE_DOUBAO_TEXT_MODEL || 'doubao-pro-4k', // Text (Common Alias)
+        imageModel: import.meta.env.VITE_DOUBAO_IMAGE_MODEL || 'seedream-4-5-251128' // Image (SeeDream 4.5)
     },
 
     // Prompts

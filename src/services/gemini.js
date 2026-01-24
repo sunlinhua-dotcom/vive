@@ -176,79 +176,85 @@ export const generateFashionImages = async (features, imageBase64) => {
     }
 
     try {
-        if (config.provider === 'doubao') {
-            // DOUBAO IMPLEMENTATION (Image Gen)
-            if (!config.doubao.apiKey) return { fusionImage: null, errors: { global: "Doubao API Key missing" } };
+        // DOUBAO/SEEDREAM IMPLEMENTATION (Image Gen)
+        if (!config.doubao.apiKey) return { fusionImage: null, errors: { global: "Doubao API Key missing" } };
 
-            console.log("Calling Doubao for Image Gen...");
+        console.log("Calling Doubao (SeeDream)...");
 
-            // Use Standard OpenAI Image Endpoint (often supported by aggregators)
-            const response = await fetch(`${config.doubao.baseUrl}/images/generations`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${config.doubao.apiKey}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    prompt: fusionPrompt,
-                    model: config.doubao.imageModel,
-                    // Note: Standard OpenAI API doesn't support 'image_url' here, but custom aggregators might.
-                    // If this fails, we might need 'multipart/form-data' or specific 'mix' endpoint.
-                    // For now, retaining the structure as requested by user intent "Redraw"
-                    image_url: `data:image/jpeg;base64,${base64Data}`
-                })
-            });
-            const data = await response.json();
+        // Seedream Payload (Strictly following user documentation)
+        // Note: Seedream is Text-to-Image. It does NOT support 'image_url' for standard generation.
+        // We rely on the prompt to carry the style.
+        const response = await fetch(`${config.doubao.baseUrl}/images/generations`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${config.doubao.apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: config.doubao.imageModel, // e.g. seedream-4-5-251128
+                prompt: fusionPrompt,
+                size: "2048x2048", // Method 2: Precise pixels (User docs recommend this or "4K")
+                quality: "standard",
+                n: 1,
+                response_format: "b64_json" // Prefer Base64 to avoid URL access issues
+            })
+        });
+        const data = await response.json();
 
-            // Handle various response formats
-            if (data.data?.[0]?.b64_json) {
-                return { fusionImage: `data:image/jpeg;base64,${data.data[0].b64_json}`, errors: null };
-            } else if (data.data?.[0]?.url) {
-                // Convert URL to Base64 in frontend if needed, or pass URL directly (Compositor handles generic URL)
-                // But CORS might be an issue. Ideally proxy handles it.
-                // For now return URL.
-                return { fusionImage: data.data[0].url, errors: null };
-            }
-
-            console.error("Doubao Unknown Response:", data);
-            throw new Error("Doubao Image API Response Unknown");
-
-        } else {
-            // GEMINI IMPLEMENTATION
-            const { baseUrl, imageKey, imageModel } = config.gemini;
-            console.log(`[Fusion] 请求 ${imageModel}...`);
-
-            const response = await fetch(`${baseUrl}/models/${imageModel}:generateContent`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${imageKey}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [
-                            { text: fusionPrompt },
-                            { inlineData: { mimeType: "image/jpeg", data: base64Data } }
-                        ]
-                    }],
-                    generationConfig: {
-                        responseModalities: ["IMAGE"],
-                        imageConfig: { aspectRatio: "3:4", imageSize: "1K" }
-                    }
-                })
-            });
-
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-
-            const candidate = data.candidates?.[0];
-            if (candidate?.finishReason === 'SAFETY') return { fusionImage: null, errors: { global: "Safety Block" } };
-
-            let b64 = candidate?.content?.parts?.[0]?.inlineData?.data || candidate?.content?.parts?.[0]?.inline_data?.data;
-            if (b64) return { fusionImage: `data:image/jpeg;base64,${b64}`, errors: null };
-
-            throw new Error("No image data in response");
+        // Handle various response formats
+        if (data.data?.[0]?.b64_json) {
+            return { fusionImage: `data:image/jpeg;base64,${data.data[0].b64_json}`, errors: null };
+        } else if (data.data?.[0]?.url) {
+            return { fusionImage: data.data[0].url, errors: null };
         }
 
-    } catch (err) {
-        console.error(`[Fusion] Error:`, err);
-        return { fusionImage: null, errors: { global: err.message } };
+        console.error("Doubao Unknown Response:", data);
+
+        // Helpful error handling for common 503/400
+        if (data.error) {
+            throw new Error(`${data.error.message} (Provider Error)`);
+        }
+        throw new Error("Doubao Image API Response Unknown");
+
+    } else {
+        // GEMINI IMPLEMENTATION
+        const { baseUrl, imageKey, imageModel } = config.gemini;
+        console.log(`[Fusion] 请求 ${imageModel}...`);
+
+        const response = await fetch(`${baseUrl}/models/${imageModel}:generateContent`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${imageKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [
+                        { text: fusionPrompt },
+                        { inlineData: { mimeType: "image/jpeg", data: base64Data } }
+                    ]
+                }],
+                generationConfig: {
+                    responseModalities: ["IMAGE"],
+                    imageConfig: { aspectRatio: "3:4", imageSize: "1K" }
+                }
+            })
+        });
+
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+
+        const candidate = data.candidates?.[0];
+        if (candidate?.finishReason === 'SAFETY') return { fusionImage: null, errors: { global: "Safety Block" } };
+
+        let b64 = candidate?.content?.parts?.[0]?.inlineData?.data || candidate?.content?.parts?.[0]?.inline_data?.data;
+        if (b64) return { fusionImage: `data:image/jpeg;base64,${b64}`, errors: null };
+
+        throw new Error("No image data in response");
     }
+
+} catch (err) {
+    console.error(`[Fusion] Error:`, err);
+    return { fusionImage: null, errors: { global: err.message } };
+}
 };
