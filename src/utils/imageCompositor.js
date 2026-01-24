@@ -45,19 +45,7 @@ export const composeFinalImage = async (baseImageUrl, data) => {
 
             ctx.drawImage(img, dx, dy, dWidth, dHeight);
 
-            // 稍微加一个底部渐变，让日历字能看清
-            const gradient = ctx.createLinearGradient(0, targetHeight - 400, 0, targetHeight);
-            gradient.addColorStop(0, "transparent");
-            gradient.addColorStop(1, "rgba(0,0,0,0.9)");
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, targetHeight - 400, targetWidth, 400);
 
-            // 顶部也加一点渐变，衬托Logo
-            const topGradient = ctx.createLinearGradient(0, 0, 0, 300);
-            topGradient.addColorStop(0, "rgba(0,0,0,0.4)"); // Reduced from 0.8 to 0.4 to show the ceiling
-            topGradient.addColorStop(1, "transparent");
-            ctx.fillStyle = topGradient;
-            ctx.fillRect(0, 0, targetWidth, 300);
 
 
             // [已移除] 水印 "MODERN VIVE" 以免遮挡人脸

@@ -25,7 +25,7 @@ function ResultSection({ resultImage, onReset, data }) {
             {/* Full Bleed Image - No Frame */}
             <div className="relative group w-full max-w-[768px] transition-all duration-700">
                 <img src={resultImage} alt="Modern Encounter Poster" className="w-full h-auto object-contain transition-transform duration-[4s] group-hover:scale-[1.02]" />
-                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1500 pointer-events-none"></div>
+
             </div>
 
             {/* Generated Copy & Calendar Metadata - RESTORED */}
