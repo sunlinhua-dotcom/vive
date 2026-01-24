@@ -11,8 +11,26 @@ import { getUserStorageKey, getClientUUID } from './utils/uuid'
 import ParallaxBackground from './components/ParallaxBackground'
 
 
+import Admin from './pages/Admin'
+
 function App() {
+  // Simple Hash Routing for Internal Admin Tools
+  const [isAdmin, setIsAdmin] = useState(window.location.hash === '#/admin');
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      setIsAdmin(window.location.hash === '#/admin');
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  if (isAdmin) {
+    return <Admin />;
+  }
+
   const [step, setStep] = useState('upload') // 'upload' | 'generating' | 'result'
+  // ... existing state initialization ...
   const [uploadedImage, setUploadedImage] = useState(null)
   const [generatedResults, setGeneratedResults] = useState(null)
   const [loadingText, setLoadingText] = useState("")
