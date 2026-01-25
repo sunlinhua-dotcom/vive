@@ -27,103 +27,35 @@ const ensureBase64 = (str) => {
 /**
  * 步骤 1: 分析用户图片并生成文案
  */
+// Local Slogan Pool (Zero API Cost)
+const sloganPool = [
+    { k: "#锐意先锋", a: "以锋芒之姿，诠释当代风范。" },
+    { k: "#赤诚摩登", a: "以赤诚底色，挥洒摩登意气。" },
+    { k: "#独立自洽", a: "于方寸之间，自有天地广阔。" },
+    { k: "#无畏锋芒", a: "以破局之姿，重塑摩登定义。" },
+    { k: "#如花明媚", a: "让本色盛放，不负鎏金岁月。" },
+    { k: "#如狮无畏", a: "心有大格局，自有万千气象。" },
+    { k: "#尽态极妍", a: "登场即焦点，演绎摩登风范。" },
+    { k: "#传世之美", a: "岁月不败我，沉淀非凡底蕴。" },
+    { k: "#东情西韵", a: "蕴东方风骨，彰显摩登格调。" }
+];
+
 export const analyzeImageAndGenerateCopy = async (imageBase64) => {
-    const config = getConfig();
-    const base64Data = ensureBase64(imageBase64);
+    // Zero-Cost Implementation: Randomly select a slogan
+    // The user specifically requested to avoid "wasting money" on analysis API calls.
+    console.log("Skipping API Analysis (Cost Saving Mode)...");
 
-    try {
-        if (config.provider === 'doubao') {
-            // DOUBAO IMPLEMENTATION (Text Analysis)
-            // Note: Doubao vision models might differ. Assuming standard multimodal endpoint or placeholder.
-            // For now, if no vision model in Doubao config, fall back or error.
-            if (!config.doubao.apiKey) throw new Error("Doubao API Key missing");
-            console.log("Calling Doubao for Analysis...");
+    // Simulate a short delay to feel "real"
+    await new Promise(r => setTimeout(r, 800));
 
-            // Construct OpenAI-compatible vision message
-            const messages = [
-                {
-                    role: "user",
-                    content: [
-                        { type: "text", text: config.prompts.textAnalysis },
-                        { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Data}` } }
-                    ]
-                }
-            ];
+    const randomPick = sloganPool[Math.floor(Math.random() * sloganPool.length)];
 
-            const data = await callDoubaoAPI(config.doubao.baseUrl, config.doubao.apiKey, config.doubao.model, messages);
-            const content = data.choices?.[0]?.message?.content || '{}';
-            const cleanContent = content.replace(/```json/g, '').replace(/```/g, '').trim();
-
-            let parsed = {};
-            try {
-                parsed = JSON.parse(cleanContent);
-            } catch (e) {
-                console.warn("Doubao JSON Parse Failed, trying regex...", e);
-                const match = cleanContent.match(/\{[\s\S]*\}/);
-                if (match) {
-                    try { parsed = JSON.parse(match[0]); } catch (e2) { /* ignore */ }
-                }
-            }
-
-            return {
-                features: parsed.features || "Asian woman, elegant features",
-                keyword: parsed.keyword || "#摩登双妹",
-                attitude: parsed.attitude || "优雅永不过时",
-                loading_text: parsed.loading_text || "正在穿越时光..."
-            };
-
-        } else {
-            // GEMINI IMPLEMENTATION (Original)
-            const { baseUrl, textKey, textModel } = config.gemini;
-            console.log(`正在调用 ${textModel} 分析图片...`);
-
-            const response = await fetch(`${baseUrl}/models/${textModel}:generateContent`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${textKey}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [
-                            { text: config.prompts.textAnalysis },
-                            { inlineData: { mimeType: "image/jpeg", data: base64Data } }
-                        ]
-                    }]
-                })
-            });
-
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
-
-            const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
-            const cleanContent = content.replace(/```json/g, '').replace(/```/g, '').trim();
-            let parsed = {};
-            try {
-                parsed = JSON.parse(cleanContent);
-            } catch (e) {
-                const match = cleanContent.match(/\{[\s\S]*\}/);
-                if (match) parsed = JSON.parse(match[0]);
-            }
-
-            return {
-                features: parsed.features || "Asian woman, elegant features",
-                keyword: parsed.keyword || "#摩登双妹",
-                attitude: parsed.attitude || "优雅永不过时",
-                loading_text: parsed.loading_text || "正在穿越时光..."
-            };
-        }
-
-    } catch (error) {
-        console.error(`${config.provider.toUpperCase()} Analysis Error:`, error);
-        // Fallback
-        return {
-            features: "Asian woman, elegant features",
-            keyword: "#传奇的摩登",
-            attitude: "优雅是永不过时的经典",
-            loading_text: "正在为您回溯百年前的摩登时光..."
-        };
-    }
+    return {
+        features: "", // No text features needed for pure Img2Img
+        keyword: randomPick.k,
+        attitude: randomPick.a,
+        loading_text: "正在穿越时光..."
+    };
 };
 
 /**
@@ -166,11 +98,6 @@ export const generateFashionImages = async (features, imageBase64) => {
         .replace('{{style2026}}', style2026)
         .replace('{{scene}}', selectedScene);
 
-    // Fallback if {{tags}} missing in config but needed logic exists
-    // (Simplification: We assume the config prompt has the placeholders or is generic enough)
-
-    // Add specific style details if the prompt is generic, or rely on the user editing the prompt in Admin to include placeholders.
-    // For safety, let's append the style context if prompt looks short.
     if (!fusionPrompt.includes("Woman A")) {
         fusionPrompt += `\n\nContext: Woman A wears ${style1920}. Woman B wears ${style2026}. Scene: ${selectedScene}`;
     }
@@ -182,13 +109,22 @@ export const generateFashionImages = async (features, imageBase64) => {
 
             console.log("Calling Doubao (SeeDream)...");
 
-            // CRITICAL FIX: Doubao is Text-to-Image only.
-            // We MUST inject the analyzed facial features into the prompt, otherwise it generates a generic person.
-            const doubaoPrompt = `${fusionPrompt}\n\n**CRITICAL VISUAL REQUIREMENT**:\nBoth women MUST share the same face based on these features: ${features}.\nThey are the same person in parallel universes.`;
+            // --- PURE IMG2IMG PROMPT ---
+            // No facial description. Pure style instruction.
+            let doubaoPrompt = `**Instruction**: Retouch the uploaded photo.
+            
+**CORE REQUIREMENT**: 
+Keep the person's face EXACTLY as it is.
+Apply the following ART DECO STYLE and CLOTHING:
 
-            // Seedream Payload (Strictly following user documentation)
-            // Note: Seedream is Text-to-Image. It does NOT support 'image_url' for standard generation.
-            // We rely on the prompt to carry the style.
+**SCENE & STYLE**:
+${fusionPrompt}
+
+**Output**:
+- High fidelity portrait.
+- Cinematic lighting.`;
+
+            // Seedream Payload
             const response = await fetch(`${config.doubao.baseUrl}/images/generations`, {
                 method: 'POST',
                 headers: {
@@ -196,12 +132,14 @@ export const generateFashionImages = async (features, imageBase64) => {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: config.doubao.imageModel, // e.g. seedream-4-5-251128
+                    model: config.doubao.imageModel,
                     prompt: doubaoPrompt,
-                    size: "2048x2048", // Method 2: Precise pixels (User docs recommend this or "4K")
+                    image_url: `data:image/jpeg;base64,${base64Data}`,
+                    strength: 0.15, // 0.15 Denoising = 85% Original Locked
+                    size: "2048x2048",
                     quality: "standard",
                     n: 1,
-                    response_format: "b64_json" // Prefer Base64 to avoid URL access issues
+                    response_format: "b64_json"
                 })
             });
             const data = await response.json();

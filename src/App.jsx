@@ -243,10 +243,10 @@ function App() {
             />
           )}
         </div>
-
-        {/* Footer - Always visible on upload */}
-        {step === 'upload' && <Footer />}
       </div>
+
+      {/* Footer - Always Visible, Pinned to Bottom */}
+      {step === 'upload' && <Footer />}
     </div>
   )
 }
