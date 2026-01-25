@@ -109,20 +109,23 @@ export const generateFashionImages = async (features, imageBase64) => {
 
             console.log("Calling Doubao (SeeDream)...");
 
-            // --- PURE IMG2IMG PROMPT ---
-            // No facial description. Pure style instruction.
-            let doubaoPrompt = `**Instruction**: Retouch the uploaded photo.
-            
-**CORE REQUIREMENT**: 
-Keep the person's face EXACTLY as it is.
-Apply the following ART DECO STYLE and CLOTHING:
+            // --- SPECIALIZED "TWIN CLONE" PROMPT ---
+            // Fix: User reported Woman B (Modern) face shape was drifting/too sharp.
+            // Strategy: Enforce "Identical Twins" concept.
+            let doubaoPrompt = `**Instruction**: Create a cinematic "Twin Portrait" based on the uploaded photo.
 
-**SCENE & STYLE**:
+**CRITICAL IDENTITY RULE (100% MATCH)**:
+- Both "Woman A" (Left) and "Woman B" (Right) are the **SAME PERSON** (You).
+- **Woman B (Modern Version)**: You MUST keep her face SHAPE and FEATURES exactly the same as the uploaded photo.
+- **DO NOT** make Woman B's face thinner, sharper, or "westernized". 
+- Keep the roundness/softness of the original face perfectly intact.
+
+**STYLE & CLOTHING**:
 ${fusionPrompt}
 
 **Output**:
-- High fidelity portrait.
-- Cinematic lighting.`;
+- Low Distortion (High Fidelity).
+- Identical Twins concept.`;
 
             // Seedream Payload
             const response = await fetch(`${config.doubao.baseUrl}/images/generations`, {
