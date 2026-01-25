@@ -51,12 +51,13 @@ export const DEFAULT_CONFIG = {
       }`,
 
         imageGeneration: `**CRITICAL MISSION**: 
-      Create a "Double Life" cinematic portrait featuring **TWO WOMEN** (Twin Sisters) posing together in a luxurious room.
+      Create a "Parallel Life" cinematic portrait featuring **THE SAME PERSON** in two different timelines (1920 and 2026).
       
-      **1. IDENTITY**:
-      - **Woman A (Left/Front) - The 1920s Soul**: Vintage Qipao, retro waves.
-      - **Woman B (Right/Back) - The 2026s Modern Spirit**: Modern high-fashion, sharp.
-      - **Consistent Face**: Based on uploaded photo.
+      **1. IDENTITY (STRICT)**:
+      - BOTH figures MUST be the **IDENTICAL SAME PERSON**. 
+      - **MANDATORY**: Preserve the **EXACT facial bone structure**, jawline contour, and chin shape from the source image for BOTH characters.
+      - **1920s Version**: Wearing {{style1920}}.
+      - **2026s Version**: Wearing {{style2026}}.
 
       **2. ENVIRONMENT**:
       - **Scene**: {{scene}}

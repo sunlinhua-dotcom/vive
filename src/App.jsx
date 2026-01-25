@@ -121,12 +121,6 @@ function App() {
       // Wait for both
       const [analysis, images] = await Promise.all([analysisPromise, imagePromise]);
 
-      // Critical Check: Did generation succeed?
-      if (!images.fusionImage || images.fusionImage.startsWith('ERROR')) {
-        console.error("Image Gen Failed:", images.errors);
-        throw new Error(images.errors?.global || "AI 生成服务暂时繁忙，请稍后再试 (Image Gen Failed)");
-      }
-
       clearInterval(progressInterval);
       // API Finished, starting composition. Set to 90% (not 100 to avoid backward jump)
       setProgress(90);

@@ -98,8 +98,8 @@ export const generateFashionImages = async (features, imageBase64) => {
         .replace('{{style2026}}', style2026)
         .replace('{{scene}}', selectedScene);
 
-    if (!fusionPrompt.includes("Woman A")) {
-        fusionPrompt += `\n\nContext: Woman A wears ${style1920}. Woman B wears ${style2026}. Scene: ${selectedScene}`;
+    if (!fusionPrompt.includes("1920s Version")) {
+        fusionPrompt += `\n\nContext: One version wears ${style1920}. The other wears ${style2026}. Scene: ${selectedScene}`;
     }
 
     try {
@@ -109,23 +109,20 @@ export const generateFashionImages = async (features, imageBase64) => {
 
             console.log("Calling Doubao (SeeDream)...");
 
-            // --- SPECIALIZED "TWIN CLONE" PROMPT ---
-            // Fix: User reported Woman B (Modern) face shape was drifting/too sharp.
-            // Strategy: Enforce "Identical Twins" concept.
-            let doubaoPrompt = `**Instruction**: Create a cinematic "Twin Portrait" based on the uploaded photo.
+            // --- PURE IMG2IMG PROMPT ---
+            // No facial description. Pure style instruction.
+            let doubaoPrompt = `**Instruction**: Retouch the uploaded photo.
+            
+**CORE REQUIREMENT**: 
+Keep the person's face EXACTLY as it is.
+Apply the following ART DECO STYLE and CLOTHING:
 
-**CRITICAL IDENTITY RULE (100% MATCH)**:
-- Both "Woman A" (Left) and "Woman B" (Right) are the **SAME PERSON** (You).
-- **Woman B (Modern Version)**: You MUST keep her face SHAPE and FEATURES exactly the same as the uploaded photo.
-- **DO NOT** make Woman B's face thinner, sharper, or "westernized". 
-- Keep the roundness/softness of the original face perfectly intact.
-
-**STYLE & CLOTHING**:
+**SCENE & STYLE**:
 ${fusionPrompt}
 
 **Output**:
-- Low Distortion (High Fidelity).
-- Identical Twins concept.`;
+- High fidelity portrait.
+- Cinematic lighting.`;
 
             // Seedream Payload
             const response = await fetch(`${config.doubao.baseUrl}/images/generations`, {
@@ -165,23 +162,7 @@ ${fusionPrompt}
         } else {
             // GEMINI IMPLEMENTATION
             const { baseUrl, imageKey, imageModel } = config.gemini;
-            console.log(`[Fusion] Requesting ${imageModel} (Gemini)...`);
-
-            // Apply Twin Clone Prompt to Gemini as well
-            let geminiPrompt = `**Instruction**: Create a cinematic "Twin Portrait" based on the uploaded photo.
-
-**CRITICAL IDENTITY RULE (100% MATCH)**:
-- Both "Woman A" (Left) and "Woman B" (Right) are the **SAME PERSON** (You).
-- **Woman B (Modern Version)**: You MUST keep her face SHAPE and FEATURES exactly the same as the uploaded photo.
-- **DO NOT** make Woman B's face thinner, sharper, or "westernized". 
-- Keep the roundness/softness of the original face perfectly intact.
-
-**STYLE & CLOTHING**:
-${fusionPrompt}
-
-**Output**:
-- Low Distortion (High Fidelity).
-- Identical Twins concept.`;
+            console.log(`[Fusion] 请求 ${imageModel}...`);
 
             const response = await fetch(`${baseUrl}/models/${imageModel}:generateContent`, {
                 method: 'POST',
@@ -192,7 +173,7 @@ ${fusionPrompt}
                 body: JSON.stringify({
                     contents: [{
                         parts: [
-                            { text: geminiPrompt },
+                            { text: fusionPrompt },
                             { inlineData: { mimeType: "image/jpeg", data: base64Data } }
                         ]
                     }],
@@ -207,7 +188,7 @@ ${fusionPrompt}
             if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
 
             const candidate = data.candidates?.[0];
-            if (candidate?.finishReason === 'SAFETY') return { fusionImage: null, errors: { global: "Gemini Safety Block (Please try a different photo)" } };
+            if (candidate?.finishReason === 'SAFETY') return { fusionImage: null, errors: { global: "Safety Block" } };
 
             let b64 = candidate?.content?.parts?.[0]?.inlineData?.data || candidate?.content?.parts?.[0]?.inline_data?.data;
             if (b64) return { fusionImage: `data:image/jpeg;base64,${b64}`, errors: null };
