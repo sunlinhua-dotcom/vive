@@ -27,7 +27,7 @@ function UploadSection({ onImageUpload }) {
     });
 
     return (
-        <main className="flex-grow flex flex-col items-center justify-center w-full max-w-lg z-10 space-y-6 md:space-y-12 animate-fade-in py-4 md:py-10" style={{ animationDelay: '0.2s' }}>
+        <main className="flex-grow flex flex-col items-center justify-center w-full max-w-lg z-10 space-y-3 md:space-y-8 animate-fade-in py-1 md:py-4" style={{ animationDelay: '0.2s' }}>
 
             {/* The Frame - 1:1 Pixel Reconstruction of UI.png */}
             <div
