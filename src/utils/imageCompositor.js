@@ -60,14 +60,19 @@ export const composeFinalImage = async (baseImageUrl, data) => {
 
             // 2. 顶部渐变：为了衬托 Logo (Refined, much smoother)
             // 增加高度到 320px 以打散过渡区，使用非线性衰减避免断层感
-            const topH = 320;
+            // 2. 顶部渐变：为了衬托 Logo (Refined, much smoother)
+            // 增加高度到 500px 以打散过渡区，使用更加线性的衰减，避免"一坨"的感觉
+            // 2. 顶部渐变：极致紧凑 (Ultra Compact)
+            // 用户指定：150px 高度，且必须是渐变
+            const topH = 150;
             const topGradient = ctx.createLinearGradient(0, 0, 0, topH);
-            // Non-linear stops for natural fade
-            topGradient.addColorStop(0, "rgba(0,0,0,0.85)");   // 顶部极深，衬托Logo
-            topGradient.addColorStop(0.15, "rgba(0,0,0,0.6)"); // 快速过渡
-            topGradient.addColorStop(0.4, "rgba(0,0,0,0.3)");  // 中间层
-            topGradient.addColorStop(0.7, "rgba(0,0,0,0.1)");  // 接近透明
-            topGradient.addColorStop(1, "rgba(0,0,0,0)");      // 完全透明
+
+            // 在 150px 内完成从黑到透明的平滑过渡
+            topGradient.addColorStop(0, "rgba(0,0,0,0.75)");     // 顶部：够黑，衬托Logo
+            topGradient.addColorStop(0.3, "rgba(0,0,0,0.5)");    // 
+            topGradient.addColorStop(0.7, "rgba(0,0,0,0.15)");   // 快速衰减
+            topGradient.addColorStop(1, "rgba(0,0,0,0)");        // 底部：完全透明
+
             ctx.fillStyle = topGradient;
             ctx.fillRect(0, 0, targetWidth, topH);
 
