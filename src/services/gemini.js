@@ -165,7 +165,23 @@ ${fusionPrompt}
         } else {
             // GEMINI IMPLEMENTATION
             const { baseUrl, imageKey, imageModel } = config.gemini;
-            console.log(`[Fusion] 请求 ${imageModel}...`);
+            console.log(`[Fusion] Requesting ${imageModel} (Gemini)...`);
+
+            // Apply Twin Clone Prompt to Gemini as well
+            let geminiPrompt = `**Instruction**: Create a cinematic "Twin Portrait" based on the uploaded photo.
+
+**CRITICAL IDENTITY RULE (100% MATCH)**:
+- Both "Woman A" (Left) and "Woman B" (Right) are the **SAME PERSON** (You).
+- **Woman B (Modern Version)**: You MUST keep her face SHAPE and FEATURES exactly the same as the uploaded photo.
+- **DO NOT** make Woman B's face thinner, sharper, or "westernized". 
+- Keep the roundness/softness of the original face perfectly intact.
+
+**STYLE & CLOTHING**:
+${fusionPrompt}
+
+**Output**:
+- Low Distortion (High Fidelity).
+- Identical Twins concept.`;
 
             const response = await fetch(`${baseUrl}/models/${imageModel}:generateContent`, {
                 method: 'POST',
@@ -176,7 +192,7 @@ ${fusionPrompt}
                 body: JSON.stringify({
                     contents: [{
                         parts: [
-                            { text: fusionPrompt },
+                            { text: geminiPrompt },
                             { inlineData: { mimeType: "image/jpeg", data: base64Data } }
                         ]
                     }],
@@ -191,7 +207,7 @@ ${fusionPrompt}
             if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
 
             const candidate = data.candidates?.[0];
-            if (candidate?.finishReason === 'SAFETY') return { fusionImage: null, errors: { global: "Safety Block" } };
+            if (candidate?.finishReason === 'SAFETY') return { fusionImage: null, errors: { global: "Gemini Safety Block (Please try a different photo)" } };
 
             let b64 = candidate?.content?.parts?.[0]?.inlineData?.data || candidate?.content?.parts?.[0]?.inline_data?.data;
             if (b64) return { fusionImage: `data:image/jpeg;base64,${b64}`, errors: null };
