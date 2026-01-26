@@ -14,13 +14,7 @@ export const DEFAULT_CONFIG = {
         imageKey: '***REMOVED***'
     },
 
-    // Doubao Settings (Volcengine)
-    doubao: {
-        baseUrl: import.meta.env.VITE_AI_BASE_URL || 'https://api.apiyi.com/v1beta',
-        apiKey: import.meta.env.VITE_DOUBAO_API_KEY || '***REMOVED***',
-        model: import.meta.env.VITE_DOUBAO_TEXT_MODEL || 'doubao-pro-4k', // Text (Common Alias)
-        imageModel: import.meta.env.VITE_DOUBAO_IMAGE_MODEL || 'seedream-4-5-251128' // Image (SeeDream 4.5)
-    },
+
 
     // Prompts
     prompts: {
@@ -84,7 +78,6 @@ export const getConfig = () => {
                 ...DEFAULT_CONFIG,
                 ...parsed,
                 gemini: { ...DEFAULT_CONFIG.gemini, ...parsed.gemini },
-                doubao: { ...DEFAULT_CONFIG.doubao, ...parsed.doubao },
                 prompts: { ...DEFAULT_CONFIG.prompts, ...parsed.prompts }
             };
         }
