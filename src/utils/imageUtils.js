@@ -42,46 +42,94 @@ export const compressImage = (base64Str, maxWidth = 600) => {
  * @param {number} maxWidth 最大宽度
  * @param {number} quality 质量 0-1
  */
-export const compressFile = async (file, maxWidth = 1024, quality = 0.7) => {
-    // 1. Create ImageBitmap from File (Main Thread)
-    const imageBitmap = await createImageBitmap(file);
-
+// Fallback: Main thread compression (FileReader + Canvas)
+const compressImageFallback = (file, maxWidth, quality) => {
     return new Promise((resolve, reject) => {
-        // Create Worker
-        const worker = new Worker(new URL('./compressionWorker.js', import.meta.url), {
-            type: 'module'
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxWidth) {
+                        width = Math.round((width * maxWidth) / height);
+                        height = maxWidth;
+                    }
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.onerror = (err) => reject(new Error("Fallback Image Load Failed"));
+        };
+        reader.onerror = (err) => reject(new Error("Fallback File Read Failed"));
+    });
+};
+
+export const compressFile = async (file, maxWidth = 1024, quality = 0.7) => {
+    try {
+        // 1. Try Worker (Preferred)
+        // Check for support first
+        if (typeof Worker === 'undefined' || typeof createImageBitmap === 'undefined') {
+            throw new Error("Worker API not supported");
+        }
+
+        const imageBitmap = await createImageBitmap(file);
+
+        return await new Promise((resolve, reject) => {
+            const worker = new Worker(new URL('./compressionWorker.js', import.meta.url), {
+                type: 'module'
+            });
+
+            // Timeout safety: If worker takes > 5s, force fallback
+            const timer = setTimeout(() => {
+                worker.terminate();
+                reject(new Error("Worker Timeout (Mobile Safari safe-guard)"));
+            }, 5000);
+
+            worker.onmessage = (e) => {
+                clearTimeout(timer);
+                if (e.data.error) {
+                    reject(new Error(e.data.error));
+                } else {
+                    const isPng = file.type === 'image/png';
+                    const prefix = isPng ? 'data:image/png;base64,' : 'data:image/jpeg;base64,';
+                    const binary = String.fromCharCode(...new Uint8Array(e.data.buffer));
+                    const base64 = btoa(binary);
+                    resolve(prefix + base64);
+                }
+                worker.terminate();
+            };
+
+            worker.onerror = (err) => {
+                clearTimeout(timer);
+                reject(err);
+                worker.terminate();
+            };
+
+            worker.postMessage({
+                imageBitmap,
+                quality,
+                targetSize: maxWidth
+            }, [imageBitmap]);
         });
 
-        worker.onmessage = (e) => {
-            if (e.data.error) {
-                console.error("Worker error:", e.data.error);
-                reject(new Error(e.data.error));
-            } else {
-                // Determine format based on buffer
-                const isPng = file.type === 'image/png';
-                const prefix = isPng ? 'data:image/png;base64,' : 'data:image/jpeg;base64,';
-
-                // Convert ArrayBuffer back to Base64 (Main Thread)
-                // Note: Large buffer to string can be slow, but better than freezing UI during compression
-                const binary = String.fromCharCode(...new Uint8Array(e.data.buffer));
-                const base64 = btoa(binary);
-                resolve(prefix + base64);
-            }
-            worker.terminate();
-        };
-
-        worker.onerror = (err) => {
-            console.error("Worker connection error:", err);
-            reject(err);
-            worker.terminate();
-        };
-
-        // 2. Transfer ImageBitmap to Worker (Zero Copy)
-        // Map 'maxWidth' to 'targetSize' to match worker expectation
-        worker.postMessage({
-            imageBitmap,
-            quality,
-            targetSize: maxWidth
-        }, [imageBitmap]);
-    });
+    } catch (err) {
+        console.warn("Worker Compression Failed (Falling back to Main Thread):", err);
+        // 2. Fallback to Main Thread
+        return await compressImageFallback(file, maxWidth, quality);
+    }
 };
