@@ -143,6 +143,7 @@ export const generateFashionImages = async (features, imageBase64) => {
             if (!config.doubao.apiKey) return { fusionImage: null, errors: { global: "Doubao API Key missing" } };
             // (We can leave Doubao stubbed or simplified if unused, but better to keep structure)
             throw new Error("Doubao temporarily disabled in this fix");
+        } else {
             // GEMINI IMPLEMENTATION (VIA OPENAI COMPATIBLE ENDPOINT)
             const { baseUrl, imageKey, imageModel } = config.gemini;
             console.log(`[Fusion] 请求 ${imageModel} via OpenAI-Protocol...`);
