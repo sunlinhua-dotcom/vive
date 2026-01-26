@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Header from './components/Header'
 import UploadSection from './components/UploadSection'
 import GeneratingScreen from './components/GeneratingScreen'
@@ -36,6 +36,10 @@ function App() {
 
   // Check for saved result on mount (Scoped by User UUID)
   useEffect(() => {
+    // [CRITICAL FIX] Force clear stale config cache on mobile
+    localStorage.removeItem('vive_admin_config');
+    // We keep 'vive_admin_config_v2' if it exists, or let it regenerate from defaults
+
     const userKey = getUserStorageKey('vive_result');
     console.log(`[App] Initializing Session. Client UUID: ${getClientUUID()}`);
 
@@ -75,13 +79,7 @@ function App() {
     }
   }, [step]);
 
-  // Lock to prevent double-submission on mobile (touch/click ghosting)
-  const isSubmittingRef = React.useRef(false);
-
   const handleImageUpload = async (imageDataUrl) => {
-    if (isSubmittingRef.current) return;
-    isSubmittingRef.current = true;
-
     setUploadedImage(imageDataUrl)
     setStep('generating')
     // Start smoothly from 0
@@ -176,7 +174,6 @@ function App() {
       setStep('result')
 
     } catch (error) {
-      isSubmittingRef.current = false;
       clearInterval(progressInterval);
       console.error("Workflow failed:", error)
       const errorMsg = error.response ? `API Error: ${error.response.status}` : error.message;
@@ -186,7 +183,6 @@ function App() {
   }
 
   const handleReset = () => {
-    isSubmittingRef.current = false;
     localStorage.removeItem('vive_result');
     setStep('upload')
     setUploadedImage(null)
@@ -254,7 +250,7 @@ function App() {
       </div>
 
       {/* Footer - Always Visible, Pinned to Bottom */}
-      {step === 'upload' && <Footer />}
+      {step === 'upload' && <Footer version="v3.1 (Pure Gemini)" />}
     </div>
   )
 }
