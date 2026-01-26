@@ -125,7 +125,7 @@ export const generateFashionImages = async (features, imageBase64) => {
         // 即使是 "Gemini Image" 模型，通常也是通过 Chat 接口传图片 (Vision)
         // [CRITICAL FIX] 鲁棒性 URL 数字化处理，防止 //v1//chat 等路径错误
         let cleanBaseUrl = baseUrl.trim().replace(/\/+$/, ''); // 去掉末尾所有斜杠
-        
+
         // 如果是 v1beta，统一转为 v1 (OpenAI 兼容路径通常在 v1)
         const endpoint = cleanBaseUrl.replace('/v1beta', '/v1');
 
@@ -196,6 +196,21 @@ export const generateFashionImages = async (features, imageBase64) => {
 
     } catch (err) {
         console.error(`[Fusion] Error:`, err);
-        return { fusionImage: null, errors: { global: err.message } };
+
+        // [DIAGNOSTIC BLOCK] 捕获详细诊断信息抛给 UI
+        const diagnosticInfo = {
+            url: `${endpoint}/chat/completions`,
+            keySample: imageKey ? `${imageKey.substring(0, 8)}...` : 'MISSING',
+            rawError: err.message,
+            stack: err.stack?.substring(0, 100)
+        };
+
+        return {
+            fusionImage: null,
+            errors: {
+                global: err.message,
+                diagnostic: diagnosticInfo
+            }
+        };
     }
 };
