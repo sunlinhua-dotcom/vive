@@ -9,6 +9,7 @@ export const DEFAULT_CONFIG = {
         baseUrl: import.meta.env.VITE_AI_BASE_URL || 'https://api.apiyi.com/v1beta',
         textModel: 'gemini-3-flash-preview',
         imageModel: 'gemini-3-pro-image-preview',
+        // Updated Keys (Trimmed & Verified)
         textKey: '***REMOVED***',
         imageKey: '***REMOVED***'
     },
@@ -71,7 +72,7 @@ export const DEFAULT_CONFIG = {
     }
 };
 
-const STORAGE_KEY = 'vive_admin_config';
+const STORAGE_KEY = 'vive_admin_config_v2'; // Cache Busting for fresh keys
 
 export const getConfig = () => {
     try {
