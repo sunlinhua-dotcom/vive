@@ -111,12 +111,17 @@ export const generateFashionImages = async (features, imageBase64) => {
         // 即使是 "Gemini Image" 模型，通常也是通过 Chat 接口传图片 (Vision)
         const endpoint = baseUrl.endsWith('/v1beta') ? baseUrl.replace('/v1beta', '/v1') : baseUrl;
 
+        // Timeout Controller (55s)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 55000);
+
         const response = await fetch(`${endpoint}/chat/completions`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${imageKey}`,
                 'Content-Type': 'application/json'
             },
+            signal: controller.signal,
             body: JSON.stringify({
                 model: imageModel,
                 messages: [
@@ -136,6 +141,8 @@ export const generateFashionImages = async (features, imageBase64) => {
                 max_tokens: 4096
             })
         });
+
+        clearTimeout(timeoutId);
 
         const data = await response.json();
         if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
