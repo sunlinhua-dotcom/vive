@@ -160,42 +160,67 @@ ${fusionPrompt}
             throw new Error("Doubao Image API Response Unknown");
 
         } else {
-            // GEMINI IMPLEMENTATION
+            // GEMINI IMPLEMENTATION (VIA OPENAI COMPATIBLE ENDPOINT)
             const { baseUrl, imageKey, imageModel } = config.gemini;
-            console.log(`[Fusion] 请求 ${imageModel}...`);
+            console.log(`[Fusion] 请求 ${imageModel} via OpenAI-Protocol...`);
 
-            const response = await fetch(`${baseUrl}/models/${imageModel}:generateContent`, {
+            // 这个服务商 apiyi.com 封装了 Gemini 为 OpenAI 格式 (v1/chat/completions)
+            // 即使是 "Gemini Image" 模型，通常也是通过 Chat 接口传图片 (Vision)
+            const endpoint = baseUrl.endsWith('/v1beta') ? baseUrl.replace('/v1beta', '/v1') : baseUrl;
+
+            const response = await fetch(`${endpoint}/chat/completions`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${imageKey}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    contents: [{
-                        parts: [
-                            { text: fusionPrompt },
-                            { inlineData: { mimeType: "image/jpeg", data: base64Data } }
-                        ]
-                    }],
-                    generationConfig: {
-                        responseModalities: ["IMAGE"],
-                        imageConfig: { aspectRatio: "3:4", imageSize: "1K" }
-                    }
+                    model: imageModel,
+                    messages: [
+                        {
+                            role: "user",
+                            content: [
+                                { type: "text", text: fusionPrompt },
+                                {
+                                    type: "image_url",
+                                    image_url: {
+                                        url: `data:image/jpeg;base64,${base64Data}`
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    max_tokens: 4096
                 })
             });
 
             const data = await response.json();
             if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
 
-            const candidate = data.candidates?.[0];
-            if (candidate?.finishReason === 'SAFETY') return { fusionImage: null, errors: { global: "Safety Block" } };
+            // OpenAI Format Response: choices[0].message.content
+            // 某些 Gemini 封装可能会返回图片 URL 在 content 里，或者直接返回 base64
+            // 但如果这是一个 "Image Generation" 模型伪装的 Chat，它可能返回 Markdown 图片链接
+            const content = data.choices?.[0]?.message?.content;
 
-            let b64 = candidate?.content?.parts?.[0]?.inlineData?.data || candidate?.content?.parts?.[0]?.inline_data?.data;
-            if (b64) return { fusionImage: `data:image/jpeg;base64,${b64}`, errors: null };
+            if (!content) throw new Error("No content in response");
 
-            throw new Error("No image data in response");
+            // 尝试提取 Markdown 图片链接: ![image](url) OR [Image](url)
+            const urlMatch = content.match(/\((https?:\/\/.*?)\)/);
+            if (urlMatch) {
+                return { fusionImage: urlMatch[1], errors: null };
+            }
+
+            // 如果只有文本且不是链接，可能是报错或者描述
+            // 但如果这是生图模型，有些服务商会把 base64 塞在 content 里?
+            // Fallback: 假设 content 本身就是 URL (如果它以 http 开头)
+            if (content.trim().startsWith('http')) {
+                return { fusionImage: content.trim(), errors: null };
+            }
+
+            console.warn("Gemini Response Content:", content);
+            throw new Error("API returned text but no valid image URL found.");
+
         }
-
     } catch (err) {
         console.error(`[Fusion] Error:`, err);
         return { fusionImage: null, errors: { global: err.message } };
