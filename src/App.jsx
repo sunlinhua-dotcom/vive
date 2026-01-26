@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Header from './components/Header'
 import UploadSection from './components/UploadSection'
 import GeneratingScreen from './components/GeneratingScreen'
@@ -79,7 +79,24 @@ function App() {
     }
   }, [step]);
 
+  // [CRITICAL FIX] Global Lock to prevent Double-Submission on Mobile (Touch Ghosting)
+  const isSubmitting = useRef(false);
+
+  // Reset lock when resetting flow
+  useEffect(() => {
+    if (step === 'upload') {
+      isSubmitting.current = false;
+    }
+  }, [step]);
+
   const handleImageUpload = async (imageDataUrl) => {
+    // 1. Strict Lock Check
+    if (isSubmitting.current) {
+      console.warn("Double-fire detected and blocked.");
+      return;
+    }
+    isSubmitting.current = true;
+
     setUploadedImage(imageDataUrl)
     setStep('generating')
     // Start smoothly from 0
@@ -172,13 +189,19 @@ function App() {
       const userKey = getUserStorageKey('vive_result');
       localStorage.setItem(userKey, JSON.stringify(result));
       setStep('result')
+      // Unlock handled by useEffect when step changes back to upload, 
+      // BUT for safety in success state (result), lock remains 'true' so user can't re-upload without reset.
+      // This is INTENTIONAL.
 
     } catch (error) {
       clearInterval(progressInterval);
       console.error("Workflow failed:", error)
       const errorMsg = error.response ? `API Error: ${error.response.status}` : error.message;
       alert(`抱歉，生成中断。\n错误详情: ${errorMsg}\n请尝试刷新页面或检查网络。`)
+
+      // Unlock on error so they can try again
       setStep('upload')
+      isSubmitting.current = false;
     }
   }
 

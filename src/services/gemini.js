@@ -123,11 +123,7 @@ export const generateFashionImages = async (features, imageBase64) => {
 
         // 这个服务商 apiyi.com 封装了 Gemini 为 OpenAI 格式 (v1/chat/completions)
         // 即使是 "Gemini Image" 模型，通常也是通过 Chat 接口传图片 (Vision)
-        // 即使是 "Gemini Image" 模型，通常也是通过 Chat 接口传图片 (Vision)
         const endpoint = baseUrl.endsWith('/v1beta') ? baseUrl.replace('/v1beta', '/v1') : baseUrl;
-
-        console.log(`[Fusion] Base64 Length: ${base64Data.length} chars (~${Math.round(base64Data.length / 1024)}KB)`);
-
 
         // Timeout Controller (55s)
         const controller = new AbortController();
@@ -162,22 +158,8 @@ export const generateFashionImages = async (features, imageBase64) => {
 
         clearTimeout(timeoutId);
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            let errorJson;
-            try { errorJson = JSON.parse(errorText); } catch (e) { errorJson = { error: { message: errorText } }; }
-
-            console.error("[Gemini API Error]", response.status, errorJson);
-
-            // [DEBUG] Explicitly show error on mobile
-            const debugMsg = `API Error ${response.status}: ${errorJson?.error?.message || errorText}`;
-            if (window.innerWidth < 768) alert(debugMsg); // Only alert on mobile
-
-            throw new Error(debugMsg);
-        }
-
         const data = await response.json();
-
+        if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
 
         // OpenAI Format Response: choices[0].message.content
         // 某些 Gemini 封装可能会返回图片 URL 在 content 里，或者直接返回 base64
