@@ -7,8 +7,8 @@ export const DEFAULT_CONFIG = {
     // Gemini Settings
     gemini: {
         baseUrl: import.meta.env.VITE_AI_BASE_URL || 'https://api.apiyi.com/v1beta',
-        textModel: 'gemini-3-flash-preview',
-        imageModel: 'gemini-3-pro-image-preview',
+        textModel: 'gemini-1.5-flash', // Cost efficient for text
+        imageModel: 'gemini-1.5-pro',  // Stable, High Quota, Production Ready
         // Updated Keys (Trimmed & Verified)
         textKey: 'sk-zu5cm3pPZaEyIwz85a5bCb76546f4b1d92BaA08aAc3f7404',
         imageKey: 'sk-qMB7fSJhKZmebuFL0b823fE2Af274cCc9a1e62A5990aF1F6'
