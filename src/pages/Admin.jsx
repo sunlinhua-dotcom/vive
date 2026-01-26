@@ -68,22 +68,9 @@ const Admin = () => {
             <main className="max-w-4xl">
                 {activeTab === 'model' && (
                     <div className="space-y-8 animate-fade-in">
-                        {/* Provider Selection */}
-                        <div className="bg-gray-800 p-6 rounded-lg">
-                            <h2 className="text-xl font-semibold mb-4">Active Provider</h2>
-                            <select
-                                value={config.provider}
-                                onChange={(e) => handleChange(null, 'provider', e.target.value)}
-                                className="w-full p-2 bg-gray-700 rounded border border-gray-600 focus:border-[#B8955F] focus:outline-none"
-                            >
-                                <option value="gemini">Google Gemini</option>
-                                <option value="doubao">Doubao (Volcengine)</option>
-                            </select>
-                        </div>
-
                         {/* Gemini Settings */}
-                        <div className={`bg-gray-800 p-6 rounded-lg border-l-4 ${config.provider === 'gemini' ? 'border-[#B8955F]' : 'border-transparent opacity-50'}`}>
-                            <h2 className="text-xl font-semibold mb-4">Gemini Configuration</h2>
+                        <div className="bg-gray-800 p-6 rounded-lg border-l-4 border-[#B8955F]">
+                            <h2 className="text-xl font-semibold mb-4">Gemini Configuration (Exclusive)</h2>
                             <div className="grid grid-cols-1 gap-4">
                                 <div>
                                     <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">Base URL</label>
@@ -109,52 +96,6 @@ const Admin = () => {
                                         type="password"
                                         value={config.gemini.imageKey}
                                         onChange={(e) => handleChange('gemini', 'imageKey', e.target.value)}
-                                        className="w-full p-2 bg-gray-700 rounded"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Doubao Settings */}
-                        <div className={`bg-gray-800 p-6 rounded-lg border-l-4 ${config.provider === 'doubao' ? 'border-[#B8955F]' : 'border-transparent opacity-50'}`}>
-                            <h2 className="text-xl font-semibold mb-4">Doubao (Volcengine) Configuration</h2>
-                            <div className="grid grid-cols-1 gap-4">
-                                <div>
-                                    <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">Base URL (OpenAI Compatible Endpoint)</label>
-                                    <input
-                                        type="text"
-                                        value={config.doubao.baseUrl}
-                                        onChange={(e) => handleChange('doubao', 'baseUrl', e.target.value)}
-                                        placeholder="https://ark.cn-beijing.volces.com/api/v3"
-                                        className="w-full p-2 bg-gray-700 rounded"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">API Key</label>
-                                    <input
-                                        type="password"
-                                        value={config.doubao.apiKey}
-                                        onChange={(e) => handleChange('doubao', 'apiKey', e.target.value)}
-                                        className="w-full p-2 bg-gray-700 rounded"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">Text Model ID (ARK Endpoint)</label>
-                                    <input
-                                        type="text"
-                                        value={config.doubao.model}
-                                        onChange={(e) => handleChange('doubao', 'model', e.target.value)}
-                                        placeholder="ep-2024..."
-                                        className="w-full p-2 bg-gray-700 rounded"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">CV/Image Model ID</label>
-                                    <input
-                                        type="text"
-                                        value={config.doubao.imageModel}
-                                        onChange={(e) => handleChange('doubao', 'imageModel', e.target.value)}
-                                        placeholder="cv-generation-..."
                                         className="w-full p-2 bg-gray-700 rounded"
                                     />
                                 </div>
