@@ -42,67 +42,31 @@ export const compressImage = (base64Str, maxWidth = 600) => {
  * @param {number} maxWidth 最大宽度
  * @param {number} quality 质量 0-1
  */
-export const compressFile = async (file, maxWidth = 1024, quality = 0.7) => {
-    // Helper to read file as DataURL for fallback
-    const readFileAsDataURL = (file) => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target.result);
-            reader.onerror = (e) => reject(e);
-            reader.readAsDataURL(file);
-        });
-    };
-
-    // Fallback function: Main Thread Canvas
-    const fallbackCompression = async () => {
-        console.warn("Using Main Thread Compression Fallback");
-        const base64 = await readFileAsDataURL(file);
-        return compressImage(base64, maxWidth);
-    };
-
-    try {
-        // Create Worker (Compatible with Vite)
-        const workerURL = new URL('./compressionWorker.js', import.meta.url);
-
-        return new Promise((resolve, reject) => {
-            const worker = new Worker(workerURL, { type: 'module' });
-
-            // Timeout to prevent hanging
-            const timeoutId = setTimeout(() => {
-                worker.terminate();
-                reject(new Error("Worker timeout, switching to fallback"));
-            }, 3000);
-
-            worker.onmessage = (e) => {
-                clearTimeout(timeoutId);
-                worker.terminate();
-                if (e.data.error) {
-                    reject(new Error(e.data.error));
-                } else {
-                    // Convert ArrayBuffer back to Base64 (or just return blob if needed, but app expects base64)
-                    // Wait, our worker returns { buffer }... we need to convert buffer to base64
-                    // Actually, let's keep it simple: Worker returns buffer, we convert here.
-                    const blob = new Blob([e.data.buffer], { type: e.data.type });
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.readAsDataURL(blob);
-                }
-            };
-
-            worker.onerror = (err) => {
-                clearTimeout(timeoutId);
-                worker.terminate();
-                reject(err);
-            };
-
-            // Send to worker
-            createImageBitmap(file).then(bitmap => {
-                worker.postMessage({ imageBitmap: bitmap, maxWidth, quality }, [bitmap]);
-            }).catch(reject);
+export const compressFile = (file, maxWidth = 1024, quality = 0.7) => {
+    return new Promise((resolve, reject) => {
+        // 创建 Worker (兼容 Vite)
+        const worker = new Worker(new URL('./compressionWorker.js', import.meta.url), {
+            type: 'module'
         });
 
-    } catch (e) {
-        console.warn("Worker compression failed:", e);
-        return fallbackCompression();
-    }
+        worker.onmessage = (e) => {
+            if (e.data.error) {
+                console.error("Worker transformation failed:", e.data.error);
+                // 兜底：如果 Worker 失败（如不支持 OffscreenCanvas），可以考虑回退逻辑
+                reject(new Error(e.data.error));
+            } else {
+                resolve(e.data.base64);
+            }
+            worker.terminate();
+        };
+
+        worker.onerror = (err) => {
+            console.error("Worker error:", err);
+            reject(err);
+            worker.terminate();
+        };
+
+        // 发送数据到子线程
+        worker.postMessage({ file, maxWidth, quality });
+    });
 };

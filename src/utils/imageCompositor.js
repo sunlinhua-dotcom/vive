@@ -7,11 +7,7 @@
 export const composeFinalImage = async (baseImageUrl, data) => {
     const { month, year, keyword, attitude } = data;
 
-    return new Promise(async (resolve, reject) => {
-        // [OPTIMIZATION] Removed explicit font loading wait to prevent hanging.
-        // Canvas will use fallback fonts or available webfonts immediately.
-
-
+    return new Promise((resolve, reject) => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
 
@@ -62,6 +58,20 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             ctx.fillStyle = gradient;
             ctx.fillRect(0, targetHeight - bottomH, targetWidth, bottomH);
 
+            // 2. 顶部渐变：极致丝滑 (Ultra Smooth 150px)
+            // 目的：在 150px 内创建自然漫射阴影，衬托白色 Logo，消除色块感
+            const topH = 150;
+            const topGradient = ctx.createLinearGradient(0, 0, 0, topH);
+
+            // 多段指数衰减，确保过渡肉眼不可见
+            topGradient.addColorStop(0, "rgba(0,0,0,0.6)");    // 顶部：柔和深色
+            topGradient.addColorStop(0.2, "rgba(0,0,0,0.4)");  // 
+            topGradient.addColorStop(0.4, "rgba(0,0,0,0.2)");  // 
+            topGradient.addColorStop(0.7, "rgba(0,0,0,0.05)"); // 极淡
+            topGradient.addColorStop(1, "rgba(0,0,0,0)");      // 完全消失
+
+            ctx.fillStyle = topGradient;
+            ctx.fillRect(0, 0, targetWidth, topH);
 
 
 
@@ -86,34 +96,20 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             await new Promise(r => { logoImg.onload = r; logoImg.onerror = r; });
 
             if (logoImg.width > 0) {
+                // 5. 绘制 Logo (上方居中)
+                // 不需要混合模式了，已经是透明白字
+                ctx.save();
+                // ctx.globalCompositeOperation = 'multiply'; // 不需要了
+
                 const logoWidth = canvas.width * 0.25; // 宽度占 25%
                 const logoHeight = logoImg.height * (logoWidth / logoImg.width);
                 const logoX = (canvas.width - logoWidth) / 2;
                 const logoY = 60; // 距离顶部 60px
 
-                // 计算 Logo 中心线 Y 坐标，用于对齐文字
-                const centerY = logoY + logoHeight / 2;
-
-                // 4.5 [NEW] 绘制背景大 VIVE 水印 (Big VIVE Watermark)
-                // [FIX] 垂直居中对齐左侧日期 (Align to centerY)
-                ctx.save();
-                ctx.globalAlpha = 0.08; // 极低透明度
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                // 使用思源黑 (Noto Sans SC) / 无衬线体
-                ctx.font = `bold ${targetWidth * 0.35}px "Noto Sans SC", "Source Han Sans CN", sans-serif`;
-                ctx.fillStyle = '#FFFFFF';
-                // 稍微拉伸一点高度，更有张力
-                ctx.scale(1, 1.2);
-                // [FIX] 对齐到 centerY (需要反向补偿 scale 的影响)
-                ctx.fillText("VIVE", targetWidth / 2, centerY / 1.2);
-                ctx.restore();
-
-                // 5. 绘制 Logo (上方居中)
-                ctx.save();
                 // 加一点阴影让白色Logo更清晰
                 ctx.shadowColor = "rgba(0,0,0,0.5)";
                 ctx.shadowBlur = 10;
+
                 ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
                 ctx.restore();
 
@@ -121,6 +117,9 @@ export const composeFinalImage = async (baseImageUrl, data) => {
                 ctx.shadowColor = "rgba(0,0,0,0.8)";
                 ctx.shadowBlur = 15;
                 ctx.shadowOffsetY = 5;
+
+                // 计算 Logo 中心线 Y 坐标，用于对齐文字
+                const centerY = logoY + logoHeight / 2;
 
                 // 2. 绘制左侧日期 (MARCH 2026) -> 垂直居中于 Logo
                 ctx.textAlign = 'left';
@@ -133,9 +132,9 @@ export const composeFinalImage = async (baseImageUrl, data) => {
 
                 // 3. 绘制右侧农历 (乙巳年腊月) -> 右对齐
                 ctx.textAlign = 'right';
-                // [FIX] Ensure font works
-                ctx.font = `500 ${targetWidth * 0.035}px "Noto Serif SC", serif`;
+                ctx.font = `${targetWidth * 0.035}px "Noto Serif SC", serif`; // 中式衬线体
                 ctx.fillText("乙巳年腊月", targetWidth - 50, centerY);
+
             }
 
             // --- F. 绘制底部内容 (左侧) ---
@@ -219,8 +218,8 @@ export const composeFinalImage = async (baseImageUrl, data) => {
                 if (currentDay > daysInMonth) break;
             }
 
-            // 导出：使用 PNG 格式以彻底消除渐变色块/条纹 (JPEG Compression Artifacts)
-            resolve(canvas.toDataURL('image/png'));
+            // 导出
+            resolve(canvas.toDataURL('image/jpeg', 0.9));
         };
 
         img.onerror = (e) => reject(e);
