@@ -57,7 +57,8 @@ export const DEFAULT_CONFIG = {
 
       **3. COMPOSITION**:
       - One single image.
-      - Headroom top 25% empty, dark atmospheric background.
+      - **High Ceiling / Open Space**: Ensure substantial vertical space above the subjects' heads. The upper 30% of the image should be **uncluttered background detail** (e.g., tall Art Deco walls, high windows, or architectural depth).
+      - **Camera Angle**: Eye-level or slightly low angle to establish authority, keeping subjects centered in the lower 75% of the frame.
       - No text.`
     }
 };
