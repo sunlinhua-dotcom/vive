@@ -42,31 +42,46 @@ export const compressImage = (base64Str, maxWidth = 600) => {
  * @param {number} maxWidth 最大宽度
  * @param {number} quality 质量 0-1
  */
-export const compressFile = (file, maxWidth = 1024, quality = 0.7) => {
+export const compressFile = async (file, maxWidth = 1024, quality = 0.7) => {
+    // 1. Create ImageBitmap from File (Main Thread)
+    const imageBitmap = await createImageBitmap(file);
+
     return new Promise((resolve, reject) => {
-        // 创建 Worker (兼容 Vite)
+        // Create Worker
         const worker = new Worker(new URL('./compressionWorker.js', import.meta.url), {
             type: 'module'
         });
 
         worker.onmessage = (e) => {
             if (e.data.error) {
-                console.error("Worker transformation failed:", e.data.error);
-                // 兜底：如果 Worker 失败（如不支持 OffscreenCanvas），可以考虑回退逻辑
+                console.error("Worker error:", e.data.error);
                 reject(new Error(e.data.error));
             } else {
-                resolve(e.data.base64);
+                // Determine format based on buffer
+                const isPng = file.type === 'image/png';
+                const prefix = isPng ? 'data:image/png;base64,' : 'data:image/jpeg;base64,';
+
+                // Convert ArrayBuffer back to Base64 (Main Thread)
+                // Note: Large buffer to string can be slow, but better than freezing UI during compression
+                const binary = String.fromCharCode(...new Uint8Array(e.data.buffer));
+                const base64 = btoa(binary);
+                resolve(prefix + base64);
             }
             worker.terminate();
         };
 
         worker.onerror = (err) => {
-            console.error("Worker error:", err);
+            console.error("Worker connection error:", err);
             reject(err);
             worker.terminate();
         };
 
-        // 发送数据到子线程
-        worker.postMessage({ file, maxWidth, quality });
+        // 2. Transfer ImageBitmap to Worker (Zero Copy)
+        // Map 'maxWidth' to 'targetSize' to match worker expectation
+        worker.postMessage({
+            imageBitmap,
+            quality,
+            targetSize: maxWidth
+        }, [imageBitmap]);
     });
 };
