@@ -134,10 +134,18 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             await new Promise(r => { logoImg.onload = r; logoImg.onerror = r; });
 
             if (logoImg.width > 0) {
+                const logoWidth = canvas.width * 0.25; // 宽度占 25%
+                const logoHeight = logoImg.height * (logoWidth / logoImg.width);
+                const logoX = (canvas.width - logoWidth) / 2;
+                const logoY = 60; // 距离顶部 60px
+
+                // 计算 Logo 中心线 Y 坐标，用于对齐文字
+                const centerY = logoY + logoHeight / 2;
+
                 // 4.5 [NEW] 绘制背景大 VIVE 水印 (Big VIVE Watermark)
-                // 位于 Logo 和日期下方，作为装饰背景
+                // [FIX] 垂直居中对齐左侧日期 (Align to centerY)
                 ctx.save();
-                ctx.globalAlpha = 0.08; // 极低透明度，仅作为纹理
+                ctx.globalAlpha = 0.08; // 极低透明度
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 // 使用思源黑 (Noto Sans SC) / 无衬线体
@@ -145,24 +153,15 @@ export const composeFinalImage = async (baseImageUrl, data) => {
                 ctx.fillStyle = '#FFFFFF';
                 // 稍微拉伸一点高度，更有张力
                 ctx.scale(1, 1.2);
-                // 绘制在 Logo 中心位置稍微偏上一点
-                ctx.fillText("VIVE", targetWidth / 2, 80);
+                // [FIX] 对齐到 centerY (需要反向补偿 scale 的影响)
+                ctx.fillText("VIVE", targetWidth / 2, centerY / 1.2);
                 ctx.restore();
 
                 // 5. 绘制 Logo (上方居中)
-                // 不需要混合模式了，已经是透明白字
                 ctx.save();
-                // ctx.globalCompositeOperation = 'multiply'; // 不需要了
-
-                const logoWidth = canvas.width * 0.25; // 宽度占 25%
-                const logoHeight = logoImg.height * (logoWidth / logoImg.width);
-                const logoX = (canvas.width - logoWidth) / 2;
-                const logoY = 60; // 距离顶部 60px
-
                 // 加一点阴影让白色Logo更清晰
                 ctx.shadowColor = "rgba(0,0,0,0.5)";
                 ctx.shadowBlur = 10;
-
                 ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
                 ctx.restore();
 
@@ -170,9 +169,6 @@ export const composeFinalImage = async (baseImageUrl, data) => {
                 ctx.shadowColor = "rgba(0,0,0,0.8)";
                 ctx.shadowBlur = 15;
                 ctx.shadowOffsetY = 5;
-
-                // 计算 Logo 中心线 Y 坐标，用于对齐文字
-                const centerY = logoY + logoHeight / 2;
 
                 // 2. 绘制左侧日期 (MARCH 2026) -> 垂直居中于 Logo
                 ctx.textAlign = 'left';
@@ -185,9 +181,8 @@ export const composeFinalImage = async (baseImageUrl, data) => {
 
                 // 3. 绘制右侧农历 (乙巳年腊月) -> 右对齐
                 ctx.textAlign = 'right';
-                ctx.font = `${targetWidth * 0.035}px "Noto Serif SC", serif`; // 中式衬线体
-                ctx.fillText("乙巳年腊月", targetWidth - 50, centerY);
-
+                // [FIX] Ensure font works
+                ctx.font = `500 ${targetWidth * 0.035}px "Noto Serif SC", serif`;
                 ctx.fillText("乙巳年腊月", targetWidth - 50, centerY);
             }
 
