@@ -66,51 +66,6 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             ctx.fillStyle = gradient;
             ctx.fillRect(0, targetHeight - bottomH, targetWidth, bottomH);
 
-            // 2. 顶部渐变：Simpler & Taller (400px) - 彻底消除分割线
-            // 增加高度到 400px，并使用缓动插值 (Easing) 使尾部过度几乎不可见
-            const topH = 400;
-            const topGradient = ctx.createLinearGradient(0, 0, 0, topH);
-
-            topGradient.addColorStop(0, "rgba(0,0,0,0.7)");        // 顶部稍深
-            topGradient.addColorStop(0.3, "rgba(0,0,0,0.4)");      // 中间过渡
-            topGradient.addColorStop(0.7, "rgba(0,0,0,0.1)");      // 尾部极淡
-            topGradient.addColorStop(1, "rgba(0,0,0,0)");          // 底部完全透明
-
-            ctx.fillStyle = topGradient;
-            ctx.fillRect(0, 0, targetWidth, topH);
-
-            // [DITHERING FIX] 100% 消除色块的终极方案：噪点抖动 (Noise Dither)
-            // 在渐变之上叠加一层极其微弱的随机噪点，打破色彩波纹
-            try {
-                const noiseCanvas = document.createElement('canvas');
-                noiseCanvas.width = 100;
-                noiseCanvas.height = 100;
-                const noiseCtx = noiseCanvas.getContext('2d');
-                const noiseData = noiseCtx.createImageData(100, 100);
-                const buffer32 = new Uint32Array(noiseData.data.buffer);
-
-                for (let i = 0; i < buffer32.length; i++) {
-                    // 随机黑白噪点
-                    if (Math.random() < 0.5) {
-                        // 黑色噪点 (Alpha ~ 5%)
-                        buffer32[i] = 0x08000000;
-                    } else {
-                        // 透明
-                        buffer32[i] = 0x00000000;
-                    }
-                }
-                noiseCtx.putImageData(noiseData, 0, 0);
-
-                ctx.save();
-                const pattern = ctx.createPattern(noiseCanvas, 'repeat');
-                ctx.fillStyle = pattern;
-                ctx.globalAlpha = 0.5; // 叠加强度 (调整这个值来平衡平滑度和颗粒感)
-                ctx.globalCompositeOperation = 'screen'; // 混合模式 (或者 source-over)
-                ctx.fillRect(0, 0, targetWidth, targetHeight * 0.4); // 覆盖顶部 40% 区域，不仅限于 gradient 高度
-                ctx.restore();
-            } catch (e) {
-                console.warn("Dither generation failed", e);
-            }
 
 
 
