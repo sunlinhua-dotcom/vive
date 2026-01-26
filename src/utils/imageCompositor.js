@@ -96,6 +96,21 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             await new Promise(r => { logoImg.onload = r; logoImg.onerror = r; });
 
             if (logoImg.width > 0) {
+                // 4.5 [NEW] 绘制背景大 VIVE 水印 (Big VIVE Watermark)
+                // 位于 Logo 和日期下方，作为装饰背景
+                ctx.save();
+                ctx.globalAlpha = 0.08; // 极低透明度，仅作为纹理
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                // 使用超大衬线体
+                ctx.font = `bold ${targetWidth * 0.35}px "Times New Roman", "Noto Serif SC", serif`;
+                ctx.fillStyle = '#FFFFFF';
+                // 稍微拉伸一点高度，更有张力
+                ctx.scale(1, 1.2);
+                // 绘制在 Logo 中心位置稍微偏上一点
+                ctx.fillText("VIVE", targetWidth / 2, 80);
+                ctx.restore();
+
                 // 5. 绘制 Logo (上方居中)
                 // 不需要混合模式了，已经是透明白字
                 ctx.save();
