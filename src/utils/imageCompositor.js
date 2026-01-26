@@ -66,14 +66,15 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             ctx.fillStyle = gradient;
             ctx.fillRect(0, targetHeight - bottomH, targetWidth, bottomH);
 
-            // 2. 顶部渐变：Simpler & Taller (200px)
-            // 增加高度到 200px 以让过渡更自然，但保持顶部深色区域
-            const topH = 200;
+            // 2. 顶部渐变：Simpler & Taller (400px) - 彻底消除分割线
+            // 增加高度到 400px，并使用缓动插值 (Easing) 使尾部过度几乎不可见
+            const topH = 400;
             const topGradient = ctx.createLinearGradient(0, 0, 0, topH);
 
-            // 使用简单的线性过渡，让浏览器自动插值，减少人为造成的色阶
-            topGradient.addColorStop(0, "rgba(0,0,0,0.6)");      // 顶部：柔和深色
-            topGradient.addColorStop(1, "rgba(0,0,0,0)");        // 底部：完全透明
+            topGradient.addColorStop(0, "rgba(0,0,0,0.7)");        // 顶部稍深
+            topGradient.addColorStop(0.3, "rgba(0,0,0,0.4)");      // 中间过渡
+            topGradient.addColorStop(0.7, "rgba(0,0,0,0.1)");      // 尾部极淡
+            topGradient.addColorStop(1, "rgba(0,0,0,0)");          // 底部完全透明
 
             ctx.fillStyle = topGradient;
             ctx.fillRect(0, 0, targetWidth, topH);
@@ -105,7 +106,7 @@ export const composeFinalImage = async (baseImageUrl, data) => {
                 ctx.fillStyle = pattern;
                 ctx.globalAlpha = 0.5; // 叠加强度 (调整这个值来平衡平滑度和颗粒感)
                 ctx.globalCompositeOperation = 'screen'; // 混合模式 (或者 source-over)
-                ctx.fillRect(0, 0, targetWidth, topH);
+                ctx.fillRect(0, 0, targetWidth, targetHeight * 0.4); // 覆盖顶部 40% 区域，不仅限于 gradient 高度
                 ctx.restore();
             } catch (e) {
                 console.warn("Dither generation failed", e);
