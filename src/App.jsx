@@ -201,15 +201,21 @@ function App() {
 
     } catch (error) {
       clearInterval(progressInterval);
-      console.error("Workflow failed:", error)
-      const errorMsg = error.response ? `API Error: ${error.response.status}` : error.message;
-      alert(`抱歉，生成中断。\n错误详情: ${errorMsg}\n请尝试刷新页面或检查网络。`)
+      console.error("Workflow failed:", error);
 
-      // Unlock on error so they can try again
-      setStep('upload')
+      // Collect diagnostic info from error or fallback
+      const diag = error.diagnostic || {
+        rawError: error.message,
+        url: 'Workflow level fault',
+        keySample: 'N/A'
+      };
+      setDiagnosticData(diag);
+
+      setStep('upload');
       isSubmitting.current = false;
     }
   }
+
 
   const handleReset = () => {
     localStorage.removeItem('vive_result');
