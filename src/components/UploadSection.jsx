@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { compressFile } from '../utils/imageUtils';
+import { compressImage } from '../utils/imageUtils';
 
 function UploadSection({ onImageUpload }) {
     const [isProcessing, setIsProcessing] = useState(false);
@@ -10,7 +10,7 @@ function UploadSection({ onImageUpload }) {
         if (acceptedFiles?.length > 0) {
             setIsProcessing(true);
             try {
-                const base64 = await compressFile(acceptedFiles[0], 1024, 0.7);
+                const base64 = await compressImage(acceptedFiles[0], 800);
                 onImageUpload(base64);
             } catch (error) {
                 console.error("Compression failed", error);

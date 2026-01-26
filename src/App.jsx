@@ -99,9 +99,8 @@ function App() {
     }, 100);
 
     try {
-      // 1. Unified Compression
-      const { compressImage } = await import('./utils/imageUtils');
-      const compressedImage = await compressImage(imageDataUrl, 1024);
+      // 1. Unified Compression (Already handled in UploadSection)
+      const compressedImage = imageDataUrl;
 
       // 2. Parallel Processing
       // ... processing logic remains same, but remove manual setProgress/setLoadingText calls
