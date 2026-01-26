@@ -6,7 +6,7 @@ export const DEFAULT_CONFIG = {
 
     // Gemini Settings
     gemini: {
-        baseUrl: import.meta.env.VITE_AI_BASE_URL || 'https://api.apiyi.com/v1',
+        baseUrl: import.meta.env.VITE_AI_BASE_URL || 'https://api.apiyi.com/v1beta',
         textModel: 'gemini-3-flash-preview',
         imageModel: 'gemini-3-pro-image-preview',
         textKey: 'sk-zu5cm3pPZaEyIwz85a5bCb76546f4b1d92BaA08aAc3f7404',
@@ -15,7 +15,7 @@ export const DEFAULT_CONFIG = {
 
     // Doubao Settings (Volcengine)
     doubao: {
-        baseUrl: import.meta.env.VITE_AI_BASE_URL || 'https://api.apiyi.com/v1',
+        baseUrl: import.meta.env.VITE_AI_BASE_URL || 'https://api.apiyi.com/v1beta',
         apiKey: import.meta.env.VITE_DOUBAO_API_KEY || 'sk-zu5cm3pPZaEyIwz85a5bCb76546f4b1d92BaA08aAc3f7404',
         model: import.meta.env.VITE_DOUBAO_TEXT_MODEL || 'doubao-pro-4k', // Text (Common Alias)
         imageModel: import.meta.env.VITE_DOUBAO_IMAGE_MODEL || 'seedream-4-5-251128' // Image (SeeDream 4.5)
