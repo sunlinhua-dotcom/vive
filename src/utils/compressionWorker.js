@@ -9,8 +9,8 @@ self.onmessage = async (e) => {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(imageBitmap, 0, 0);
 
-        // Calculate scaling if needed (e.g., max 2048px)
-        const maxDim = 2048;
+        // Calculate scaling if needed
+        const maxDim = targetSize || 2048;
         let width = imageBitmap.width;
         let height = imageBitmap.height;
 
