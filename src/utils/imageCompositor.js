@@ -135,6 +135,7 @@ export const composeFinalImage = async (baseImageUrl, data) => {
                 ctx.font = `${targetWidth * 0.035}px "Noto Serif SC", serif`; // 中式衬线体
                 ctx.fillText("乙巳年腊月", targetWidth - 50, centerY);
 
+                ctx.fillText("乙巳年腊月", targetWidth - 50, centerY);
             }
 
             // --- F. 绘制底部内容 (左侧) ---
@@ -218,8 +219,8 @@ export const composeFinalImage = async (baseImageUrl, data) => {
                 if (currentDay > daysInMonth) break;
             }
 
-            // 导出
-            resolve(canvas.toDataURL('image/jpeg', 0.9));
+            // 导出：使用 PNG 格式以彻底消除渐变色块/条纹 (JPEG Compression Artifacts)
+            resolve(canvas.toDataURL('image/png'));
         };
 
         img.onerror = (e) => reject(e);
