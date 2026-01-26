@@ -68,7 +68,7 @@ export const DEFAULT_CONFIG = {
     }
 };
 
-const STORAGE_KEY = 'vive_admin_config_v2'; // Cache Busting for fresh keys
+const STORAGE_KEY = 'vive_admin_config_v3'; // [CRITICAL] Bump to v3 to NUKE all stale mobile keys
 
 export const getConfig = () => {
     try {
