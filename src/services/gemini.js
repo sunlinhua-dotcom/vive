@@ -197,11 +197,16 @@ export const generateFashionImages = async (features, imageBase64) => {
     } catch (err) {
         console.error(`[Fusion] Error:`, err);
 
+        // Re-get config for diagnostic info if request failed early
+        const currentConfig = getConfig();
+        const fallbackEndpoint = currentConfig.gemini.baseUrl;
+        const fallbackKey = currentConfig.gemini.imageKey;
+
         // [DIAGNOSTIC BLOCK] 捕获详细诊断信息抛给 UI
         const diagnosticInfo = {
-            url: `${endpoint}/chat/completions`,
-            keySample: imageKey ? `${imageKey.substring(0, 8)}...` : 'MISSING',
-            rawError: err.message,
+            url: err.diagnostic?.url || `${fallbackEndpoint}/chat/completions`,
+            keySample: err.diagnostic?.keySample || (fallbackKey ? `${fallbackKey.substring(0, 8)}...` : 'MISSING'),
+            rawError: err.message || JSON.stringify(err),
             stack: err.stack?.substring(0, 100)
         };
 
