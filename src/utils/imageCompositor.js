@@ -62,13 +62,15 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             // 确保覆盖 AI 可能生成的白色/亮色天花板
             ctx.save();
             ctx.globalCompositeOperation = 'source-over'; // 强制覆盖模式
-            const topH = 180; // 稍微加高一点以覆盖更多
+            // 2. 顶部渐变：自然通透 (Natural & Transparent)
+            // 既然提示词已经优化了构图，这里便不再需要厚重的遮盖。
+            // 只保留极淡的阴影 (Max 20%) 以确保白色 Logo 在任何极端情况下依然可读。
+            const topH = 150;
             const topGradient = ctx.createLinearGradient(0, 0, 0, topH);
 
-            topGradient.addColorStop(0, "rgba(0,0,0,0.85)");   // 顶部：加深到 85%
-            topGradient.addColorStop(0.3, "rgba(0,0,0,0.5)");  // 
-            topGradient.addColorStop(0.6, "rgba(0,0,0,0.15)"); // 
-            topGradient.addColorStop(1, "rgba(0,0,0,0)");      // 完全消失
+            topGradient.addColorStop(0, "rgba(0,0,0,0.25)");    // 顶部：与20%
+            topGradient.addColorStop(0.3, "rgba(0,0,0,0.1)");   // 
+            topGradient.addColorStop(1, "rgba(0,0,0,0)");       // 完全透明
 
             ctx.fillStyle = topGradient;
             ctx.fillRect(0, 0, targetWidth, topH);
