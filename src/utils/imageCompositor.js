@@ -59,19 +59,20 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             ctx.fillRect(0, targetHeight - bottomH, targetWidth, bottomH);
 
             // 2. 顶部渐变：极致丝滑 (Ultra Smooth 150px)
-            // 目的：在 150px 内创建自然漫射阴影，衬托白色 Logo，消除色块感
-            const topH = 150;
+            // 确保覆盖 AI 可能生成的白色/亮色天花板
+            ctx.save();
+            ctx.globalCompositeOperation = 'source-over'; // 强制覆盖模式
+            const topH = 180; // 稍微加高一点以覆盖更多
             const topGradient = ctx.createLinearGradient(0, 0, 0, topH);
 
-            // 多段指数衰减，确保过渡肉眼不可见
-            topGradient.addColorStop(0, "rgba(0,0,0,0.6)");    // 顶部：柔和深色
-            topGradient.addColorStop(0.2, "rgba(0,0,0,0.4)");  // 
-            topGradient.addColorStop(0.4, "rgba(0,0,0,0.2)");  // 
-            topGradient.addColorStop(0.7, "rgba(0,0,0,0.05)"); // 极淡
+            topGradient.addColorStop(0, "rgba(0,0,0,0.85)");   // 顶部：加深到 85%
+            topGradient.addColorStop(0.3, "rgba(0,0,0,0.5)");  // 
+            topGradient.addColorStop(0.6, "rgba(0,0,0,0.15)"); // 
             topGradient.addColorStop(1, "rgba(0,0,0,0)");      // 完全消失
 
             ctx.fillStyle = topGradient;
             ctx.fillRect(0, 0, targetWidth, topH);
+            ctx.restore();
 
 
 

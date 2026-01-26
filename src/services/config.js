@@ -57,7 +57,7 @@ export const DEFAULT_CONFIG = {
 
       **3. COMPOSITION**:
       - One single image.
-      - Headroom top 25% empty.
+      - Headroom top 25% empty, dark atmospheric background.
       - No text.`
     }
 };
