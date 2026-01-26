@@ -8,18 +8,9 @@ export const composeFinalImage = async (baseImageUrl, data) => {
     const { month, year, keyword, attitude } = data;
 
     return new Promise(async (resolve, reject) => {
-        // [CRITICAL FIX] 等待所有网络字体加载完成，防止 Canvas 绘制时字体回退
-        // Wait for Noto Sans SC / Serif etc.
-        // [CRITICAL FIX] 等待所有网络字体加载完成，防止 Canvas 绘制时字体回退
-        // Wait for Noto Sans SC / Serif etc.
-        try {
-            await Promise.race([
-                document.fonts.ready,
-                new Promise(r => setTimeout(r, 2000))
-            ]);
-        } catch (e) {
-            console.warn("Font loading timeout", e);
-        }
+        // [OPTIMIZATION] Removed explicit font loading wait to prevent hanging.
+        // Canvas will use fallback fonts or available webfonts immediately.
+
 
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
