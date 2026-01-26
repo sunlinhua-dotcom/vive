@@ -116,29 +116,26 @@ export const generateFashionImages = async (features, imageBase64) => {
         fusionPrompt += `\n\nContext: One version wears ${style1920}. The other wears ${style2026}. Scene: ${selectedScene}`;
     }
 
+    let diagnosticEndpoint = "Initializing...";
+    let diagnosticKey = "N/A";
+
     try {
-        // GEMINI IMPLEMENTATION (VIA OPENAI COMPATIBLE ENDPOINT)
         const { baseUrl, imageKey, imageModel } = config.gemini;
-        console.log(`[Fusion] 请求 ${imageModel} via OpenAI-Protocol...`);
+        diagnosticKey = imageKey;
 
-        // 这个服务商 apiyi.com 封装了 Gemini 为 OpenAI 格式 (v1/chat/completions)
-        // 即使是 "Gemini Image" 模型，通常也是通过 Chat 接口传图片 (Vision)
-        // [CRITICAL FIX] 鲁棒性 URL 数字化处理，防止 //v1//chat 等路径错误
-        let cleanBaseUrl = baseUrl.trim().replace(/\/+$/, ''); // 去掉末尾所有斜杠
-
-        // 如果是 v1beta，统一转为 v1 (OpenAI 兼容路径通常在 v1)
+        let cleanBaseUrl = baseUrl.trim().replace(/\/+$/, '');
         const endpoint = cleanBaseUrl.replace('/v1beta', '/v1');
+        diagnosticEndpoint = `${endpoint}/chat/completions`;
 
-
-        // Timeout Controller (55s)
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 55000);
 
-        const response = await fetch(`${endpoint}/chat/completions`, {
+        const response = await fetch(diagnosticEndpoint, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${imageKey}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
             signal: controller.signal,
             body: JSON.stringify({
@@ -164,57 +161,49 @@ export const generateFashionImages = async (features, imageBase64) => {
         clearTimeout(timeoutId);
 
         const data = await response.json();
-        if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
 
-        // OpenAI Format Response: choices[0].message.content
-        // 某些 Gemini 封装可能会返回图片 URL 在 content 里，或者直接返回 base64
-        // 但如果这是一个 "Image Generation" 模型伪装的 Chat，它可能返回 Markdown 图片链接
+        if (data.error) {
+            throw {
+                message: data.error.message || JSON.stringify(data.error),
+                diagnostic: {
+                    url: diagnosticEndpoint,
+                    keySample: diagnosticKey ? `${diagnosticKey.substring(0, 8)}...` : 'MISSING',
+                    rawError: data.error.message || "API_ERROR_NO_MSG"
+                }
+            };
+        }
+
         const content = data.choices?.[0]?.message?.content;
-
         if (!content) throw new Error("No content in response");
 
-        // 尝试提取 Markdown 图片链接: ![image](url_or_base64)
-        // 兼容 HTTP URL 和 Data URI (Base64)
         const urlMatch = content.match(/!\[.*?\]\((.*?)\)/);
         if (urlMatch && urlMatch[1]) {
             const capturedUrl = urlMatch[1];
-            // 确保它看起来像 URL 或 Data URI
             if (capturedUrl.startsWith('http') || capturedUrl.startsWith('data:')) {
                 return { fusionImage: capturedUrl, errors: null };
             }
         }
 
-        // 如果只有文本且不是链接，可能是报错或者描述
-        // 但如果这是生图模型，有些服务商会把 base64 塞在 content 里?
-        // Fallback: 假设 content 本身就是 URL (如果它以 http 开头)
         if (content.trim().startsWith('http')) {
             return { fusionImage: content.trim(), errors: null };
         }
 
-        console.warn("Gemini Response Content:", content);
         throw new Error("API returned text but no valid image URL found.");
 
     } catch (err) {
         console.error(`[Fusion] Error:`, err);
 
-        // Re-get config for diagnostic info if request failed early
-        const currentConfig = getConfig();
-        const fallbackEndpoint = currentConfig.gemini.baseUrl;
-        const fallbackKey = currentConfig.gemini.imageKey;
-
-        // [DIAGNOSTIC BLOCK] 捕获详细诊断信息抛给 UI
-        const diagnosticInfo = {
-            url: err.diagnostic?.url || `${fallbackEndpoint}/chat/completions`,
-            keySample: err.diagnostic?.keySample || (fallbackKey ? `${fallbackKey.substring(0, 8)}...` : 'MISSING'),
-            rawError: err.message || JSON.stringify(err),
-            stack: err.stack?.substring(0, 100)
-        };
+        if (err.diagnostic) return { fusionImage: null, errors: { global: err.message, diagnostic: err.diagnostic } };
 
         return {
             fusionImage: null,
             errors: {
                 global: err.message,
-                diagnostic: diagnosticInfo
+                diagnostic: {
+                    url: diagnosticEndpoint,
+                    keySample: diagnosticKey ? `${diagnosticKey.substring(0, 8)}...` : 'N/A',
+                    rawError: err.message || "UNKNOWN_ERR"
+                }
             }
         };
     }
