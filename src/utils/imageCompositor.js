@@ -10,8 +10,13 @@ export const composeFinalImage = async (baseImageUrl, data) => {
     return new Promise(async (resolve, reject) => {
         // [CRITICAL FIX] 等待所有网络字体加载完成，防止 Canvas 绘制时字体回退
         // Wait for Noto Sans SC / Serif etc.
+        // [CRITICAL FIX] 等待所有网络字体加载完成，防止 Canvas 绘制时字体回退
+        // Wait for Noto Sans SC / Serif etc.
         try {
-            await document.fonts.ready;
+            await Promise.race([
+                document.fonts.ready,
+                new Promise(r => setTimeout(r, 2000))
+            ]);
         } catch (e) {
             console.warn("Font loading timeout", e);
         }

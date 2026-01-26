@@ -47,6 +47,8 @@ export const DEFAULT_CONFIG = {
 
         imageGeneration: `**CRITICAL MISSION**: 
       Create a cinematic masterpiece of **THE SAME PERSON** appearing twice in **ONE UNIFIED SCENE**.
+      **FORMAT**: Vertical Portrait (3:4 Aspect Ratio). FULL FRAME. NO BLACK BARS. NO LETTERBOXING.
+
       
       **1. SCENE UNITY (STRICT)**:
       - The background MUST be a single, continuous, seamless Art Deco room.
