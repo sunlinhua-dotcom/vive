@@ -23,8 +23,7 @@ function UploadSection({ onImageUpload }) {
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
         accept: { 'image/*': [] },
-        multiple: false,
-        disabled: isProcessing // Strict protection: prevent double-clicks/taps while processing
+        multiple: false
     });
 
     return (
