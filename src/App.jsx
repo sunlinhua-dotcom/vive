@@ -142,6 +142,10 @@ function App() {
       // Wait for both
       const [analysis, images] = await Promise.all([analysisPromise, imagePromise]);
 
+      if (images.errors && images.errors.diagnostic) {
+        throw { message: images.errors.global, diagnostic: images.errors.diagnostic };
+      }
+
       clearInterval(progressInterval);
       // API Finished, starting composition. Set to 90% (not 100 to avoid backward jump)
       setProgress(90);
