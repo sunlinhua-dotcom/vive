@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Header from './components/Header'
 import UploadSection from './components/UploadSection'
 import GeneratingScreen from './components/GeneratingScreen'
@@ -75,9 +75,12 @@ function App() {
     }
   }, [step]);
 
+  // Lock to prevent double-submission on mobile (touch/click ghosting)
+  const isSubmittingRef = React.useRef(false);
+
   const handleImageUpload = async (imageDataUrl) => {
-    // [CRITICAL FIX] Prevent Double Submission on Mobile
-    if (step === 'generating') return;
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
 
     setUploadedImage(imageDataUrl)
     setStep('generating')
@@ -173,6 +176,7 @@ function App() {
       setStep('result')
 
     } catch (error) {
+      isSubmittingRef.current = false;
       clearInterval(progressInterval);
       console.error("Workflow failed:", error)
       const errorMsg = error.response ? `API Error: ${error.response.status}` : error.message;
@@ -182,6 +186,7 @@ function App() {
   }
 
   const handleReset = () => {
+    isSubmittingRef.current = false;
     localStorage.removeItem('vive_result');
     setStep('upload')
     setUploadedImage(null)
