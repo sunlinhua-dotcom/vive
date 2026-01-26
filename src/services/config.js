@@ -51,21 +51,22 @@ export const DEFAULT_CONFIG = {
       }`,
 
         imageGeneration: `**CRITICAL MISSION**: 
-      Create a "Parallel Life" cinematic portrait featuring **THE SAME PERSON** in two different timelines (1920 and 2026).
+      Create a cinematic masterpiece of **THE SAME PERSON** appearing twice in **ONE UNIFIED SCENE**.
       
-      **1. IDENTITY (STRICT)**:
-      - BOTH figures MUST be the **IDENTICAL SAME PERSON**. 
-      - **MANDATORY**: Preserve the **EXACT facial bone structure**, jawline contour, and chin shape from the source image for BOTH characters.
-      - **1920s Version**: Wearing {{style1920}}.
-      - **2026s Version**: Wearing {{style2026}}.
+      **1. SCENE UNITY (STRICT)**:
+      - The background MUST be a single, continuous, seamless Art Deco room.
+      - **DO NOT** split the screen. **DO NOT** draw dividing lines. **DO NOT** use different backgrounds for left/right.
+      - The two figures are standing side-by-side in the SAME physical space.
 
-      **2. ENVIRONMENT**:
-      - **Scene**: {{scene}}
-      - Art Deco Interior, warm amber lighting.
+      **2. IDENTITY**:
+      - BOTH figures are the **IDENTICAL SAME PERSON** (Twin concept).
+      - **MANDATORY**: Preserve the **EXACT facial bone structure**, jawline contour, and chin shape from the source image for BOTH.
+      - **Left Figure**: 1920s style ({{style1920}}).
+      - **Right Figure**: 2026s style ({{style2026}}).
 
       **3. COMPOSITION**:
       - One single image.
-      - Headroom top 25% empty.
+      - Headroom top 25% empty (for text).
       - No text.`
     }
 };
