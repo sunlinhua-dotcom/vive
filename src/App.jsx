@@ -76,6 +76,9 @@ function App() {
   }, [step]);
 
   const handleImageUpload = async (imageDataUrl) => {
+    // [CRITICAL FIX] Prevent Double Submission on Mobile
+    if (step === 'generating') return;
+
     setUploadedImage(imageDataUrl)
     setStep('generating')
     // Start smoothly from 0
@@ -99,8 +102,9 @@ function App() {
     }, 100);
 
     try {
-      // 1. Unified Compression (Already handled in UploadSection)
-      const compressedImage = imageDataUrl;
+      // 1. Unified Compression
+      const { compressImage } = await import('./utils/imageUtils');
+      const compressedImage = await compressImage(imageDataUrl, 1024);
 
       // 2. Parallel Processing
       // ... processing logic remains same, but remove manual setProgress/setLoadingText calls
