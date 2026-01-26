@@ -123,18 +123,19 @@ export const generateFashionImages = async (features, imageBase64) => {
 
         // 这个服务商 apiyi.com 封装了 Gemini 为 OpenAI 格式 (v1/chat/completions)
         // 即使是 "Gemini Image" 模型，通常也是通过 Chat 接口传图片 (Vision)
-        // 即使是 "Gemini Image" 模型，通常也是通过 Chat 接口传图片 (Vision)
-        let endpoint = baseUrl.endsWith('/v1beta') ? baseUrl.replace('/v1beta', '/v1') : baseUrl;
-        // [CRITICAL FIX] Add timestamp to prevent caching of "Quota Exceeded" errors by proxies/browser
-        endpoint = `${endpoint}/chat/completions?t=${Date.now()}`;
+        // [CRITICAL FIX] 鲁棒性 URL 数字化处理，防止 //v1//chat 等路径错误
+        let cleanBaseUrl = baseUrl.trim().replace(/\/+$/, ''); // 去掉末尾所有斜杠
+        
+        // 如果是 v1beta，统一转为 v1 (OpenAI 兼容路径通常在 v1)
+        const endpoint = cleanBaseUrl.replace('/v1beta', '/v1');
+
 
         // Timeout Controller (55s)
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 55000);
 
-        const response = await fetch(endpoint, {
+        const response = await fetch(`${endpoint}/chat/completions`, {
             method: 'POST',
-            cache: 'no-store', // Force network request
             headers: {
                 'Authorization': `Bearer ${imageKey}`,
                 'Content-Type': 'application/json'
