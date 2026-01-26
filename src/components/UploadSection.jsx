@@ -11,8 +11,7 @@ function UploadSection({ onImageUpload }) {
             setIsProcessing(true);
             try {
                 // compressFile now includes automatic fallback to main-thread canvas
-                // [OPTIMIZATION] Reduce target size to 800px/0.6 to prevent 413/Quota errors on mobile networks
-                const base64 = await compressFile(acceptedFiles[0], 800, 0.6);
+                const base64 = await compressFile(acceptedFiles[0], 1024, 0.7);
                 onImageUpload(base64);
             } catch (error) {
                 console.error("Compression CRITICAL FAILURE", error);
