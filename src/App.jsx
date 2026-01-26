@@ -33,6 +33,8 @@ function App() {
   const [generatedResults, setGeneratedResults] = useState(null)
   const [loadingText, setLoadingText] = useState("")
   const [progress, setProgress] = useState(0)
+  const [diagnosticData, setDiagnosticData] = useState(null)
+
 
   // Check for saved result on mount (Scoped by User UUID)
   useEffect(() => {
@@ -275,6 +277,30 @@ function App() {
           )}
         </div>
       </div>
+
+      {/* Diagnostic Overlay */}
+      {diagnosticData && (
+        <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-6 text-white font-mono text-[10px]">
+          <div className="bg-zinc-900 border border-red-500/50 p-5 rounded-xl w-full max-w-sm space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-red-500/20 pb-3">
+              <h3 className="text-red-400 font-bold tracking-tighter">MOBILE DIAGNOSTICS</h3>
+              <span className="bg-red-500/10 text-red-500 px-2 py-0.5 rounded text-[8px]">ERROR</span>
+            </div>
+            <div className="space-y-2 overflow-x-auto">
+              <p className="flex flex-col"><span className="text-zinc-500 uppercase text-[8px]">Request URL</span> <span className="break-all text-zinc-300">{diagnosticData.url}</span></p>
+              <p className="flex flex-col"><span className="text-zinc-500 uppercase text-[8px]">API Key Sample</span> <span className="text-zinc-300">{diagnosticData.keySample}</span></p>
+              <p className="flex flex-col"><span className="text-zinc-500 uppercase text-[8px]">Raw Error</span> <span className="text-red-300/80">{diagnosticData.rawError}</span></p>
+            </div>
+            <button
+              onClick={() => setDiagnosticData(null)}
+              className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg uppercase tracking-widest text-[10px] transition-colors"
+            >
+              Close & Retry
+            </button>
+            <p className="text-center text-zinc-600 text-[8px]">Please screenshot this screen if error persists</p>
+          </div>
+        </div>
+      )}
 
       {/* Footer - Always Visible, Pinned to Bottom */}
       {step === 'upload' && <Footer version="v3.1 (Pure Gemini)" />}
