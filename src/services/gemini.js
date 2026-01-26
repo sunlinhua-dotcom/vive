@@ -73,25 +73,11 @@ export const generateFashionImages = async (features, imageBase64) => {
         "Art Deco beaded evening dress with a feather fan"
     ];
     const modernPool = [
-        // 1. Old Money / Quiet Luxury
-        "Cream white cashmere turtleneck with a satin champagne midi skirt (Old Money Aesthetic)",
-        "Tailored oversized beige blazer with a silk camisole and wide-leg trousers (The Row Vibe)",
-        "Navy blue tweed jacket set with gold buttons (Chanel Inspired Classic)",
-
-        // 2. Modern Minimalist / High Fashion
-        "Sleek black architectural evening gown with an asymmetric neckline (Modern Minimalist)",
-        "Minimalist white silk slip dress draped with a structured tuxedo blazer (Celine Style)",
-        "Sculptural off-shoulder cocktail dress in deep emerald velvet (Loewe Vibe)",
-
-        // 3. Power Dressing / Chic
-        "Sharp burgundy velvet jumpsuit with a plunging neckline (Power Dressing)",
-        "Sheer organza blouse with high-waisted cigarette pants (Saint Laurent Vibe)",
-        "Structured leather trench coat dress in warm cognac color (Modern City Chic)",
-
-        // 4. Red Carpet / Glamour
-        "Flowing silver-grey chiffon gown with a cape detail (Ethereal Modernity)",
-        "Pearl-embellished halter neck evening dress (Modern Gatsby)",
-        "Strapless black velvet gown with a dramatic side slit and diamond choker (Classic Hollywood 2026)"
+        "Futuristic structural blazer dress with metallic accents",
+        "Minimalist high-fashion white silk gown (Celine/YSL vibe)",
+        "Sheer architectural evening gown with sharp shoulders",
+        "Modern Interpretation of Qipao: Leather and lace fusion",
+        "Sleek black velvet tuxedo suit"
     ];
     const scenePool = [
         "A grand **Art Deco Hotel Lobby in 1930s Shanghai**",
@@ -116,95 +102,102 @@ export const generateFashionImages = async (features, imageBase64) => {
         fusionPrompt += `\n\nContext: One version wears ${style1920}. The other wears ${style2026}. Scene: ${selectedScene}`;
     }
 
-    let diagnosticEndpoint = "Initializing...";
-    let diagnosticKey = "N/A";
-
     try {
-        const { baseUrl, imageKey, imageModel } = config.gemini;
-        diagnosticKey = imageKey;
+        if (config.provider === 'doubao') {
+            // DOUBAO/SEEDREAM IMPLEMENTATION (Image Gen)
+            if (!config.doubao.apiKey) return { fusionImage: null, errors: { global: "Doubao API Key missing" } };
 
-        let cleanBaseUrl = baseUrl.trim().replace(/\/+$/, '');
-        const endpoint = cleanBaseUrl.replace('/v1beta', '/v1');
-        diagnosticEndpoint = `${endpoint}/chat/completions`;
+            console.log("Calling Doubao (SeeDream)...");
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 55000);
+            // --- PURE IMG2IMG PROMPT ---
+            // No facial description. Pure style instruction.
+            let doubaoPrompt = `**Instruction**: Retouch the uploaded photo.
+            
+**CORE REQUIREMENT**: 
+Keep the person's face EXACTLY as it is.
+Apply the following ART DECO STYLE and CLOTHING:
 
-        const response = await fetch(diagnosticEndpoint, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${imageKey}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            signal: controller.signal,
-            body: JSON.stringify({
-                model: imageModel,
-                messages: [
-                    {
-                        role: "user",
-                        content: [
-                            { type: "text", text: fusionPrompt },
-                            {
-                                type: "image_url",
-                                image_url: {
-                                    url: `data:image/jpeg;base64,${base64Data}`
-                                }
-                            }
-                        ]
-                    }
-                ],
-                max_tokens: 4096
-            })
-        });
+**SCENE & STYLE**:
+${fusionPrompt}
 
-        clearTimeout(timeoutId);
+**Output**:
+- High fidelity portrait.
+- Cinematic lighting.`;
 
-        const data = await response.json();
+            // Seedream Payload
+            const response = await fetch(`${config.doubao.baseUrl}/images/generations`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${config.doubao.apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: config.doubao.imageModel,
+                    prompt: doubaoPrompt,
+                    image_url: `data:image/jpeg;base64,${base64Data}`,
+                    strength: 0.15, // 0.15 Denoising = 85% Original Locked
+                    size: "2048x2048",
+                    quality: "standard",
+                    n: 1,
+                    response_format: "b64_json"
+                })
+            });
+            const data = await response.json();
 
-        if (data.error) {
-            throw {
-                message: data.error.message || JSON.stringify(data.error),
-                diagnostic: {
-                    url: diagnosticEndpoint,
-                    keySample: diagnosticKey ? `${diagnosticKey.substring(0, 8)}...` : 'MISSING',
-                    rawError: data.error.message || "API_ERROR_NO_MSG"
-                }
-            };
-        }
-
-        const content = data.choices?.[0]?.message?.content;
-        if (!content) throw new Error("No content in response");
-
-        const urlMatch = content.match(/!\[.*?\]\((.*?)\)/);
-        if (urlMatch && urlMatch[1]) {
-            const capturedUrl = urlMatch[1];
-            if (capturedUrl.startsWith('http') || capturedUrl.startsWith('data:')) {
-                return { fusionImage: capturedUrl, errors: null };
+            // Handle various response formats
+            if (data.data?.[0]?.b64_json) {
+                return { fusionImage: `data:image/jpeg;base64,${data.data[0].b64_json}`, errors: null };
+            } else if (data.data?.[0]?.url) {
+                return { fusionImage: data.data[0].url, errors: null };
             }
-        }
 
-        if (content.trim().startsWith('http')) {
-            return { fusionImage: content.trim(), errors: null };
-        }
+            console.error("Doubao Unknown Response:", data);
 
-        throw new Error("API returned text but no valid image URL found.");
+            // Helpful error handling for common 503/400
+            if (data.error) {
+                throw new Error(`${data.error.message} (Provider Error)`);
+            }
+            throw new Error("Doubao Image API Response Unknown");
+
+        } else {
+            // GEMINI IMPLEMENTATION
+            const { baseUrl, imageKey, imageModel } = config.gemini;
+            console.log(`[Fusion] 请求 ${imageModel}...`);
+
+            const response = await fetch(`${baseUrl}/models/${imageModel}:generateContent`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${imageKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [
+                            { text: fusionPrompt },
+                            { inlineData: { mimeType: "image/jpeg", data: base64Data } }
+                        ]
+                    }],
+                    generationConfig: {
+                        responseModalities: ["IMAGE"],
+                        imageConfig: { aspectRatio: "3:4", imageSize: "1K" }
+                    }
+                })
+            });
+
+            const data = await response.json();
+            if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+
+            const candidate = data.candidates?.[0];
+            if (candidate?.finishReason === 'SAFETY') return { fusionImage: null, errors: { global: "Safety Block" } };
+
+            let b64 = candidate?.content?.parts?.[0]?.inlineData?.data || candidate?.content?.parts?.[0]?.inline_data?.data;
+            if (b64) return { fusionImage: `data:image/jpeg;base64,${b64}`, errors: null };
+
+            throw new Error("No image data in response");
+        }
 
     } catch (err) {
         console.error(`[Fusion] Error:`, err);
-
-        if (err.diagnostic) return { fusionImage: null, errors: { global: err.message, diagnostic: err.diagnostic } };
-
-        return {
-            fusionImage: null,
-            errors: {
-                global: err.message,
-                diagnostic: {
-                    url: diagnosticEndpoint,
-                    keySample: diagnosticKey ? `${diagnosticKey.substring(0, 8)}...` : 'N/A',
-                    rawError: err.message || "UNKNOWN_ERR"
-                }
-            }
-        };
+        return { fusionImage: null, errors: { global: err.message } };
     }
 };

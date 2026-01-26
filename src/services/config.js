@@ -6,15 +6,20 @@ export const DEFAULT_CONFIG = {
 
     // Gemini Settings
     gemini: {
-        baseUrl: import.meta.env.VITE_AI_BASE_URL || 'https://api.apiyi.com/v1beta',
+        baseUrl: import.meta.env.VITE_AI_BASE_URL || 'https://apiyi.com/v1',
         textModel: 'gemini-3-flash-preview',
         imageModel: 'gemini-3-pro-image-preview',
-        // Updated Keys (Trimmed & Verified)
         textKey: 'sk-zu5cm3pPZaEyIwz85a5bCb76546f4b1d92BaA08aAc3f7404',
         imageKey: 'sk-qMB7fSJhKZmebuFL0b823fE2Af274cCc9a1e62A5990aF1F6'
     },
 
-
+    // Doubao Settings (Volcengine)
+    doubao: {
+        baseUrl: import.meta.env.VITE_AI_BASE_URL || 'https://api.apiyi.com/v1',
+        apiKey: import.meta.env.VITE_DOUBAO_API_KEY || 'sk-zu5cm3pPZaEyIwz85a5bCb76546f4b1d92BaA08aAc3f7404',
+        model: import.meta.env.VITE_DOUBAO_TEXT_MODEL || 'doubao-pro-4k', // Text (Common Alias)
+        imageModel: import.meta.env.VITE_DOUBAO_IMAGE_MODEL || 'seedream-4-5-251128' // Image (SeeDream 4.5)
+    },
 
     // Prompts
     prompts: {
@@ -46,29 +51,26 @@ export const DEFAULT_CONFIG = {
       }`,
 
         imageGeneration: `**CRITICAL MISSION**: 
-      Create a cinematic masterpiece of **THE SAME PERSON** appearing twice in **ONE UNIFIED SCENE**.
-      **FORMAT**: Vertical Portrait (3:4 Aspect Ratio). FULL FRAME. NO BLACK BARS. NO LETTERBOXING.
-
+      Create a "Parallel Life" cinematic portrait featuring **THE SAME PERSON** in two different timelines (1920 and 2026).
       
-      **1. SCENE UNITY (STRICT)**:
-      - The background MUST be a single, continuous, seamless Art Deco room.
-      - **DO NOT** split the screen. **DO NOT** draw dividing lines. **DO NOT** use different backgrounds for left/right.
-      - The two figures are standing side-by-side in the SAME physical space.
+      **1. IDENTITY (STRICT)**:
+      - BOTH figures MUST be the **IDENTICAL SAME PERSON**. 
+      - **MANDATORY**: Preserve the **EXACT facial bone structure**, jawline contour, and chin shape from the source image for BOTH characters.
+      - **1920s Version**: Wearing {{style1920}}.
+      - **2026s Version**: Wearing {{style2026}}.
 
-      **2. IDENTITY**:
-      - BOTH figures are the **IDENTICAL SAME PERSON** (Twin concept).
-      - **MANDATORY**: Preserve the **EXACT facial bone structure**, jawline contour, and chin shape from the source image for BOTH.
-      - **Left Figure**: 1920s style ({{style1920}}).
-      - **Right Figure**: 2026s style ({{style2026}}).
+      **2. ENVIRONMENT**:
+      - **Scene**: {{scene}}
+      - Art Deco Interior, warm amber lighting.
 
       **3. COMPOSITION**:
       - One single image.
-      - Headroom top 25% empty (for text).
+      - Headroom top 25% empty.
       - No text.`
     }
 };
 
-const STORAGE_KEY = 'vive_admin_config_v4'; // [FINAL BOSS FIX] Bump to v4 to fix endpoint slash trailing issue
+const STORAGE_KEY = 'vive_admin_config';
 
 export const getConfig = () => {
     try {
@@ -80,6 +82,7 @@ export const getConfig = () => {
                 ...DEFAULT_CONFIG,
                 ...parsed,
                 gemini: { ...DEFAULT_CONFIG.gemini, ...parsed.gemini },
+                doubao: { ...DEFAULT_CONFIG.doubao, ...parsed.doubao },
                 prompts: { ...DEFAULT_CONFIG.prompts, ...parsed.prompts }
             };
         }

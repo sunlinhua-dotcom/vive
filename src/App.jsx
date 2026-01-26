@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Header from './components/Header'
 import UploadSection from './components/UploadSection'
 import GeneratingScreen from './components/GeneratingScreen'
@@ -33,15 +33,9 @@ function App() {
   const [generatedResults, setGeneratedResults] = useState(null)
   const [loadingText, setLoadingText] = useState("")
   const [progress, setProgress] = useState(0)
-  const [diagnosticData, setDiagnosticData] = useState(null)
-
 
   // Check for saved result on mount (Scoped by User UUID)
   useEffect(() => {
-    // [CRITICAL FIX] Force clear stale config cache on mobile
-    localStorage.removeItem('vive_admin_config');
-    // We keep 'vive_admin_config_v2' if it exists, or let it regenerate from defaults
-
     const userKey = getUserStorageKey('vive_result');
     console.log(`[App] Initializing Session. Client UUID: ${getClientUUID()}`);
 
@@ -81,24 +75,7 @@ function App() {
     }
   }, [step]);
 
-  // [CRITICAL FIX] Global Lock to prevent Double-Submission on Mobile (Touch Ghosting)
-  const isSubmitting = useRef(false);
-
-  // Reset lock when resetting flow
-  useEffect(() => {
-    if (step === 'upload') {
-      isSubmitting.current = false;
-    }
-  }, [step]);
-
   const handleImageUpload = async (imageDataUrl) => {
-    // 1. Strict Lock Check
-    if (isSubmitting.current) {
-      console.warn("Double-fire detected and blocked.");
-      return;
-    }
-    isSubmitting.current = true;
-
     setUploadedImage(imageDataUrl)
     setStep('generating')
     // Start smoothly from 0
@@ -143,10 +120,6 @@ function App() {
 
       // Wait for both
       const [analysis, images] = await Promise.all([analysisPromise, imagePromise]);
-
-      if (images.errors && images.errors.diagnostic) {
-        throw { message: images.errors.global, diagnostic: images.errors.diagnostic };
-      }
 
       clearInterval(progressInterval);
       // API Finished, starting composition. Set to 90% (not 100 to avoid backward jump)
@@ -195,27 +168,15 @@ function App() {
       const userKey = getUserStorageKey('vive_result');
       localStorage.setItem(userKey, JSON.stringify(result));
       setStep('result')
-      // Unlock handled by useEffect when step changes back to upload, 
-      // BUT for safety in success state (result), lock remains 'true' so user can't re-upload without reset.
-      // This is INTENTIONAL.
 
     } catch (error) {
       clearInterval(progressInterval);
-      console.error("Workflow failed:", error);
-
-      // Collect diagnostic info from error or fallback
-      const diag = error.diagnostic || {
-        rawError: error.message,
-        url: 'Workflow level fault',
-        keySample: 'N/A'
-      };
-      setDiagnosticData(diag);
-
-      setStep('upload');
-      isSubmitting.current = false;
+      console.error("Workflow failed:", error)
+      const errorMsg = error.response ? `API Error: ${error.response.status}` : error.message;
+      alert(`抱歉，生成中断。\n错误详情: ${errorMsg}\n请尝试刷新页面或检查网络。`)
+      setStep('upload')
     }
   }
-
 
   const handleReset = () => {
     localStorage.removeItem('vive_result');
@@ -284,32 +245,8 @@ function App() {
         </div>
       </div>
 
-      {/* Diagnostic Overlay */}
-      {diagnosticData && (
-        <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-6 text-white font-mono text-[10px]">
-          <div className="bg-zinc-900 border border-red-500/50 p-5 rounded-xl w-full max-w-sm space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-red-500/20 pb-3">
-              <h3 className="text-red-400 font-bold tracking-tighter">MOBILE DIAGNOSTICS</h3>
-              <span className="bg-red-500/10 text-red-500 px-2 py-0.5 rounded text-[8px]">ERROR</span>
-            </div>
-            <div className="space-y-2 overflow-x-auto">
-              <p className="flex flex-col"><span className="text-zinc-500 uppercase text-[8px]">Request URL</span> <span className="break-all text-zinc-300">{diagnosticData.url}</span></p>
-              <p className="flex flex-col"><span className="text-zinc-500 uppercase text-[8px]">API Key Sample</span> <span className="text-zinc-300">{diagnosticData.keySample}</span></p>
-              <p className="flex flex-col"><span className="text-zinc-500 uppercase text-[8px]">Raw Error</span> <span className="text-red-300/80">{diagnosticData.rawError}</span></p>
-            </div>
-            <button
-              onClick={() => setDiagnosticData(null)}
-              className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg uppercase tracking-widest text-[10px] transition-colors"
-            >
-              Close & Retry
-            </button>
-            <p className="text-center text-zinc-600 text-[8px]">Please screenshot this screen if error persists</p>
-          </div>
-        </div>
-      )}
-
       {/* Footer - Always Visible, Pinned to Bottom */}
-      {step === 'upload' && <Footer version="v3.1 (Pure Gemini)" />}
+      {step === 'upload' && <Footer />}
     </div>
   )
 }
