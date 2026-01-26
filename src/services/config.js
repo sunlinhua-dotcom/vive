@@ -55,8 +55,8 @@ export const DEFAULT_CONFIG = {
       
       **1. SCENE UNITY (STRICT)**:
       - The background MUST be a single, continuous, seamless Art Deco room.
-      - **DO NOT** split the screen. **DO NOT** draw dividing lines.
-      - **BACKGROUND TEXT**: The word "**VIVE**" MUST appear in the top background wall as an elegant Art Deco engraving or neon sign. It should be large, centered, and integrated into the architecture.
+      - **DO NOT** split the screen. **DO NOT** draw dividing lines. **DO NOT** use different backgrounds for left/right.
+      - The two figures are standing side-by-side in the SAME physical space.
 
       **2. IDENTITY**:
       - BOTH figures are the **IDENTICAL SAME PERSON** (Twin concept).
