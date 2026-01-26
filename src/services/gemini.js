@@ -204,10 +204,15 @@ ${fusionPrompt}
 
             if (!content) throw new Error("No content in response");
 
-            // 尝试提取 Markdown 图片链接: ![image](url) OR [Image](url)
-            const urlMatch = content.match(/\((https?:\/\/.*?)\)/);
-            if (urlMatch) {
-                return { fusionImage: urlMatch[1], errors: null };
+            // 尝试提取 Markdown 图片链接: ![image](url_or_base64)
+            // 兼容 HTTP URL 和 Data URI (Base64)
+            const urlMatch = content.match(/!\[.*?\]\((.*?)\)/);
+            if (urlMatch && urlMatch[1]) {
+                const capturedUrl = urlMatch[1];
+                // 确保它看起来像 URL 或 Data URI
+                if (capturedUrl.startsWith('http') || capturedUrl.startsWith('data:')) {
+                    return { fusionImage: capturedUrl, errors: null };
+                }
             }
 
             // 如果只有文本且不是链接，可能是报错或者描述
