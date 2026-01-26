@@ -56,185 +56,130 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             gradient.addColorStop(0.7, "rgba(0,0,0,0.6)");  // 加深
             gradient.addColorStop(1, "rgba(0,0,0,0.9)");    // 底部最深
             ctx.fillStyle = gradient;
-            ctx.fillRect(0, targetHeight - bottomH, targetWidth, bottomH);
+            // 5. 绘制 Logo (上方居中)
+            // 不需要混合模式了，已经是透明白字
+            ctx.save();
+            // ctx.globalCompositeOperation = 'multiply'; // 不需要了
 
-            // 2. 顶部渐变：Simpler & Taller (200px)
-            // 增加高度到 200px 以让过渡更自然，但保持顶部深色区域
-            const topH = 200;
-            const topGradient = ctx.createLinearGradient(0, 0, 0, topH);
+            const logoWidth = canvas.width * 0.25; // 宽度占 25%
+            const logoHeight = logoImg.height * (logoWidth / logoImg.width);
+            const logoX = (canvas.width - logoWidth) / 2;
+            const logoY = 60; // 距离顶部 60px
 
-            // 使用简单的线性过渡，让浏览器自动插值，减少人为造成的色阶
-            topGradient.addColorStop(0, "rgba(0,0,0,0.6)");      // 顶部：柔和深色
-            topGradient.addColorStop(1, "rgba(0,0,0,0)");        // 底部：完全透明
+            // 加一点阴影让白色Logo更清晰
+            ctx.shadowColor = "rgba(0,0,0,0.5)";
+            ctx.shadowBlur = 10;
 
-            ctx.fillStyle = topGradient;
-            ctx.fillRect(0, 0, targetWidth, topH);
+            ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
+            ctx.restore();
 
+            // 1. 绘制 Logo (中间)
+            ctx.shadowColor = "rgba(0,0,0,0.8)";
+            ctx.shadowBlur = 15;
+            ctx.shadowOffsetY = 5;
 
+            // 计算 Logo 中心线 Y 坐标，用于对齐文字
+            const centerY = logoY + logoHeight / 2;
 
-
-            // [已移除] 水印 "MODERN VIVE" 以免遮挡人脸
-
-            // --- D. 绘制顶部 Logo ---
-            // 动态导入处理工具
-            const { processLogo } = await import('./logoProcessor');
-
-            // 强制将 Logo 处理为透明底 + 纯白色 (适合深色海报)
-            // 无论原图是什么颜色，这里强转白色
-            const processedLogoUrl = await processLogo('/vive-logo-light.jpg', {
-                threshold: 230,
-                targetColor: 'white' // 强转白色
-            });
-
-            const logoImg = new Image();
-            logoImg.crossOrigin = "Anonymous"; // Ensure cross-origin is set for processed image if it's a data URL or from a different origin
-            logoImg.src = processedLogoUrl;
-
-            await new Promise(r => { logoImg.onload = r; logoImg.onerror = r; });
-
-            if (logoImg.width > 0) {
-                // 4.5 [NEW] 绘制背景大 VIVE 水印 (Big VIVE Watermark)
-                // 位于 Logo 和日期下方，作为装饰背景
-                ctx.save();
-                ctx.globalAlpha = 0.08; // 极低透明度，仅作为纹理
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                // 使用思源黑 (Noto Sans SC) / 无衬线体
-                ctx.font = `bold ${targetWidth * 0.35}px "Noto Sans SC", "Source Han Sans CN", sans-serif`;
-                ctx.fillStyle = '#FFFFFF';
-                // 稍微拉伸一点高度，更有张力
-                ctx.scale(1, 1.2);
-                // 绘制在 Logo 中心位置稍微偏上一点
-                ctx.fillText("VIVE", targetWidth / 2, 80);
-                ctx.restore();
-
-                // 5. 绘制 Logo (上方居中)
-                // 不需要混合模式了，已经是透明白字
-                ctx.save();
-                // ctx.globalCompositeOperation = 'multiply'; // 不需要了
-
-                const logoWidth = canvas.width * 0.25; // 宽度占 25%
-                const logoHeight = logoImg.height * (logoWidth / logoImg.width);
-                const logoX = (canvas.width - logoWidth) / 2;
-                const logoY = 60; // 距离顶部 60px
-
-                // 加一点阴影让白色Logo更清晰
-                ctx.shadowColor = "rgba(0,0,0,0.5)";
-                ctx.shadowBlur = 10;
-
-                ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
-                ctx.restore();
-
-                // 1. 绘制 Logo (中间)
-                ctx.shadowColor = "rgba(0,0,0,0.8)";
-                ctx.shadowBlur = 15;
-                ctx.shadowOffsetY = 5;
-
-                // 计算 Logo 中心线 Y 坐标，用于对齐文字
-                const centerY = logoY + logoHeight / 2;
-
-                // 2. 绘制左侧日期 (MARCH 2026) -> 垂直居中于 Logo
-                ctx.textAlign = 'left';
-                ctx.fillStyle = '#FFFFFF';
-                ctx.textBaseline = 'middle'; // 垂直居中
-                // 字体参考图中是全大写 serif
-                ctx.font = `${targetWidth * 0.035}px "Playfair Display", serif`;
-                ctx.shadowBlur = 8;
-                ctx.fillText(`${month} ${year}`, 50, centerY);
-
-                // 3. 绘制右侧农历 (乙巳年腊月) -> 右对齐
-                ctx.textAlign = 'right';
-                ctx.font = `${targetWidth * 0.035}px "Noto Serif SC", serif`; // 中式衬线体
-                ctx.fillText("乙巳年腊月", targetWidth - 50, centerY);
-
-                ctx.fillText("乙巳年腊月", targetWidth - 50, centerY);
-            }
-
-            // --- F. 绘制底部内容 (左侧) ---
-            const footerY = targetHeight - 60;
-
-            // 关键词
+            // 2. 绘制左侧日期 (MARCH 2026) -> 垂直居中于 Logo
             ctx.textAlign = 'left';
             ctx.fillStyle = '#FFFFFF';
-            // Label
-            ctx.font = `${targetWidth * 0.02}px "Noto Serif SC", serif`;
-            ctx.globalAlpha = 0.9;
-            ctx.fillText("你的摩登关键词是", 50, footerY - 140);
+            ctx.textBaseline = 'middle'; // 垂直居中
+            // 字体参考图中是全大写 serif
+            ctx.font = `${targetWidth * 0.035}px "Playfair Display", serif`;
+            ctx.shadowBlur = 8;
+            ctx.fillText(`${month} ${year}`, 50, centerY);
 
-            // Keyword
-            ctx.font = `bold ${targetWidth * 0.06}px "Noto Serif SC", serif`;
-            ctx.globalAlpha = 1;
-            ctx.fillText(keyword, 50, footerY - 70);
+            // 3. 绘制右侧农历 (乙巳年腊月) -> 右对齐
+            ctx.textAlign = 'right';
+            ctx.font = `${targetWidth * 0.035}px "Noto Serif SC", serif`; // 中式衬线体
+            ctx.fillText("乙巳年腊月", targetWidth - 50, centerY);
 
-            // Attitude
-            ctx.font = `italic ${targetWidth * 0.025}px serif`;
-            ctx.fillStyle = '#C5A065'; // 金色态度
-            ctx.fillText(`“${attitude}”`, 50, footerY - 20);
+            ctx.fillText("乙巳年腊月", targetWidth - 50, centerY);
+        }
+
+        // --- F. 绘制底部内容 (左侧) ---
+        const footerY = targetHeight - 60;
+
+        // 关键词
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#FFFFFF';
+        // Label
+        ctx.font = `${targetWidth * 0.02}px "Noto Serif SC", serif`;
+        ctx.globalAlpha = 0.9;
+        ctx.fillText("你的摩登关键词是", 50, footerY - 140);
+
+        // Keyword
+        ctx.font = `bold ${targetWidth * 0.06}px "Noto Serif SC", serif`;
+        ctx.globalAlpha = 1;
+        ctx.fillText(keyword, 50, footerY - 70);
+
+        // Attitude
+        ctx.font = `italic ${targetWidth * 0.025}px serif`;
+        ctx.fillStyle = '#C5A065'; // 金色态度
+        ctx.fillText(`“${attitude}”`, 50, footerY - 20);
 
 
-            // --- G. 绘制日历 (右下角) ---
-            const calX = targetWidth * 0.55;
-            // 上移日历起始点，确保31号能露出
-            // 5行 * 50px ≈ 250px, 所以至少要留出 300px 空间
-            const calY = targetHeight - 320;
-            const cellW = (targetWidth * 0.4) / 7;
-            const cellH = cellW * 0.9;
+        // --- G. 绘制日历 (右下角) ---
+        const calX = targetWidth * 0.55;
+        // 上移日历起始点，确保31号能露出
+        // 5行 * 50px ≈ 250px, 所以至少要留出 300px 空间
+        const calY = targetHeight - 320;
+        const cellW = (targetWidth * 0.4) / 7;
+        const cellH = cellW * 0.9;
 
-            ctx.textAlign = 'center';
-            ctx.fillStyle = '#FFFFFF';
-            ctx.shadowBlur = 2;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.shadowBlur = 2;
 
-            // Weeks
-            ctx.font = `bold ${targetWidth * 0.018}px sans-serif`;
-            ctx.globalAlpha = 0.7;
-            const weeks = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
-            weeks.forEach((d, i) => {
-                ctx.fillText(d, calX + i * cellW + cellW / 2, calY);
-            });
+        // Weeks
+        ctx.font = `bold ${targetWidth * 0.018}px sans-serif`;
+        ctx.globalAlpha = 0.7;
+        const weeks = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+        weeks.forEach((d, i) => {
+            ctx.fillText(d, calX + i * cellW + cellW / 2, calY);
+        });
 
-            // Days (Dynamic & Real)
-            ctx.globalAlpha = 1.0;
-            ctx.font = `${targetWidth * 0.02}px sans-serif`;
+        // Days (Dynamic & Real)
+        ctx.globalAlpha = 1.0;
+        ctx.font = `${targetWidth * 0.02}px sans-serif`;
 
-            // 1. 解析月份为索引 (0-11)
-            const monthMap = {
-                "JANUARY": 0, "FEBRUARY": 1, "MARCH": 2, "APRIL": 3, "MAY": 4, "JUNE": 5,
-                "JULY": 6, "AUGUST": 7, "SEPTEMBER": 8, "OCTOBER": 9, "NOVEMBER": 10, "DECEMBER": 11
-            };
-            const mIndex = monthMap[(month || "JANUARY").toUpperCase()] || 0;
-            const yNum = parseInt(year) || 2026;
-
-            // 2. 计算当月第一天是周几 (JS getDay: 0=Sun, 1=Mon... 6=Sat)
-            const firstDate = new Date(yNum, mIndex, 1);
-            const jsDay = firstDate.getDay();
-            // 我们的表头是 MON(0) -> SUN(6)
-            // 转换：Sun(0) => 6, Mon(1) => 0, Tue(2) => 1 ...
-            const startOffset = (jsDay + 6) % 7;
-
-            // 3. 计算当月总天数 (下个月的第0天 = 当月最后一天)
-            const daysInMonth = new Date(yNum, mIndex + 1, 0).getDate();
-
-            let currentDay = 1;
-            // 最多绘制 6 行，足以覆盖任何月份
-            for (let r = 1; r <= 6; r++) {
-                for (let c = 0; c < 7; c++) {
-                    // 第一行：检查起始偏移
-                    if (r === 1 && c < startOffset) {
-                        continue; // 空白
-                    }
-
-                    if (currentDay <= daysInMonth) {
-                        ctx.fillText(currentDay.toString(), calX + c * cellW + cellW / 2, calY + r * cellH);
-                        currentDay++;
-                    }
-                }
-                if (currentDay > daysInMonth) break;
-            }
-
-            // 导出：使用 PNG 格式以彻底消除渐变色块/条纹 (JPEG Compression Artifacts)
-            resolve(canvas.toDataURL('image/png'));
+        // 1. 解析月份为索引 (0-11)
+        const monthMap = {
+            "JANUARY": 0, "FEBRUARY": 1, "MARCH": 2, "APRIL": 3, "MAY": 4, "JUNE": 5,
+            "JULY": 6, "AUGUST": 7, "SEPTEMBER": 8, "OCTOBER": 9, "NOVEMBER": 10, "DECEMBER": 11
         };
+        const mIndex = monthMap[(month || "JANUARY").toUpperCase()] || 0;
+        const yNum = parseInt(year) || 2026;
 
-        img.onerror = (e) => reject(e);
+        // 2. 计算当月第一天是周几 (JS getDay: 0=Sun, 1=Mon... 6=Sat)
+        const firstDate = new Date(yNum, mIndex, 1);
+        const jsDay = firstDate.getDay();
+        // 我们的表头是 MON(0) -> SUN(6)
+        // 转换：Sun(0) => 6, Mon(1) => 0, Tue(2) => 1 ...
+        const startOffset = (jsDay + 6) % 7;
+
+        // 3. 计算当月总天数 (下个月的第0天 = 当月最后一天)
+        const daysInMonth = new Date(yNum, mIndex + 1, 0).getDate();
+
+        let currentDay = 1;
+        // 最多绘制 6 行，足以覆盖任何月份
+        for (let r = 1; r <= 6; r++) {
+            for (let c = 0; c < 7; c++) {
+                // 第一行：检查起始偏移
+                if (r === 1 && c < startOffset) {
+                    continue; // 空白
+                }
+
+                if (currentDay <= daysInMonth) {
+                    ctx.fillText(currentDay.toString(), calX + c * cellW + cellW / 2, calY + r * cellH);
+                    currentDay++;
+                }
+            }
+            if (currentDay > daysInMonth) break;
+        }
+
+        // 导出：使用 PNG 格式以彻底消除渐变色块/条纹 (JPEG Compression Artifacts)
+        resolve(canvas.toDataURL('image/png'));
     });
 };
