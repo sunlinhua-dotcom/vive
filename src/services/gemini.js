@@ -73,11 +73,13 @@ export const generateFashionImages = async (features, imageBase64) => {
         "Art Deco beaded evening dress with a feather fan"
     ];
     const modernPool = [
-        "Futuristic structural blazer dress with metallic accents",
-        "Minimalist high-fashion white silk gown (Celine/YSL vibe)",
-        "Sheer architectural evening gown with sharp shoulders",
-        "Modern Interpretation of Qipao: Leather and lace fusion",
-        "Sleek black velvet tuxedo suit"
+        "Contemporary tailored white suit with a silk camisole (Old Money aesthetic)",
+        "Elegant black evening gown with asymmetric neckline (Modern Minimalist)",
+        "Chic tweed jacket paired with a flowing satin skirt (Modern Classic)",
+        "Sophisticated jumpsuit in deep burgundy velvet (Power Dressing)",
+        "Modern simplified Qipao with geometric cuts (New Chinese Style)",
+        "Sheer architectural evening gown with sharp shoulders (High Fashion)",
+        "Minimalist white silk slip dress with a blazer (Celine Vibe)"
     ];
     const scenePool = [
         "A grand **Art Deco Hotel Lobby in 1930s Shanghai**",
