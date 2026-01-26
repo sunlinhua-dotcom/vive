@@ -102,8 +102,8 @@ export const composeFinalImage = async (baseImageUrl, data) => {
                 ctx.globalAlpha = 0.08; // 极低透明度，仅作为纹理
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                // 使用超大衬线体
-                ctx.font = `bold ${targetWidth * 0.35}px "Times New Roman", "Noto Serif SC", serif`;
+                // 使用思源黑 (Noto Sans SC) / 无衬线体
+                ctx.font = `bold ${targetWidth * 0.35}px "Noto Sans SC", "Source Han Sans CN", sans-serif`;
                 ctx.fillStyle = '#FFFFFF';
                 // 稍微拉伸一点高度，更有张力
                 ctx.scale(1, 1.2);
