@@ -10,12 +10,20 @@ function UploadSection({ onImageUpload }) {
         if (acceptedFiles?.length > 0) {
             setIsProcessing(true);
             try {
+                // compressFile now includes automatic fallback to main-thread canvas
                 const base64 = await compressFile(acceptedFiles[0], 1024, 0.7);
                 onImageUpload(base64);
             } catch (error) {
-                console.error("Compression failed", error);
-                alert("Upload failed, please try again.");
-                setIsProcessing(false);
+                console.error("Compression CRITICAL FAILURE", error);
+                // If even fallback fails, try raw base64 as last resort
+                try {
+                    const reader = new FileReader();
+                    reader.onload = (e) => onImageUpload(e.target.result);
+                    reader.readAsDataURL(acceptedFiles[0]);
+                } catch (e2) {
+                    alert("图片读取失败，请检查文件格式或重试。");
+                    setIsProcessing(false);
+                }
             }
         }
     }, [onImageUpload]);
