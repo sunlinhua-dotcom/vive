@@ -130,6 +130,11 @@ export const composeFinalImage = async (baseImageUrl, data) => {
                 ctx.shadowBlur = 8;
                 ctx.fillText(`${month} ${year}`, 50, centerY);
 
+                // 3. 绘制右侧农历 (乙巳年腊月) -> 右对齐
+                ctx.textAlign = 'right';
+                ctx.font = `${targetWidth * 0.035}px "Noto Serif SC", serif`; // 中式衬线体
+                ctx.fillText("乙巳年腊月", targetWidth - 50, centerY);
+
             }
 
             // --- F. 绘制底部内容 (左侧) ---
