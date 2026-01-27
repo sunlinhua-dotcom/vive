@@ -56,10 +56,11 @@ export const DEFAULT_CONFIG = {
       - Art Deco Interior, warm amber lighting.
 
       **3. COMPOSITION**:
-      - One single image.
-      - **High Ceiling / Open Space**: Ensure substantial vertical space above the subjects' heads. The upper 30% of the image should be **uncluttered background detail** (e.g., tall Art Deco walls, high windows, or architectural depth).
-      - **Camera Angle**: Eye-level or slightly low angle to establish authority, keeping subjects centered in the lower 75% of the frame.
-      - No text.`
+      - **Magazine Cover Style**:
+        - **MASTHEAD**: Generate a **LARGE, BOLD, GOLDEN textual logo "VIVE"** at the very top center of the image (Art Deco font).
+        - **Headroom**: Top 15% reserved for the "VIVE" text. Subjects' heads should be immediately below the text.
+      - **Camera**: Eye-level portrait.
+      - **Text**: The word "VIVE" MUST appear in gold at the top.`
     }
 };
 
