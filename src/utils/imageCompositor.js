@@ -1,3 +1,43 @@
+// Helper to get Lunar Date string
+const getLunarDateString = (yearStr, monthStr) => {
+    try {
+        const monthMap = {
+            "JANUARY": 0, "FEBRUARY": 1, "MARCH": 2, "APRIL": 3, "MAY": 4, "JUNE": 5,
+            "JULY": 6, "AUGUST": 7, "SEPTEMBER": 8, "OCTOBER": 9, "NOVEMBER": 10, "DECEMBER": 11
+        };
+        const y = parseInt(yearStr) || new Date().getFullYear();
+        const m = monthMap[(monthStr || "").toUpperCase()];
+
+        // Use current month if input is invalid, but typically we want to trust the input
+        // If m is undefined, it means monthStr might be empty or invalid.
+        const dateMonth = (m !== undefined) ? m : new Date().getMonth();
+
+        const date = new Date(y, dateMonth, 1);
+
+        // Use Intl to get Chinese Calendar string
+        // We want: "丙午年正月" (Year + Month)
+        const formatter = new Intl.DateTimeFormat('zh-CN', {
+            calendar: 'chinese',
+            year: 'numeric',
+            month: 'long'
+        });
+
+        const parts = formatter.formatToParts(date);
+        const lunarYear = parts.find(p => p.type === 'year')?.value || '';
+        const lunarMonth = parts.find(p => p.type === 'month')?.value || '';
+
+        if (lunarYear && lunarMonth) {
+            // Remove "年" from year if it's there (some browsers might duplicate like "丙午年年")
+            // But usually standard output is fine. 
+            // Just return concatenated string.
+            return `${lunarYear}${lunarMonth}`;
+        }
+        return "乙巳年腊月"; // Fallback
+    } catch (e) {
+        console.error("Lunar Date Error", e);
+        return "乙巳年腊月"; // Fallback
+    }
+};
 
 /**
  * 智能图像合成引擎
@@ -6,6 +46,7 @@
  */
 export const composeFinalImage = async (baseImageUrl, data) => {
     const { month, year, keyword, attitude } = data;
+
 
     return new Promise((resolve, reject) => {
         const canvas = document.createElement('canvas');
@@ -132,7 +173,8 @@ export const composeFinalImage = async (baseImageUrl, data) => {
                 ctx.textAlign = 'right';
                 // Chinese Serif
                 ctx.font = `${targetWidth * 0.035}px "Noto Serif SC", serif`;
-                ctx.fillText("乙巳年腊月", targetWidth - 50, centerY);
+                const lunarDateStr = getLunarDateString(year, month);
+                ctx.fillText(lunarDateStr, targetWidth - 50, centerY);
             }
             ctx.restore();
 
