@@ -57,10 +57,12 @@ export const DEFAULT_CONFIG = {
 
       **3. COMPOSITION**:
       - **Magazine Cover Style**:
-        - **ATMOSPHERE**: Generate a **FAINT, GOLDEN, ETHEREAL textual logo "VIVE"** blended into the upper background (as a lighting effect or architectural detail).
+        - **ATMOSPHERE**: Generate a **FAINT, GOLDEN textual logo "VIVE"**.
+        - **POSITION**: **STRICTLY CENTERED** at the top of the image frame. **FIXED POSITION**. Do not float. Do not skew.
+        - **Style**: Standard Serif Font. Faint Golden Color. 
         - **Scene Depth**: **High Ceiling** (Grand Art Deco Architecture). Ensure the background extends to the very top.
         - **Composition**: Cinematic wide shot. Subject positioned naturally low. 
-        - **Headroom**: The upper area should contain this faint golden text, creating a layered effect behind the foreground elements.
+        - **Headroom**: The upper area must contain the centered "VIVE" text, providing a stable background layer.
       - **Camera**: Eye-level or slightly low angle.`
     }
 };
