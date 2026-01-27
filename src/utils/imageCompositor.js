@@ -103,10 +103,10 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             // actually, let's look at the gradient. We reduced the top gradient. 
             // If VIVE is black, the background is light. The DATE should probably be BLACK too to match.
 
-            const textColor = '#000000'; // Match the requested Black Masthead
+            const textColor = '#FFFFFF'; // User requested White back
             ctx.fillStyle = textColor;
-            ctx.shadowColor = "rgba(255,255,255,0.8)"; // White shadow/glow for contrast against dark spots
-            ctx.shadowBlur = 10;
+            ctx.shadowColor = "rgba(0,0,0,0.5)"; // Dark shadow for contrast against light backgrounds
+            ctx.shadowBlur = 8;
             ctx.textBaseline = 'middle';
 
             // Left: Month Year
