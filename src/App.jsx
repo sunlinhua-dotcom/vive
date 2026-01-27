@@ -205,8 +205,8 @@ function App() {
       {/* Header - Always Visible */}
       <Header />
 
-      {/* Main Content - Natural Height */}
-      <div className="w-full z-10 flex flex-col items-center justify-center">
+      {/* Main Content - Natural Height for Upload, Scrollable for Result */}
+      <div className={`w-full z-10 flex flex-col items-center ${step === 'result' ? 'flex-grow overflow-y-auto no-scrollbar justify-start' : 'justify-center'}`}>
         <div className="w-full flex flex-col items-center justify-center">
           {step === 'upload' && (
             <UploadSection onImageUpload={handleImageUpload} />
