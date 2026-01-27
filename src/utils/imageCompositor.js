@@ -81,44 +81,59 @@ export const composeFinalImage = async (baseImageUrl, data) => {
 
             // [已移除] 水印 "MODERN VIVE" 以免遮挡人脸
 
-            // --- D. Header Metadata (Restored) ---
-            // Draw Date & Lunar Date programmatically (since we removed the programmatic Logo)
-            // Align them visually where the masthead would be.
+            // --- D. Header Branding (Restored & Gold Tinted) ---
+            // 动态导入处理工具
+            const { processLogo } = await import('./logoProcessor');
 
-            ctx.save();
-            const headerY = 100; // Approx center for the header text line
+            // 强制将 Logo 处理为透明底 + 金色 (用户要求保留金色，但要原来的Logo)
+            // Color: Gold #C5A065
+            const processedLogoUrl = await processLogo('/vive-logo-light.jpg', {
+                threshold: 230,
+                targetColor: '#C5A065' // Gold for the Logo Symbol
+            });
 
-            // 2. 绘制左侧日期 (MARCH 2026)
-            ctx.textAlign = 'left';
-            ctx.fillStyle = '#FFFFFF'; // Keep white for contrast on potentially dark backgrounds, or maybe change to BLACK if the prompt asks for black text? 
-            // User asked for BLACK VIVE text, so maybe these should be black too? 
-            // The prompt says "Simple Thin Black", so background might be light? 
-            // Let's stick to White with Shadow for safety, or Black if background is light. 
-            // *User request implies "Simple Thin Black"*, so likely a lighter background.
-            // BUT, safeguard: use White with strong shadow OR allow specific color.
-            // Let's try White first as it's safe on "High Ceiling" which might be dark. 
-            // actually user wanted "Simple Thin Black" VIVE. If VIVE is black, background is likely light.
-            // Let's update these to be dark or adaptable. 
-            // Let's stick to the previous style (White) but maybe add a dark shadow. 
-            // actually, let's look at the gradient. We reduced the top gradient. 
-            // If VIVE is black, the background is light. The DATE should probably be BLACK too to match.
+            const logoImg = new Image();
+            logoImg.crossOrigin = "Anonymous";
+            logoImg.src = processedLogoUrl;
 
-            const textColor = '#FFFFFF'; // User requested White back
-            ctx.fillStyle = textColor;
-            ctx.shadowColor = "rgba(0,0,0,0.5)"; // Dark shadow for contrast against light backgrounds
-            ctx.shadowBlur = 8;
-            ctx.textBaseline = 'middle';
+            await new Promise(r => { logoImg.onload = r; logoImg.onerror = r; });
 
-            // Left: Month Year
-            // 字体参考图中是全大写 serif
-            ctx.font = `${targetWidth * 0.035}px "Playfair Display", serif`;
-            ctx.fillText(`${month} ${year}`, 50, headerY);
+            if (logoImg.width > 0) {
+                // Draw Logo (Centered Top)
+                ctx.save();
+                const logoWidth = canvas.width * 0.25; // 25% width
+                const logoHeight = logoImg.height * (logoWidth / logoImg.width);
+                const logoX = (canvas.width - logoWidth) / 2;
+                const logoY = 60; // Top margin
 
-            // Right: Lunar Date
-            ctx.textAlign = 'right';
-            ctx.font = `${targetWidth * 0.035}px "Noto Serif SC", serif`; // 中式衬线体
-            ctx.fillText("乙巳年腊月", targetWidth - 50, headerY);
+                // Shadow for visibility
+                ctx.shadowColor = "rgba(0,0,0,0.5)";
+                ctx.shadowBlur = 10;
 
+                ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
+                ctx.restore();
+
+                // Compute Center Y for text alignment
+                const centerY = logoY + logoHeight / 2;
+
+                // --- Header Metadata (White) ---
+                const textColor = '#FFFFFF'; // "Original White Header Info"
+                ctx.fillStyle = textColor;
+                ctx.shadowColor = "rgba(0,0,0,0.6)";
+                ctx.shadowBlur = 8;
+                ctx.textBaseline = 'middle';
+
+                // Left: Month Year
+                ctx.textAlign = 'left';
+                ctx.font = `${targetWidth * 0.035}px "Playfair Display", serif`;
+                ctx.fillText(`${month} ${year}`, 50, centerY);
+
+                // Right: Lunar Date
+                ctx.textAlign = 'right';
+                // Chinese Serif
+                ctx.font = `${targetWidth * 0.035}px "Noto Serif SC", serif`;
+                ctx.fillText("乙巳年腊月", targetWidth - 50, centerY);
+            }
             ctx.restore();
 
             // --- F. 绘制底部内容 (左侧) ---
