@@ -57,12 +57,11 @@ export const DEFAULT_CONFIG = {
 
       **3. COMPOSITION**:
       - **Magazine Cover Style**:
-        - **MASTHEAD**: Generate a **LARGE, BOLD, GOLDEN textual logo "VIVE"** integrated into the upper scene (Art Deco font).
+        - **ATMOSPHERE**: Generate a **FAINT, GOLDEN, ETHEREAL textual logo "VIVE"** blended into the upper background (as a lighting effect or architectural detail).
         - **Scene Depth**: **High Ceiling** (Grand Art Deco Architecture). Ensure the background extends to the very top.
-        - **Composition**: Cinematic wide shot. Subject positioned naturally below the text.
-        - **Fusion**: The text "VIVE" should appear as a 3D gold installation or premium magazine header, fully integrated with the lighting.
-      - **Camera**: Eye-level or slightly low angle.
-      - **Text**: The word "VIVE" MUST appear in **GOLD** at the top.`
+        - **Composition**: Cinematic wide shot. Subject positioned naturally low. 
+        - **Headroom**: The upper area should contain this faint golden text, creating a layered effect behind the foreground elements.
+      - **Camera**: Eye-level or slightly low angle.`
     }
 };
 
