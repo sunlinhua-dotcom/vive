@@ -81,59 +81,28 @@ export const composeFinalImage = async (baseImageUrl, data) => {
 
             // [已移除] 水印 "MODERN VIVE" 以免遮挡人脸
 
-            // --- D. Header Branding (Restored & Gold Tinted) ---
-            // 动态导入处理工具
-            const { processLogo } = await import('./logoProcessor');
+            // --- D. Header Metadata (White) ---
+            // Logo is AI-Generated (Golden VIVE). We only draw the Date/Lunar text.
 
-            // 强制将 Logo 处理为透明底 + 白色 (用户确认要白色，和头部信息一致)
-            // Color: White
-            const processedLogoUrl = await processLogo('/vive-logo-light.jpg', {
-                threshold: 230,
-                targetColor: 'white' // White for the Logo Symbol
-            });
+            ctx.save();
+            const headerY = 100; // Fixed Vertical Position
 
-            const logoImg = new Image();
-            logoImg.crossOrigin = "Anonymous";
-            logoImg.src = processedLogoUrl;
+            // Text Settings
+            ctx.fillStyle = '#FFFFFF';
+            ctx.shadowColor = "rgba(0,0,0,0.5)";
+            ctx.shadowBlur = 8;
+            ctx.textBaseline = 'middle';
 
-            await new Promise(r => { logoImg.onload = r; logoImg.onerror = r; });
+            // Left: Month Year
+            ctx.textAlign = 'left';
+            ctx.font = `${targetWidth * 0.035}px "Playfair Display", serif`;
+            ctx.fillText(`${month} ${year}`, 50, headerY);
 
-            if (logoImg.width > 0) {
-                // Draw Logo (Centered Top)
-                ctx.save();
-                const logoWidth = canvas.width * 0.25; // 25% width
-                const logoHeight = logoImg.height * (logoWidth / logoImg.width);
-                const logoX = (canvas.width - logoWidth) / 2;
-                const logoY = 60; // Top margin
+            // Right: Lunar Date
+            ctx.textAlign = 'right';
+            ctx.font = `${targetWidth * 0.035}px "Noto Serif SC", serif`;
+            ctx.fillText("乙巳年腊月", targetWidth - 50, headerY);
 
-                // Shadow for visibility
-                ctx.shadowColor = "rgba(0,0,0,0.5)";
-                ctx.shadowBlur = 10;
-
-                ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
-                ctx.restore();
-
-                // Compute Center Y for text alignment
-                const centerY = logoY + logoHeight / 2;
-
-                // --- Header Metadata (White) ---
-                const textColor = '#FFFFFF'; // "Original White Header Info"
-                ctx.fillStyle = textColor;
-                ctx.shadowColor = "rgba(0,0,0,0.6)";
-                ctx.shadowBlur = 8;
-                ctx.textBaseline = 'middle';
-
-                // Left: Month Year
-                ctx.textAlign = 'left';
-                ctx.font = `${targetWidth * 0.035}px "Playfair Display", serif`;
-                ctx.fillText(`${month} ${year}`, 50, centerY);
-
-                // Right: Lunar Date
-                ctx.textAlign = 'right';
-                // Chinese Serif
-                ctx.font = `${targetWidth * 0.035}px "Noto Serif SC", serif`;
-                ctx.fillText("乙巳年腊月", targetWidth - 50, centerY);
-            }
             ctx.restore();
 
             // --- F. 绘制底部内容 (左侧) ---
