@@ -192,7 +192,7 @@ function App() {
   }
 
   return (
-    <div className="relative h-screen w-full flex flex-col items-center justify-between py-2 px-6 overflow-hidden">
+    <div className="relative h-screen w-full flex flex-col items-center justify-start gap-4 md:gap-10 py-6 px-6 overflow-hidden">
       {/* 3D Gyroscope Background */}
       <ParallaxBackground />
 
@@ -205,9 +205,9 @@ function App() {
       {/* Header - Always Visible */}
       <Header />
 
-      {/* Main Content - Scrollable for Results */}
-      <div className="flex-grow w-full z-10 py-2 overflow-y-auto no-scrollbar">
-        <div className="w-full flex flex-col items-center justify-center min-h-full">
+      {/* Main Content - Natural Height */}
+      <div className="w-full z-10 flex flex-col items-center justify-center">
+        <div className="w-full flex flex-col items-center justify-center">
           {step === 'upload' && (
             <UploadSection onImageUpload={handleImageUpload} />
           )}
