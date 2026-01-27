@@ -85,11 +85,11 @@ export const composeFinalImage = async (baseImageUrl, data) => {
             // 动态导入处理工具
             const { processLogo } = await import('./logoProcessor');
 
-            // 强制将 Logo 处理为透明底 + 金色 (用户要求保留金色，但要原来的Logo)
-            // Color: Gold #C5A065
+            // 强制将 Logo 处理为透明底 + 白色 (用户确认要白色，和头部信息一致)
+            // Color: White
             const processedLogoUrl = await processLogo('/vive-logo-light.jpg', {
                 threshold: 230,
-                targetColor: '#C5A065' // Gold for the Logo Symbol
+                targetColor: 'white' // White for the Logo Symbol
             });
 
             const logoImg = new Image();
