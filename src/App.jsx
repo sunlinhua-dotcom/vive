@@ -6,7 +6,9 @@ import GeneratingScreen from './components/GeneratingScreen'
 import ResultSection from './components/ResultSection'
 import Footer from './components/Footer'
 import { analyzeImageAndGenerateCopy, generateFashionImages } from './services/gemini'
-
+// Preload utility modules for faster generation
+import { compressImage } from './utils/imageUtils'
+import { composeFinalImage } from './utils/imageCompositor'
 import { getUserStorageKey, getClientUUID } from './utils/uuid'
 import ParallaxBackground from './components/ParallaxBackground'
 
@@ -121,25 +123,16 @@ function App() {
     }, 100);
 
     try {
-      // 1. Compress Image (Optimized to 800px)
-      const { compressImage } = await import('./utils/imageUtils');
-      setLoadingText('正在穿越时光...');
+      // 1. Compress Image (Optimized to 800px, module preloaded)
       const compressedImage = await compressImage(imageDataUrl, 800);
 
-      const analysisPromise = analyzeImageAndGenerateCopy(compressedImage)
-        .then(res => {
-          console.log("Text Analysis Done");
-          return res;
-        });
+      // 2. Analysis is instant (local random selection), no need to parallelize
+      const analysis = analyzeImageAndGenerateCopy(compressedImage);
+      console.log("Text Analysis Done (Instant)");
 
-      const imagePromise = generateFashionImages(null, compressedImage)
-        .then(res => {
-          console.log("Image Generation Done");
-          return res;
-        });
-
-      // Wait for both
-      const [analysis, images] = await Promise.all([analysisPromise, imagePromise]);
+      // 3. Image generation is the only real async operation
+      const images = await generateFashionImages(null, compressedImage);
+      console.log("Image Generation Done");
 
       if (progressTimer.id) clearInterval(progressTimer.id);
       // API Finished. 
@@ -153,7 +146,7 @@ function App() {
 
       if (images.fusionImage && !images.fusionImage.startsWith('ERROR')) {
         try {
-          const { composeFinalImage } = await import('./utils/imageCompositor');
+          // Module already preloaded at top
 
           const compositeData = {
             month,
