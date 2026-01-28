@@ -9,8 +9,7 @@ export const DEFAULT_CONFIG = {
         baseUrl: import.meta.env.VITE_GEMINI_BASE_URL || 'https://api.apiyi.com/v1beta',
         textModel: import.meta.env.VITE_GEMINI_TEXT_MODEL || 'gemini-3-flash-preview',
         imageModel: import.meta.env.VITE_GEMINI_IMAGE_MODEL || 'gemini-3-pro-image-preview',
-        textKey: import.meta.env.VITE_GEMINI_API_KEY || 'sk-zu5cm3pPZaEyIwz85a5bCb76546f4b1d92BaA08aAc3f7404',
-        imageKey: import.meta.env.VITE_GEMINI_IMAGE_KEY || 'sk-qMB7fSJhKZmebuFL0b823fE2Af274cCc9a1e62A5990aF1F6'
+        // API keys removed - now handled by backend proxy
     },
 
     // Prompts
