@@ -1,3 +1,7 @@
+import { getConfig } from './config';
+
+
+
 // Helper to strip data URL header if present
 const ensureBase64 = (str) => {
     if (!str) return '';
@@ -39,41 +43,99 @@ export const analyzeImageAndGenerateCopy = async () => {
 };
 
 /**
- * 步骤 2: 生成图片 (通过后端 API 代理)
+ * 步骤 2: 生成图片
  */
 export const generateFashionImages = async (features, imageBase64) => {
+    const config = getConfig();
     const base64Data = ensureBase64(imageBase64);
 
-    try {
-        // Call backend API instead of Gemini directly
-        const API_URL = import.meta.env.VITE_API_URL || '/api';
-        console.log(`[Fusion] Calling backend API: ${API_URL}/generate-image`);
+    // --- Style Mix Logic (Preserved) ---
+    const vintagePool = [
+        // --- Red / Gold ---
+        "Cinnabar Red Velvet Cheongsam with sophisticated gold dragon embroidery",
+        "Wine Red Silk Qipao featuring golden geometric Art Deco patterns",
+        // --- Black / Gold ---
+        "Midnight Black Silk Qipao with hand-painted gold magnolia flowers",
+        "Black Lace Cheongsam with a golden satin underlayer, sheer sleeves",
+        // --- Pale Pink / Lavender ---
+        "Dusty Pink Silk Qipao with pearl trimmings and white floral embroidery",
+        "Muted Lavender Satin Cheongsam with silver thread sketching",
+        // --- Silver / Grey ---
+        "Champagne Gold Silk Qipao, fully sequined, glimmering under warm light",
+        "Silver Grey Damask Qipao with subtle cloud patterns"
+    ];
+    const modernPool = [
+        // --- Red / Black ---
+        "Modern Red Power Suit with sharp lapels and a black silk camisole",
+        "Deep Burgundy Velvet Evening Gown, off-shoulder, minimalist cut",
+        // --- Black / Gold (Chic) ---
+        "Structured Black Blazer with gold buttons, paired with wide-leg trousers",
+        "Black Halter-neck Jumpsuit with a metallic gold belt",
+        // --- Pale Colors (Elegant) ---
+        "Pale Pink Oversized Cashmere Coat draped over a white slip dress",
+        "Lilac Grey Silk Shirt tucked into a high-waisted pencil skirt",
+        // --- Silver / Grey (Cool) ---
+        "Silver Satin Bias-cut Dress, flowing and liquid-like texture",
+        "Charcoal Grey Wool Trench Coat worn over shoulders, chic and effortless"
+    ];
+    const scenePool = [
+        "A grand **Art Deco Hotel Lobby in 1930s Shanghai**",
+        "A dimly lit **Private Jazz Lounge**",
+        "A **Luxurious Art Deco Dressing Room (Boudoir)**",
+        "An **Elegant Art Deco Ballroom Balcony**",
+        "A **Vintage Orient Express Train Cabin**"
+    ];
 
-        const response = await fetch(`${API_URL}/generate-image`, {
+    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    const style1920 = pick(vintagePool);
+    const style2026 = pick(modernPool);
+    const selectedScene = pick(scenePool);
+
+    // Inject styles into the prompt template
+    let fusionPrompt = config.prompts.imageGeneration
+        .replace('{{style1920}}', style1920)
+        .replace('{{style2026}}', style2026)
+        .replace('{{scene}}', selectedScene);
+
+    if (!fusionPrompt.includes("1920s Version")) {
+        fusionPrompt += `\n\nContext: One version wears ${style1920}. The other wears ${style2026}. Scene: ${selectedScene}`;
+    }
+
+    try {
+        // GEMINI IMPLEMENTATION (Exclusive)
+        const { baseUrl, imageKey, imageModel } = config.gemini;
+        console.log(`[Fusion] 请求 ${imageModel}...`);
+
+        const response = await fetch(`${baseUrl}/models/${imageModel}:generateContent`, {
             method: 'POST',
             headers: {
+                'Authorization': `Bearer ${imageKey}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                imageBase64: `data:image/jpeg;base64,${base64Data}`
+                contents: [{
+                    parts: [
+                        { text: fusionPrompt },
+                        { inlineData: { mimeType: "image/jpeg", data: base64Data } }
+                    ]
+                }],
+                generationConfig: {
+                    responseModalities: ["IMAGE"],
+                    imageConfig: { aspectRatio: "3:4", imageSize: "1K" }
+                }
             })
         });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `HTTP ${response.status}`);
-        }
-
         const data = await response.json();
+        if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
 
-        if (data.error) {
-            throw new Error(data.error);
-        }
+        const candidate = data.candidates?.[0];
+        if (candidate?.finishReason === 'SAFETY') return { fusionImage: null, errors: { global: "Safety Block" } };
 
-        return {
-            fusionImage: data.fusionImage,
-            errors: data.errors
-        };
+        let b64 = candidate?.content?.parts?.[0]?.inlineData?.data || candidate?.content?.parts?.[0]?.inline_data?.data;
+        if (b64) return { fusionImage: `data:image/jpeg;base64,${b64}`, errors: null };
+
+        throw new Error("No image data in response");
 
     } catch (err) {
         console.error(`[Fusion] Error:`, err);

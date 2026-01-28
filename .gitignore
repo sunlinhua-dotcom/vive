@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 .env
+
+# Local API key configuration (DO NOT COMMIT)
+src/services/config.local.js
