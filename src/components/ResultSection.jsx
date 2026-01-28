@@ -6,42 +6,18 @@ function ResultSection({ resultImage, onReset, data }) {
 
     const { month, year, keyword, attitude } = data || {};
 
-    const handleSave = async () => {
-        try {
-            // 1. 将 Base64 转换为 Blob/File 对象
-            const response = await fetch(resultImage);
-            const blob = await response.blob();
-            const file = new File([blob], `VIVE_摩登月份牌_${new Date().getTime()}.jpg`, { type: 'image/jpeg' });
+    const handleSave = () => {
+        // 创建一个临时 <a> 标签来触发下载
+        const link = document.createElement('a');
+        link.href = resultImage;
+        link.download = `VIVE_摩登月份牌_${new Date().getTime()}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
-            // 2. 尝试调用系统原生分享 (Web Share API Level 2)
-            // 大多数现代手机浏览器 (iOS 15+, Android) 支持直接分享文件，这能直接唤起“保存图像”菜单
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    files: [file],
-                    title: 'VIVE 摩登奇遇',
-                    text: '这是我的摩登月份牌，邀您共赏。'
-                });
-                setSaveMessage('分享已唤起，请选择“保存图像”');
-            } else {
-                // 3. 降级方案 (PC端 / 不支持分享的浏览器)
-                // 使用 Blob URL 下载，比 Base64 更稳定
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = file.name;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
-                setSaveMessage('海报下载已触发 ✓');
-            }
-        } catch (error) {
-            console.error('Save failed:', error);
-            // 4. 最后的兜底提示
-            setSaveMessage('自动保存失败，请长按图片保存');
-        }
-
-        setTimeout(() => setSaveMessage(''), 4000);
+        // 显示保存成功提示
+        setSaveMessage('海报已保存至相册 ✓');
+        setTimeout(() => setSaveMessage(''), 3000);
     };
 
     return (

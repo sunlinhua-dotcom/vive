@@ -9,8 +9,7 @@ export const DEFAULT_CONFIG = {
         baseUrl: import.meta.env.VITE_GEMINI_BASE_URL || 'https://api.apiyi.com/v1beta',
         textModel: import.meta.env.VITE_GEMINI_TEXT_MODEL || 'gemini-3-flash-preview',
         imageModel: import.meta.env.VITE_GEMINI_IMAGE_MODEL || 'gemini-3-pro-image-preview',
-        textKey: import.meta.env.VITE_GEMINI_API_KEY || '***REMOVED***',
-        imageKey: import.meta.env.VITE_GEMINI_IMAGE_KEY || '***REMOVED***'
+        // API keys removed - now handled by backend proxy
     },
 
     // Prompts
