@@ -1,5 +1,7 @@
 // Default Configuration
 
+let localKeys = { textKey: null, imageKey: null };
+
 // In production/cloud builds, we rely solely on environment variables.
 // Local config is only for local dev overrides and should not be imported here to avoid build errors.
 // If you need local overrides, set them in your .env.local file instead.
