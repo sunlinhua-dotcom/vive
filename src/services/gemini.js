@@ -52,17 +52,32 @@ export const generateFashionImages = async (features, imageBase64) => {
 
     // --- Style Mix Logic (Preserved) ---
     const vintagePool = [
-        "Traditional Silk Qipao with high collar and hand-embroidered peacocks",
-        "Velvet Cheongsam with pearl necklace and finger-wave hairstyle",
-        "Classic 1920s Shanghai sleeveless Qipao in emerald green silk",
-        "Art Deco beaded evening dress with a feather fan"
+        // --- Red / Gold ---
+        "Cinnabar Red Velvet Cheongsam with sophisticated gold dragon embroidery",
+        "Wine Red Silk Qipao featuring golden geometric Art Deco patterns",
+        // --- Black / Gold ---
+        "Midnight Black Silk Qipao with hand-painted gold magnolia flowers",
+        "Black Lace Cheongsam with a golden satin underlayer, sheer sleeves",
+        // --- Pale Pink / Lavender ---
+        "Dusty Pink Silk Qipao with pearl trimmings and white floral embroidery",
+        "Muted Lavender Satin Cheongsam with silver thread sketching",
+        // --- Silver / Grey ---
+        "Champagne Gold Silk Qipao, fully sequined, glimmering under warm light",
+        "Silver Grey Damask Qipao with subtle cloud patterns"
     ];
     const modernPool = [
-        "Futuristic structural blazer dress with metallic accents",
-        "Minimalist high-fashion white silk gown (Celine/YSL vibe)",
-        "Sheer architectural evening gown with sharp shoulders",
-        "Modern Interpretation of Qipao: Leather and lace fusion",
-        "Sleek black velvet tuxedo suit"
+        // --- Red / Black ---
+        "Modern Red Power Suit with sharp lapels and a black silk camisole",
+        "Deep Burgundy Velvet Evening Gown, off-shoulder, minimalist cut",
+        // --- Black / Gold (Chic) ---
+        "Structured Black Blazer with gold buttons, paired with wide-leg trousers",
+        "Black Halter-neck Jumpsuit with a metallic gold belt",
+        // --- Pale Colors (Elegant) ---
+        "Pale Pink Oversized Cashmere Coat draped over a white slip dress",
+        "Lilac Grey Silk Shirt tucked into a high-waisted pencil skirt",
+        // --- Silver / Grey (Cool) ---
+        "Silver Satin Bias-cut Dress, flowing and liquid-like texture",
+        "Charcoal Grey Wool Trench Coat worn over shoulders, chic and effortless"
     ];
     const scenePool = [
         "A grand **Art Deco Hotel Lobby in 1930s Shanghai**",
