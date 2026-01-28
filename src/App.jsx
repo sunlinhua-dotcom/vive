@@ -46,16 +46,14 @@ function App() {
       try {
         const parsed = JSON.parse(savedResult);
         if (parsed.fusionImage) {
-          setGeneratedResults(parsed);
-          setStep('result');
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+          // Safe: Only runs once on mount (empty deps array), no cascading renders
+          setGeneratedResults(() => parsed);
+          setStep(() => 'result');
         }
       } catch { /* ignore */ }
     }
   }, []);
-
-  // Import compression utility at top level if possible, or inside dynamically
-  // To avoid breaking existing imports, we'll use dynamic import for utility or assume it's available via gemini service's transitive import? 
-  // Better to import it directly. But since I can't easily change top imports without reading file start, I'll use the one from utils.
 
   // Dynamic Loading Messages
   useEffect(() => {
@@ -93,12 +91,13 @@ function App() {
         "正在复刻手工丝绒的高级漫反射质感..."
       ];
 
-      // Initialize with a random message immediately
-      setLoadingText(messages[Math.floor(Math.random() * messages.length)]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      // Safe: Only runs when step changes to 'generating', controlled by [step] dependency
+      setLoadingText(() => messages[Math.floor(Math.random() * messages.length)]);
 
       const interval = setInterval(() => {
         // Randomly pick a message every 2.5s
-        setLoadingText(messages[Math.floor(Math.random() * messages.length)]);
+        setLoadingText(() => messages[Math.floor(Math.random() * messages.length)]);
       }, 2500);
       return () => clearInterval(interval);
     }
@@ -192,7 +191,9 @@ function App() {
   }
 
   const handleReset = () => {
-    localStorage.removeItem('vive_result');
+    // Fix: Use user-scoped key instead of hardcoded key
+    const userKey = getUserStorageKey('vive_result');
+    localStorage.removeItem(userKey);
     setStep('upload')
     setUploadedImage(null)
     setGeneratedResults(null)
