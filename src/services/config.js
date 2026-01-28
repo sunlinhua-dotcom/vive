@@ -1,5 +1,23 @@
 
 // Default Configuration
+
+let localKeys = { textKey: null, imageKey: null };
+
+try {
+    // Attempt to load local configuration for API keys
+    // This file is gitignored and might not exist in all environments
+    // @vite-ignore
+    const local = await import('./config.local.js');
+    if (local.LOCAL_CONFIG && local.LOCAL_CONFIG.gemini) {
+        localKeys = local.LOCAL_CONFIG.gemini;
+        console.log('[Config] Loaded security keys from local config');
+    }
+} catch (e) {
+    // Silently fail if local config is missing (e.g. in CI/CD or production without file)
+    // We will fall back to environment variables
+    console.debug('[Config] Local config not found, using environment variables');
+}
+
 export const DEFAULT_CONFIG = {
     // Model Provider: 'gemini' (Exclusive)
     provider: 'gemini',
@@ -9,7 +27,9 @@ export const DEFAULT_CONFIG = {
         baseUrl: import.meta.env.VITE_GEMINI_BASE_URL || 'https://api.apiyi.com/v1beta',
         textModel: import.meta.env.VITE_GEMINI_TEXT_MODEL || 'gemini-3-flash-preview',
         imageModel: import.meta.env.VITE_GEMINI_IMAGE_MODEL || 'gemini-3-pro-image-preview',
-        // API keys removed - now handled by backend proxy
+        // Priority: Local Config > Env Variable > Throw Error (at runtime check)
+        textKey: localKeys.textKey || import.meta.env.VITE_GEMINI_API_KEY,
+        imageKey: localKeys.imageKey || import.meta.env.VITE_GEMINI_IMAGE_KEY
     },
 
     // Prompts
