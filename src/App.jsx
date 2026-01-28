@@ -81,30 +81,23 @@ function App() {
     // Start smoothly from 0
     setProgress(0)
 
-    // Smooth Progress Simulation
-    // 0-30%: Fast (Initializing)
-    // 30-70%: Medium (AI Processing)
-    // 70-98%: Slow (Finalizing)
-    const progressInterval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 99) return prev;
+    // Start Smooth Progress Animation (Linear 0-99%)
+    // We use a local ref object to track the interval ID across the async function scope
+    const progressTimer = { id: null };
 
-        let increment = 0;
-        if (prev < 30) increment = 2;       // Fast start
-        else if (prev < 70) increment = 0.5; // Steady processing
-        else increment = 0.1;               // Creep at the end
-
-        return Math.min(prev + increment, 99);
-      });
+    // Start timer immediately for instant feedback
+    let p = 0;
+    progressTimer.id = setInterval(() => {
+      p += 0.5;
+      if (p >= 99) p = 99;
+      setProgress(p);
     }, 100);
 
     try {
-      // 1. Unified Compression
+      // 1. Compress Image (Optimized to 800px)
       const { compressImage } = await import('./utils/imageUtils');
-      const compressedImage = await compressImage(imageDataUrl, 1024);
-
-      // 2. Parallel Processing
-      // ... processing logic remains same, but remove manual setProgress/setLoadingText calls
+      setLoadingText('正在穿越时光...');
+      const compressedImage = await compressImage(imageDataUrl, 800);
 
       const analysisPromise = analyzeImageAndGenerateCopy(compressedImage)
         .then(res => {
@@ -121,7 +114,7 @@ function App() {
       // Wait for both
       const [analysis, images] = await Promise.all([analysisPromise, imagePromise]);
 
-      clearInterval(progressInterval);
+      if (progressTimer.id) clearInterval(progressTimer.id);
       // API Finished, starting composition. Set to 90% (not 100 to avoid backward jump)
       setProgress(90);
 
@@ -170,7 +163,7 @@ function App() {
       setStep('result')
 
     } catch (error) {
-      clearInterval(progressInterval);
+      if (progressTimer.id) clearInterval(progressTimer.id);
       console.error("Workflow failed:", error)
       const errorMsg = error.response ? `API Error: ${error.response.status}` : error.message;
       alert(`抱歉，生成中断。\n错误详情: ${errorMsg}\n请尝试刷新页面或检查网络。`)

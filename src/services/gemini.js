@@ -30,8 +30,7 @@ export const analyzeImageAndGenerateCopy = async () => {
     // The user specifically requested to avoid "wasting money" on analysis API calls.
     console.log("Skipping API Analysis (Cost Saving Mode)...");
 
-    // Simulate a short delay to feel "real"
-    await new Promise(r => setTimeout(r, 800));
+    // User requested speed optimization: Removed artificial delay.
 
     const randomPick = sloganPool[Math.floor(Math.random() * sloganPool.length)];
 
