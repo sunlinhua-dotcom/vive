@@ -3,20 +3,13 @@
 
 let localKeys = { textKey: null, imageKey: null };
 
-try {
-    // Attempt to load local configuration for API keys
-    // This file is gitignored and might not exist in all environments
-    // @vite-ignore
-    const local = await import('./config.local.js');
-    if (local.LOCAL_CONFIG && local.LOCAL_CONFIG.gemini) {
-        localKeys = local.LOCAL_CONFIG.gemini;
-        console.log('[Config] Loaded security keys from local config');
-    }
-} catch (e) {
-    // Silently fail if local config is missing (e.g. in CI/CD or production without file)
-    // We will fall back to environment variables
-    console.debug('[Config] Local config not found, using environment variables');
-}
+// Default Configuration
+
+let localKeys = { textKey: null, imageKey: null };
+
+// In production/cloud builds, we rely solely on environment variables.
+// Local config is only for local dev overrides and should not be imported here to avoid build errors.
+// If you need local overrides, set them in your .env.local file instead.
 
 export const DEFAULT_CONFIG = {
     // Model Provider: 'gemini' (Exclusive)
