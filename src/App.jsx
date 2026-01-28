@@ -59,17 +59,44 @@ function App() {
   useEffect(() => {
     if (step === 'generating') {
       const messages = [
-        "正在开启时光隧道 (2026 -> 1930)...",
-        "正在以此刻容颜，演绎双面摩登...",
-        "正在为您量体裁衣，定制旗袍...",
-        "正在显影底片，定格摩登瞬间...",
-        "正在渲染 Art Deco 建筑细节...",
-        "即将抵达..."
+        // AI & Compute (Hardcore)
+        "正在构建 468 个面部特征关键点矩阵...",
+        "正在运行 Gemini-pro-vision 多模态深度学习模型...",
+        "正在分配高性能 TPU v5p 云端算力集群...",
+        "正在建立端到端加密 (E2EE) 安全数据通道...",
+        "正在加载 1750 亿参数的大语言模型上下文...",
+        "正在解算 GAN (生成对抗网络) 风格迁移权重...",
+        "正在进行 Transformer 多头注意力机制计算...",
+        "正在优化 8K 分辨率下的视网膜级 (Retina) 渲染...",
+        "正在执行 FP16 半精度浮点矩阵运算...",
+        "正在遍历 1024 维高维潜空间 (Latent Space)...",
+        "正在同步全球分布式边缘计算节点...",
+        "正在进行卷积神经网络 (CNN) 特征提取...",
+        // Graphics & Rendering (Visuals)
+        "正在计算基于物理的皮肤次表面散射 (SSS)...",
+        "正在进行 HDR 高动态范围光照渲染...",
+        "正在合成体积光 (Volumetric Lighting) 粒子特效...",
+        "正在优化 4K 级图像超分辨率重采样...",
+        "正在解算复杂几何体的环境光遮蔽 (Ambient Occlusion)...",
+        "正在模拟真实物理镜头的光学景深 (DoF)...",
+        "正在追踪光线路径 (Ray Tracing) 以还原真实反射...",
+        "正在渲染菲涅尔 (Fresnel) 材质边缘光效...",
+        // Aesthetics & Brand (Soul)
+        "双妹 VIVE：以赤诚底色，挥洒摩登意气...",
+        "正在校准 0.618 黄金分割构图比例...",
+        "正在渲染 Art Deco 风格的几何金属光泽...",
+        "正在平衡画面中的冷暖色彩对比度...",
+        "正在为您量体裁衣，定制专属造型...",
+        "正在匹配 Pantone 高级成衣流行色谱...",
+        "正在复刻手工丝绒的高级漫反射质感..."
       ];
-      let i = 0;
+
+      // Initialize with a random message immediately
+      setLoadingText(messages[Math.floor(Math.random() * messages.length)]);
+
       const interval = setInterval(() => {
-        setLoadingText(messages[i % messages.length]);
-        i++;
+        // Randomly pick a message every 2.5s
+        setLoadingText(messages[Math.floor(Math.random() * messages.length)]);
       }, 2500);
       return () => clearInterval(interval);
     }
@@ -115,8 +142,8 @@ function App() {
       const [analysis, images] = await Promise.all([analysisPromise, imagePromise]);
 
       if (progressTimer.id) clearInterval(progressTimer.id);
-      // API Finished, starting composition. Set to 90% (not 100 to avoid backward jump)
-      setProgress(90);
+      // API Finished. 
+      // Do NOT set progress to 90. Allow it to stay high or jump naturally to 100 in composition.
 
       // 3. 后处理 (Composition)
       let finalImage = images.fusionImage;
