@@ -125,8 +125,8 @@ function App() {
       // 1. Compress Image (Optimized to 800px, module preloaded)
       const compressedImage = await compressImage(imageDataUrl, 800);
 
-      // 2. Analysis is instant (local random selection), no need to parallelize
-      const analysis = analyzeImageAndGenerateCopy(compressedImage);
+      // 2. Analysis is instant (local random selection), but still async
+      const analysis = await analyzeImageAndGenerateCopy(compressedImage);
       console.log("Text Analysis Done (Instant)");
 
       // 3. Image generation is the only real async operation
