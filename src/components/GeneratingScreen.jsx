@@ -49,18 +49,10 @@ function GeneratingScreen({ uploadedImage, loadingText, progress = 0 }) {
                         {loadingText || "正在开启时光隧道..."}
                     </p>
 
-                    {/* Minimalist Art Deco Progress Bar */}
-                    <div className="w-48 space-y-3 mx-auto">
-                        <div className="relative w-full h-[1.5px] bg-primary/10 rounded-full overflow-hidden">
-                            <div
-                                className="absolute top-0 left-0 h-full bg-primary transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(184,149,95,0.6)]"
-                                style={{ width: `${progress}%` }}
-                            ></div>
-                        </div>
-                        <div className="flex justify-between items-center text-[7px] tracking-[0.2em] font-serif text-primary/40 uppercase">
-                            <span>TRANSFORMING</span>
-                            <span>{Math.round(progress)}%</span>
-                        </div>
+                    {/* Smooth Percentage Display */}
+                    <div className="flex justify-center items-center space-x-2">
+                        <span className="text-[10px] tracking-[0.2em] font-serif text-primary/60 uppercase">TRANSFORMING</span>
+                        <span className="text-xl font-serif text-primary italic tabular-nums">{Math.round(progress)}%</span>
                     </div>
                 </div>
             </div>
