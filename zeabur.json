@@ -1,0 +1,17 @@
+{
+    "name": "vive",
+    "services": [
+        {
+            "name": "frontend",
+            "buildCommand": "npm run build",
+            "outputDirectory": "dist",
+            "installCommand": "npm install"
+        },
+        {
+            "name": "api",
+            "path": "api",
+            "buildCommand": "npm install",
+            "startCommand": "npm start"
+        }
+    ]
+}
