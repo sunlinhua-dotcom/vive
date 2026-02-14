@@ -15,7 +15,6 @@ function Footer() {
 
             {/* Hidden accessibility text */}
             <p className="sr-only">VIVE x DIGIREPUB Official Partnership 2026</p>
-            <p className="text-[10px] text-[#B8955F]/30 font-serif mt-2 tracking-[0.2em]">v1.2 (Speed+Fix)</p>
         </footer>
     );
 }
