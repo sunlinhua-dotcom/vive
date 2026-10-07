@@ -1,6 +1,7 @@
 
 // 测试 APIYI 的 gemini-3-pro-image-preview 接口
-const API_KEY = '***REMOVED***';
+const API_KEY = process.env.APIYI_API_KEY;
+if (!API_KEY) throw new Error('APIYI_API_KEY is not set');
 const BASE_URL = 'https://api.apiyi.com/v1beta';
 const MODEL = 'gemini-3-pro-image-preview';
 

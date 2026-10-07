@@ -1,7 +1,8 @@
 
 import axios from 'axios';
 
-const API_KEY = '***REMOVED***';
+const API_KEY = process.env.YINLI_API_KEY;
+if (!API_KEY) throw new Error('YINLI_API_KEY is not set');
 const BASE_URL = 'https://yinli.one/v1';
 
 async function testChatCompletion() {
